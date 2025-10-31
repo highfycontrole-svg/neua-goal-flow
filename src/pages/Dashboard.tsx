@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { KPICard } from '@/components/KPICard';
+import { CreateMetaDialog } from '@/components/CreateMetaDialog';
+import { MetasChart } from '@/components/MetasChart';
 import { Target, TrendingUp, Award, Calendar } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -22,30 +26,61 @@ export default function Dashboard() {
     melhorSetor: '-',
   });
   const [loading, setLoading] = useState(true);
+  const [setores, setSetores] = useState<Array<{ id: string; nome: string }>>([]);
+  const [superMetas, setSuperMetas] = useState<Array<{ id: string; nome: string }>>([]);
+  const [chartData, setChartData] = useState<Array<{ setor: string; metas: number; superMetas: number }>>([]);
+  const [filters, setFilters] = useState({
+    ano: new Date().getFullYear(),
+    mes: 0,
+    setor: '',
+  });
 
   useEffect(() => {
     if (user) {
+      loadSetores();
       loadStats();
     }
-  }, [user]);
+  }, [user, filters]);
+
+  const loadSetores = async () => {
+    const { data, error } = await supabase.from('setores').select('id, nome');
+    if (!error && data) {
+      setSetores(data);
+    }
+  };
 
   const loadStats = async () => {
     try {
-      // Buscar super metas
-      const { data: superMetas, error: superMetasError } = await supabase
+      let superMetasQuery = supabase
         .from('super_metas')
         .select('*, setores(nome)')
         .eq('user_id', user?.id);
+      
+      if (filters.ano) superMetasQuery = superMetasQuery.eq('ano', filters.ano);
+      if (filters.mes) superMetasQuery = superMetasQuery.eq('mes', filters.mes);
+      if (filters.setor) superMetasQuery = superMetasQuery.eq('setor_id', filters.setor);
 
+      const { data: superMetas, error: superMetasError } = await superMetasQuery;
       if (superMetasError) throw superMetasError;
 
-      // Buscar metas
-      const { data: metas, error: metasError } = await supabase
+      let metasQuery = supabase
         .from('metas')
         .select('*, setores(nome)')
         .eq('user_id', user?.id);
+      
+      if (filters.ano) metasQuery = metasQuery.eq('ano', filters.ano);
+      if (filters.mes) metasQuery = metasQuery.eq('mes', filters.mes);
+      if (filters.setor) metasQuery = metasQuery.eq('setor_id', filters.setor);
 
+      const { data: metas, error: metasError } = await metasQuery;
       if (metasError) throw metasError;
+
+      const { data: allSuperMetas } = await supabase
+        .from('super_metas')
+        .select('id, nome')
+        .eq('user_id', user?.id);
+      
+      if (allSuperMetas) setSuperMetas(allSuperMetas);
 
       // Calcular estatísticas
       const totalSuperMetas = superMetas?.length || 0;
@@ -89,6 +124,28 @@ export default function Dashboard() {
         percentualConclusao,
         melhorSetor,
       });
+
+      const chartDataMap: { [key: string]: { metas: number; superMetas: number } } = {};
+      setores.forEach(setor => {
+        chartDataMap[setor.nome] = { metas: 0, superMetas: 0 };
+      });
+      
+      metas?.forEach((m: any) => {
+        const setorNome = m.setores?.nome || 'Outros';
+        if (chartDataMap[setorNome]) chartDataMap[setorNome].metas++;
+      });
+      
+      superMetas?.forEach((sm: any) => {
+        const setorNome = sm.setores?.nome || 'Outros';
+        if (chartDataMap[setorNome]) chartDataMap[setorNome].superMetas++;
+      });
+
+      setChartData(
+        Object.entries(chartDataMap).map(([setor, counts]) => ({
+          setor,
+          ...counts,
+        }))
+      );
     } catch (error: any) {
       toast.error('Erro ao carregar estatísticas');
       console.error('Error loading stats:', error);
@@ -148,16 +205,74 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* Welcome Message */}
-        <div className="card-neua p-8 text-center">
-          <h2 className="text-2xl font-display font-bold mb-4">
-            Bem-vindo ao Painel de Metas Neua
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Organize, acompanhe e conquiste suas metas com clareza e eficiência. 
-            Use o menu acima para começar a gerenciar suas super metas e metas.
-          </p>
+        {/* Filtros e Ações */}
+        <div className="card-neua p-6">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <Select
+                value={filters.ano.toString()}
+                onValueChange={(value) => setFilters({ ...filters, ano: parseInt(value) })}
+              >
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[2024, 2025, 2026].map(year => (
+                    <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={filters.mes.toString()}
+                onValueChange={(value) => setFilters({ ...filters, mes: parseInt(value) })}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Todos os meses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">Todos</SelectItem>
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+                    <SelectItem key={m} value={m.toString()}>
+                      {new Date(2000, m - 1).toLocaleString('pt-BR', { month: 'long' })}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={filters.setor}
+                onValueChange={(value) => setFilters({ ...filters, setor: value })}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Todos setores" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Todos</SelectItem>
+                  {setores.map(s => (
+                    <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setFilters({ ano: new Date().getFullYear(), mes: 0, setor: '' })}
+              >
+                Limpar
+              </Button>
+            </div>
+
+            <div className="flex gap-2">
+              <CreateMetaDialog tipo="super_meta" onSuccess={loadStats} setores={setores} />
+              <CreateMetaDialog tipo="meta" onSuccess={loadStats} setores={setores} superMetas={superMetas} />
+            </div>
+          </div>
         </div>
+
+        {/* Gráfico */}
+        <MetasChart data={chartData} />
       </div>
     </DashboardLayout>
   );
