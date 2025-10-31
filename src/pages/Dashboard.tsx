@@ -27,7 +27,7 @@ export default function Dashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [setores, setSetores] = useState<Array<{ id: string; nome: string }>>([]);
-  const [superMetas, setSuperMetas] = useState<Array<{ id: string; nome: string }>>([]);
+  const [metas, setMetas] = useState<Array<{ id: string; nome: string }>>([]);
   const [chartData, setChartData] = useState<Array<{ setor: string; metas: number; superMetas: number }>>([]);
   const [filters, setFilters] = useState({
     ano: new Date().getFullYear(),
@@ -75,12 +75,12 @@ export default function Dashboard() {
       const { data: metas, error: metasError } = await metasQuery;
       if (metasError) throw metasError;
 
-      const { data: allSuperMetas } = await supabase
-        .from('super_metas')
+      const { data: allMetas } = await supabase
+        .from('metas')
         .select('id, nome')
         .eq('user_id', user?.id);
       
-      if (allSuperMetas) setSuperMetas(allSuperMetas);
+      if (allMetas) setMetas(allMetas);
 
       // Calcular estatísticas
       const totalSuperMetas = superMetas?.length || 0;
@@ -265,8 +265,8 @@ export default function Dashboard() {
             </div>
 
             <div className="flex gap-2">
-              <CreateMetaDialog tipo="super_meta" onSuccess={loadStats} setores={setores} />
-              <CreateMetaDialog tipo="meta" onSuccess={loadStats} setores={setores} superMetas={superMetas} />
+              <CreateMetaDialog tipo="meta" onSuccess={loadStats} setores={setores} />
+              <CreateMetaDialog tipo="super_meta" onSuccess={loadStats} setores={setores} metas={metas} />
             </div>
           </div>
         </div>

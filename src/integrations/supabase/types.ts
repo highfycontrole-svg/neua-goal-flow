@@ -24,11 +24,11 @@ export type Database = {
           nome: string
           setor_id: string
           status: boolean
-          super_meta_id: string | null
+          tipo: string | null
           updated_at: string
           user_id: string
-          valor_meta: number
-          valor_realizado: number
+          valor_meta: string
+          valor_realizado: string
         }
         Insert: {
           ano: number
@@ -39,11 +39,11 @@ export type Database = {
           nome: string
           setor_id: string
           status?: boolean
-          super_meta_id?: string | null
+          tipo?: string | null
           updated_at?: string
           user_id: string
-          valor_meta: number
-          valor_realizado?: number
+          valor_meta: string
+          valor_realizado?: string
         }
         Update: {
           ano?: number
@@ -54,11 +54,11 @@ export type Database = {
           nome?: string
           setor_id?: string
           status?: boolean
-          super_meta_id?: string | null
+          tipo?: string | null
           updated_at?: string
           user_id?: string
-          valor_meta?: number
-          valor_realizado?: number
+          valor_meta?: string
+          valor_realizado?: string
         }
         Relationships: [
           {
@@ -66,13 +66,6 @@ export type Database = {
             columns: ["setor_id"]
             isOneToOne: false
             referencedRelation: "setores"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "metas_super_meta_id_fkey"
-            columns: ["super_meta_id"]
-            isOneToOne: false
-            referencedRelation: "super_metas"
             referencedColumns: ["id"]
           },
         ]
@@ -102,14 +95,16 @@ export type Database = {
           descricao: string | null
           id: string
           mes: number
+          meta_id: string | null
           nome: string
           prioridade: string
           setor_id: string
           status: boolean
+          tipo: string | null
           updated_at: string
           user_id: string
-          valor_meta: number
-          valor_realizado: number
+          valor_meta: string
+          valor_realizado: string
         }
         Insert: {
           ano: number
@@ -117,14 +112,16 @@ export type Database = {
           descricao?: string | null
           id?: string
           mes: number
+          meta_id?: string | null
           nome: string
           prioridade?: string
           setor_id: string
           status?: boolean
+          tipo?: string | null
           updated_at?: string
           user_id: string
-          valor_meta: number
-          valor_realizado?: number
+          valor_meta: string
+          valor_realizado?: string
         }
         Update: {
           ano?: number
@@ -132,16 +129,25 @@ export type Database = {
           descricao?: string | null
           id?: string
           mes?: number
+          meta_id?: string | null
           nome?: string
           prioridade?: string
           setor_id?: string
           status?: boolean
+          tipo?: string | null
           updated_at?: string
           user_id?: string
-          valor_meta?: number
-          valor_realizado?: number
+          valor_meta?: string
+          valor_realizado?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "super_metas_meta_id_fkey"
+            columns: ["meta_id"]
+            isOneToOne: false
+            referencedRelation: "metas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "super_metas_setor_id_fkey"
             columns: ["setor_id"]

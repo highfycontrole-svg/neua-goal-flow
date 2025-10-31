@@ -1,13 +1,11 @@
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -15,36 +13,76 @@ const metaSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório').max(100),
   descricao: z.string().max(500).optional(),
   valor_meta: z.string().min(1, 'Valor da meta é obrigatório'),
+  valor_realizado: z.string(),
   tipo: z.enum(['numero', 'texto', 'percentual', 'moeda']),
   mes: z.number().min(1).max(12),
   ano: z.number().min(2020).max(2100),
+  status: z.boolean(),
 });
 
-interface CreateMetaDialogProps {
+interface Meta {
+  id: string;
+  nome: string;
+  descricao?: string;
+  valor_meta: string;
+  valor_realizado: string;
+  tipo: 'numero' | 'texto' | 'percentual' | 'moeda';
+  mes: number;
+  ano: number;
+  setor_id: string;
+  status: boolean;
+  prioridade?: string;
+  meta_id?: string;
+}
+
+interface EditMetaDialogProps {
+  meta: Meta | null;
   tipo: 'meta' | 'super_meta';
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
   setores: Array<{ id: string; nome: string }>;
   metas?: Array<{ id: string; nome: string }>;
 }
 
-export function CreateMetaDialog({ tipo, onSuccess, setores, metas }: CreateMetaDialogProps) {
-  const { user } = useAuth();
-  const [open, setOpen] = useState(false);
+export function EditMetaDialog({ meta, tipo, open, onOpenChange, onSuccess, setores, metas }: EditMetaDialogProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     nome: '',
     descricao: '',
     valor_meta: '',
+    valor_realizado: '',
     tipo: 'numero' as 'numero' | 'texto' | 'percentual' | 'moeda',
     mes: new Date().getMonth() + 1,
     ano: new Date().getFullYear(),
     setor_id: '',
     meta_id: '',
     prioridade: 'Média',
+    status: false,
   });
+
+  useEffect(() => {
+    if (meta) {
+      setFormData({
+        nome: meta.nome,
+        descricao: meta.descricao || '',
+        valor_meta: meta.valor_meta,
+        valor_realizado: meta.valor_realizado,
+        tipo: meta.tipo,
+        mes: meta.mes,
+        ano: meta.ano,
+        setor_id: meta.setor_id,
+        meta_id: meta.meta_id || '',
+        prioridade: meta.prioridade || 'Média',
+        status: meta.status,
+      });
+    }
+  }, [meta]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!meta) return;
+    
     setLoading(true);
 
     try {
@@ -52,17 +90,16 @@ export function CreateMetaDialog({ tipo, onSuccess, setores, metas }: CreateMeta
         nome: formData.nome,
         descricao: formData.descricao || undefined,
         valor_meta: formData.valor_meta,
+        valor_realizado: formData.valor_realizado,
         tipo: formData.tipo,
         mes: formData.mes,
         ano: formData.ano,
+        status: formData.status,
       });
 
       const data: any = {
         ...validated,
-        user_id: user?.id,
         setor_id: formData.setor_id,
-        valor_realizado: '',
-        status: false,
       };
 
       if (tipo === 'super_meta') {
@@ -74,29 +111,19 @@ export function CreateMetaDialog({ tipo, onSuccess, setores, metas }: CreateMeta
 
       const { error } = await supabase
         .from(tipo === 'meta' ? 'metas' : 'super_metas')
-        .insert([data]);
+        .update(data)
+        .eq('id', meta.id);
 
       if (error) throw error;
 
-      toast.success(`${tipo === 'meta' ? 'Meta' : 'Super Meta'} criada com sucesso!`);
-      setOpen(false);
+      toast.success(`${tipo === 'meta' ? 'Meta' : 'Super Meta'} atualizada com sucesso!`);
+      onOpenChange(false);
       onSuccess();
-      setFormData({
-        nome: '',
-        descricao: '',
-        valor_meta: '',
-        tipo: 'numero',
-        mes: new Date().getMonth() + 1,
-        ano: new Date().getFullYear(),
-        setor_id: '',
-        meta_id: '',
-        prioridade: 'Média',
-      });
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
       } else {
-        toast.error('Erro ao criar meta');
+        toast.error('Erro ao atualizar meta');
       }
     } finally {
       setLoading(false);
@@ -104,16 +131,10 @@ export function CreateMetaDialog({ tipo, onSuccess, setores, metas }: CreateMeta
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nova {tipo === 'meta' ? 'Meta' : 'Super Meta'}
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Criar {tipo === 'meta' ? 'Meta' : 'Super Meta'}</DialogTitle>
+          <DialogTitle>Editar {tipo === 'meta' ? 'Meta' : 'Super Meta'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -162,7 +183,18 @@ export function CreateMetaDialog({ tipo, onSuccess, setores, metas }: CreateMeta
               step={formData.tipo === 'moeda' ? '0.01' : '1'}
               value={formData.valor_meta}
               onChange={(e) => setFormData({ ...formData, valor_meta: e.target.value })}
-              placeholder={formData.tipo === 'moeda' ? '1000.00' : formData.tipo === 'percentual' ? '85' : 'Digite o valor'}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="valor_realizado">Valor Realizado *</Label>
+            <Input
+              id="valor_realizado"
+              type={formData.tipo === 'numero' || formData.tipo === 'percentual' || formData.tipo === 'moeda' ? 'number' : 'text'}
+              step={formData.tipo === 'moeda' ? '0.01' : '1'}
+              value={formData.valor_realizado}
+              onChange={(e) => setFormData({ ...formData, valor_realizado: e.target.value })}
               required
             />
           </div>
@@ -259,8 +291,19 @@ export function CreateMetaDialog({ tipo, onSuccess, setores, metas }: CreateMeta
             </div>
           )}
 
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="status"
+              checked={formData.status}
+              onChange={(e) => setFormData({ ...formData, status: e.target.checked })}
+              className="h-4 w-4"
+            />
+            <Label htmlFor="status">Meta concluída</Label>
+          </div>
+
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Criando...' : 'Criar'}
+            {loading ? 'Salvando...' : 'Salvar'}
           </Button>
         </form>
       </DialogContent>
