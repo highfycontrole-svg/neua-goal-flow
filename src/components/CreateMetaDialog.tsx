@@ -198,14 +198,14 @@ export function CreateMetaDialog({ tipo, onSuccess, setores, superMetas }: Creat
             <div className="space-y-2">
               <Label htmlFor="super_meta">Super Meta (opcional)</Label>
               <Select
-                value={formData.super_meta_id}
-                onValueChange={(value) => setFormData({ ...formData, super_meta_id: value })}
+                value={formData.super_meta_id || 'none'}
+                onValueChange={(value) => setFormData({ ...formData, super_meta_id: value === 'none' ? '' : value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione uma super meta" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhuma</SelectItem>
+                  <SelectItem value="none">Nenhuma</SelectItem>
                   {superMetas.map((sm) => (
                     <SelectItem key={sm.id} value={sm.id}>
                       {sm.nome}

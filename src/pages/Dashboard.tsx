@@ -241,14 +241,14 @@ export default function Dashboard() {
               </Select>
 
               <Select
-                value={filters.setor}
-                onValueChange={(value) => setFilters({ ...filters, setor: value })}
+                value={filters.setor || 'all'}
+                onValueChange={(value) => setFilters({ ...filters, setor: value === 'all' ? '' : value })}
               >
                 <SelectTrigger className="w-[140px]">
                   <SelectValue placeholder="Todos setores" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   {setores.map(s => (
                     <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
                   ))}
