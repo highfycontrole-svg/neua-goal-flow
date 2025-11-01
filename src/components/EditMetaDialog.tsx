@@ -107,6 +107,9 @@ export function EditMetaDialog({ meta, tipo, open, onOpenChange, onSuccess, seto
         if (formData.meta_id) {
           data.meta_id = formData.meta_id;
         }
+      } else {
+        // Metas também têm prioridade agora
+        data.prioridade = formData.prioridade;
       }
 
       const { error } = await supabase

@@ -13,16 +13,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
-              <Target className="h-6 w-6 text-primary-foreground" />
+      {/* Glass Morphism Header */}
+      <header className="glass-morphism sticky top-0 z-50">
+        <div className="container mx-auto px-4 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
+              <Target className="h-7 w-7 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-display font-bold">Neua</h1>
-              <p className="text-xs text-muted-foreground">Painel de Metas</p>
+              <h1 className="text-2xl font-display font-bold">Neua</h1>
+              <p className="text-sm text-muted-foreground">
+                Seu Ambiente. <span className="font-bold">Sua Assinatura</span>
+              </p>
             </div>
           </div>
 
@@ -34,7 +36,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               variant="outline"
               size="sm"
               onClick={signOut}
-              className="gap-2"
+              className="gap-2 backdrop-blur-sm"
             >
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline">Sair</span>

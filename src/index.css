@@ -15,102 +15,46 @@
 
 @layer base {
   :root {
-    /* Cores base da Neua */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 0%;
-    
-    /* Cores de superfície */
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
-    
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
-    
-    /* Cor primária - Azul Neua */
+    --background: 217 33% 17%;
+    --foreground: 210 20% 98%;
+    --card: 217 33% 20%;
+    --card-foreground: 210 20% 98%;
+    --popover: 217 33% 20%;
+    --popover-foreground: 210 20% 98%;
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 91% 70%;
-    
-    /* Cores secundárias */
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 0%;
-    
-    /* Muted/subtle */
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    
-    /* Accent */
-    --accent: 217 91% 60%;
-    --accent-foreground: 0 0% 100%;
-    
-    /* Status colors */
-    --success: 142 71% 45%;
-    --success-foreground: 0 0% 100%;
-    
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-    
+    --secondary: 217 20% 30%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 217 20% 25%;
+    --muted-foreground: 217 13% 65%;
+    --accent: 217 20% 30%;
+    --accent-foreground: 210 20% 98%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    
-    /* Borders */
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --border: 217 20% 30%;
+    --input: 217 20% 30%;
     --ring: 217 91% 60%;
+    --radius: 0.75rem;
+    --chart-1: 217 91% 60%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 217 33% 20%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 20% 30%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 217 20% 30%;
+    --sidebar-ring: 217 91% 60%;
     
-    /* Border radius */
-    --radius: 1rem;
-    
-    /* Custom design tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%));
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 98%));
-    --shadow-card: 0 4px 24px -4px hsla(0, 0%, 0%, 0.08);
-    --shadow-elevated: 0 8px 40px -8px hsla(0, 0%, 0%, 0.12);
-    --shadow-glow: 0 0 40px hsla(217, 91%, 60%, 0.2);
+    /* Custom Design Tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(217 91% 70%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.3);
+    --shadow-glow: 0 0 40px hsl(var(--primary) / 0.4);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .dark {
-    --background: 0 0% 3%;
-    --foreground: 0 0% 100%;
-    
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 100%;
-    
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 100%;
-    
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 91% 70%;
-    
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 100%;
-    
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
-    
-    --accent: 217 91% 60%;
-    --accent-foreground: 0 0% 100%;
-    
-    --success: 142 71% 45%;
-    --success-foreground: 0 0% 100%;
-    
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-    
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 217 91% 60%;
-    
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%));
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 3%), hsl(0 0% 5%));
-    --shadow-card: 0 4px 24px -4px hsla(0, 0%, 0%, 0.4);
-    --shadow-elevated: 0 8px 40px -8px hsla(0, 0%, 0%, 0.6);
-    --shadow-glow: 0 0 40px hsla(217, 91%, 60%, 0.3);
   }
 }
 
@@ -126,11 +70,18 @@
 
 @layer components {
   .card-neua {
-    @apply bg-card rounded-[1.25rem] shadow-[var(--shadow-card)] transition-all duration-300;
+    @apply bg-card/80 backdrop-blur-sm border border-border rounded-3xl shadow-lg transition-all duration-300 hover:shadow-xl hover:border-primary/30;
   }
   
   .card-neua-elevated {
-    @apply card-neua hover:shadow-[var(--shadow-elevated)] hover:-translate-y-1;
+    @apply bg-card/90 backdrop-blur-md border border-border/50 rounded-3xl shadow-xl transition-all duration-300 hover:shadow-2xl hover:border-primary/40;
+  }
+
+  .glass-morphism {
+    background: rgba(23, 33, 43, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
   
   .gradient-primary {

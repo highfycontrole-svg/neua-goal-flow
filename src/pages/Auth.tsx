@@ -54,15 +54,17 @@ export default function Auth() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
-        <div className="card-neua p-8">
+        <div className="card-neua-elevated p-8">
           <div className="flex items-center justify-center mb-8">
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-2xl bg-primary flex items-center justify-center">
-                <Target className="h-7 w-7 text-primary-foreground" />
+              <div className="h-14 w-14 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-glow">
+                <Target className="h-8 w-8 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-2xl font-display font-bold">Neua</h1>
-                <p className="text-sm text-muted-foreground">Painel de Metas</p>
+                <h1 className="text-3xl font-display font-bold">Neua</h1>
+                <p className="text-sm text-muted-foreground">
+                  Seu Ambiente. <span className="font-bold">Sua Assinatura</span>
+                </p>
               </div>
             </div>
           </div>
@@ -76,44 +78,46 @@ export default function Auth() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+          <div className="card-neua p-6 mb-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  minLength={6}
+                />
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full"
                 disabled={isLoading}
-              />
-            </div>
+              >
+                {isLoading ? 'Carregando...' : (isLogin ? 'Entrar' : 'Criar conta')}
+              </Button>
+            </form>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-                minLength={6}
-              />
-            </div>
-
-            <Button 
-              type="submit" 
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Carregando...' : (isLogin ? 'Entrar' : 'Criar conta')}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center">
+          <div className="text-center">
             <button
               onClick={() => setIsLogin(!isLogin)}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"

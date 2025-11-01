@@ -22,6 +22,7 @@ export type Database = {
           id: string
           mes: number
           nome: string
+          prioridade: string
           setor_id: string
           status: boolean
           tipo: string | null
@@ -37,6 +38,7 @@ export type Database = {
           id?: string
           mes: number
           nome: string
+          prioridade?: string
           setor_id: string
           status?: boolean
           tipo?: string | null
@@ -52,6 +54,7 @@ export type Database = {
           id?: string
           mes?: number
           nome?: string
+          prioridade?: string
           setor_id?: string
           status?: boolean
           tipo?: string | null

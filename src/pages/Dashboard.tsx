@@ -1,11 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { KPICard } from '@/components/KPICard';
 import { CreateMetaDialog } from '@/components/CreateMetaDialog';
 import { MetasChart } from '@/components/MetasChart';
+import { MetasTable } from '@/components/MetasTable';
+import { ExportButtons } from '@/components/ExportButtons';
 import { Target, TrendingUp, Award, Calendar } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -19,6 +22,7 @@ interface DashboardStats {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const chartRef = useRef<HTMLDivElement>(null);
   const [stats, setStats] = useState<DashboardStats>({
     totalSuperMetas: 0,
     totalMetas: 0,
@@ -27,7 +31,9 @@ export default function Dashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [setores, setSetores] = useState<Array<{ id: string; nome: string }>>([]);
-  const [metas, setMetas] = useState<Array<{ id: string; nome: string }>>([]);
+  const [metas, setMetas] = useState<any[]>([]);
+  const [superMetas, setSuperMetas] = useState<any[]>([]);
+  const [allMetas, setAllMetas] = useState<Array<{ id: string; nome: string }>>([]);
   const [chartData, setChartData] = useState<Array<{ setor: string; metas: number; superMetas: number }>>([]);
   const [filters, setFilters] = useState({
     ano: new Date().getFullYear(),
@@ -75,12 +81,15 @@ export default function Dashboard() {
       const { data: metas, error: metasError } = await metasQuery;
       if (metasError) throw metasError;
 
-      const { data: allMetas } = await supabase
+      setMetas(metas || []);
+      setSuperMetas(superMetas || []);
+
+      const { data: allMetasData } = await supabase
         .from('metas')
         .select('id, nome')
         .eq('user_id', user?.id);
       
-      if (allMetas) setMetas(allMetas);
+      if (allMetasData) setAllMetas(allMetasData);
 
       // Calcular estatísticas
       const totalSuperMetas = superMetas?.length || 0;
@@ -265,14 +274,56 @@ export default function Dashboard() {
             </div>
 
             <div className="flex gap-2">
+              <ExportButtons metas={metas} superMetas={superMetas} chartRef={chartRef} />
               <CreateMetaDialog tipo="meta" onSuccess={loadStats} setores={setores} />
-              <CreateMetaDialog tipo="super_meta" onSuccess={loadStats} setores={setores} metas={metas} />
+              <CreateMetaDialog tipo="super_meta" onSuccess={loadStats} setores={setores} metas={allMetas} />
             </div>
           </div>
         </div>
 
         {/* Gráfico */}
-        <MetasChart data={chartData} />
+        <div ref={chartRef}>
+          <MetasChart data={chartData} />
+        </div>
+
+        {/* Tabelas */}
+        <Tabs defaultValue="geral" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="geral">Geral</TabsTrigger>
+            <TabsTrigger value="por-setor">Por Setor</TabsTrigger>
+            <TabsTrigger value="resumo">Resumo</TabsTrigger>
+          </TabsList>
+          <TabsContent value="geral" className="mt-6">
+            <MetasTable 
+              metas={metas} 
+              superMetas={superMetas} 
+              setores={setores}
+              allMetas={allMetas}
+              onUpdate={loadStats}
+              viewType="geral"
+            />
+          </TabsContent>
+          <TabsContent value="por-setor" className="mt-6">
+            <MetasTable 
+              metas={metas} 
+              superMetas={superMetas} 
+              setores={setores}
+              allMetas={allMetas}
+              onUpdate={loadStats}
+              viewType="por-setor"
+            />
+          </TabsContent>
+          <TabsContent value="resumo" className="mt-6">
+            <MetasTable 
+              metas={metas} 
+              superMetas={superMetas} 
+              setores={setores}
+              allMetas={allMetas}
+              onUpdate={loadStats}
+              viewType="resumo"
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );

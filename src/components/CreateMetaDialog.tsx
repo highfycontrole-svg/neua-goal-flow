@@ -70,6 +70,9 @@ export function CreateMetaDialog({ tipo, onSuccess, setores, metas }: CreateMeta
         if (formData.meta_id) {
           data.meta_id = formData.meta_id;
         }
+      } else {
+        // Metas também têm prioridade agora
+        data.prioridade = formData.prioridade;
       }
 
       const { error } = await supabase
@@ -240,24 +243,22 @@ export function CreateMetaDialog({ tipo, onSuccess, setores, metas }: CreateMeta
             </div>
           )}
 
-          {tipo === 'super_meta' && (
-            <div className="space-y-2">
-              <Label htmlFor="prioridade">Prioridade</Label>
-              <Select
-                value={formData.prioridade}
-                onValueChange={(value) => setFormData({ ...formData, prioridade: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Alta">Alta</SelectItem>
-                  <SelectItem value="Média">Média</SelectItem>
-                  <SelectItem value="Baixa">Baixa</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="prioridade">Prioridade</Label>
+            <Select
+              value={formData.prioridade}
+              onValueChange={(value) => setFormData({ ...formData, prioridade: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Alta">Alta</SelectItem>
+                <SelectItem value="Média">Média</SelectItem>
+                <SelectItem value="Baixa">Baixa</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Criando...' : 'Criar'}
