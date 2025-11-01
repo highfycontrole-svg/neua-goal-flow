@@ -5,8 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { Target, TrendingUp } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 import { z } from 'zod';
+import logo from '@/assets/logo.png';
 
 const authSchema = z.object({
   email: z.string().email({ message: 'Email inválido' }),
@@ -57,9 +58,7 @@ export default function Auth() {
         <div className="card-neua-elevated p-8">
           <div className="flex items-center justify-center mb-8">
             <div className="flex items-center gap-3">
-              <div className="h-14 w-14 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-glow">
-                <Target className="h-8 w-8 text-primary-foreground" />
-              </div>
+              <img src={logo} alt="Neua Logo" className="h-14 w-auto" />
               <div>
                 <h1 className="text-3xl font-display font-bold">Neua</h1>
                 <p className="text-sm text-muted-foreground">

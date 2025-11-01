@@ -2,7 +2,8 @@ import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogOut, Target } from 'lucide-react';
+import { LogOut } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -15,11 +16,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="min-h-screen bg-background">
       {/* Glass Morphism Header */}
       <header className="glass-morphism sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-20 flex items-center justify-between">
+        <div className="container mx-auto px-4 h-20 flex items-center justify-center relative">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
-              <Target className="h-7 w-7 text-primary-foreground" />
-            </div>
+            <img src={logo} alt="Neua Logo" className="h-12 w-auto" />
             <div>
               <h1 className="text-2xl font-display font-bold">Neua</h1>
               <p className="text-sm text-muted-foreground">
@@ -28,10 +27,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium">{user?.email}</p>
-            </div>
+          <div className="absolute right-4">
             <Button
               variant="outline"
               size="sm"
