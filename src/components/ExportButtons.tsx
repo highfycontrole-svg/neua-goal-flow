@@ -9,27 +9,60 @@ import html2canvas from 'html2canvas';
 interface ExportButtonsProps {
   metas: any[];
   superMetas: any[];
-  chartRef?: React.RefObject<HTMLDivElement>;
+  dashboardRef?: React.RefObject<HTMLDivElement>;
 }
 
-export function ExportButtons({ metas, superMetas, chartRef }: ExportButtonsProps) {
-  const exportToPDF = () => {
+export function ExportButtons({ metas, superMetas, dashboardRef }: ExportButtonsProps) {
+  const exportToPDF = async () => {
     try {
-      const doc = new jsPDF();
+      const doc = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = doc.internal.pageSize.getWidth();
       
-      doc.setFontSize(18);
-      doc.text('Relatório de Metas', 14, 20);
+      // Adicionar logo
+      try {
+        const logoImg = document.createElement('img');
+        logoImg.src = '/src/assets/logo.png';
+        await new Promise((resolve, reject) => {
+          logoImg.onload = resolve;
+          logoImg.onerror = reject;
+          setTimeout(reject, 2000);
+        });
+        doc.addImage(logoImg, 'PNG', 14, 10, 20, 20);
+      } catch (e) {
+        console.log('Logo não carregada');
+      }
       
-      doc.setFontSize(11);
-      doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 14, 30);
+      // Cabeçalho
+      doc.setFontSize(20);
+      doc.setTextColor(55, 96, 216);
+      doc.text('Painel de Metas - Neua', 40, 20);
+      
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`, 40, 27);
+
+      // Estatísticas resumidas
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Resumo Geral', 14, 40);
+      
+      const totalMetas = metas.length + superMetas.length;
+      const totalConcluidas = metas.filter(m => m.status).length + superMetas.filter(m => m.status).length;
+      const percentual = totalMetas > 0 ? Math.round((totalConcluidas / totalMetas) * 100) : 0;
+      
+      doc.setFontSize(10);
+      doc.text(`Total de Metas: ${metas.length}`, 14, 47);
+      doc.text(`Total de Super Metas: ${superMetas.length}`, 14, 52);
+      doc.text(`Conclusão Geral: ${percentual}%`, 14, 57);
 
       // Tabela de Metas
       if (metas.length > 0) {
         doc.setFontSize(14);
-        doc.text('Metas', 14, 45);
+        doc.setTextColor(55, 96, 216);
+        doc.text('Metas', 14, 67);
         
         autoTable(doc, {
-          startY: 50,
+          startY: 72,
           head: [['Nome', 'Setor', 'Tipo', 'Meta', 'Realizado', 'Status', 'Prioridade']],
           body: metas.map(m => [
             m.nome,
@@ -40,32 +73,63 @@ export function ExportButtons({ metas, superMetas, chartRef }: ExportButtonsProp
             m.status ? 'Concluída' : 'Pendente',
             m.prioridade
           ]),
-          theme: 'grid',
-          headStyles: { fillColor: [55, 96, 216] }
+          theme: 'striped',
+          headStyles: { fillColor: [55, 96, 216], textColor: [255, 255, 255], fontSize: 10 },
+          bodyStyles: { fontSize: 9 },
+          alternateRowStyles: { fillColor: [245, 245, 245] },
         });
       }
 
       // Tabela de Super Metas
       if (superMetas.length > 0) {
-        const finalY = (doc as any).lastAutoTable?.finalY || 60;
-        doc.setFontSize(14);
-        doc.text('Super Metas', 14, finalY + 15);
+        const finalY = (doc as any).lastAutoTable?.finalY || 80;
         
-        autoTable(doc, {
-          startY: finalY + 20,
-          head: [['Nome', 'Setor', 'Tipo', 'Meta', 'Realizado', 'Status', 'Prioridade']],
-          body: superMetas.map(sm => [
-            sm.nome,
-            sm.setores?.nome || '-',
-            sm.tipo,
-            sm.valor_meta,
-            sm.valor_realizado || '-',
-            sm.status ? 'Concluída' : 'Pendente',
-            sm.prioridade
-          ]),
-          theme: 'grid',
-          headStyles: { fillColor: [55, 96, 216] }
-        });
+        if (finalY > 250) {
+          doc.addPage();
+          doc.setFontSize(14);
+          doc.setTextColor(55, 96, 216);
+          doc.text('Super Metas', 14, 20);
+          
+          autoTable(doc, {
+            startY: 25,
+            head: [['Nome', 'Setor', 'Tipo', 'Meta', 'Realizado', 'Status', 'Prioridade']],
+            body: superMetas.map(sm => [
+              sm.nome,
+              sm.setores?.nome || '-',
+              sm.tipo,
+              sm.valor_meta,
+              sm.valor_realizado || '-',
+              sm.status ? 'Concluída' : 'Pendente',
+              sm.prioridade
+            ]),
+            theme: 'striped',
+            headStyles: { fillColor: [55, 96, 216], textColor: [255, 255, 255], fontSize: 10 },
+            bodyStyles: { fontSize: 9 },
+            alternateRowStyles: { fillColor: [245, 245, 245] },
+          });
+        } else {
+          doc.setFontSize(14);
+          doc.setTextColor(55, 96, 216);
+          doc.text('Super Metas', 14, finalY + 15);
+          
+          autoTable(doc, {
+            startY: finalY + 20,
+            head: [['Nome', 'Setor', 'Tipo', 'Meta', 'Realizado', 'Status', 'Prioridade']],
+            body: superMetas.map(sm => [
+              sm.nome,
+              sm.setores?.nome || '-',
+              sm.tipo,
+              sm.valor_meta,
+              sm.valor_realizado || '-',
+              sm.status ? 'Concluída' : 'Pendente',
+              sm.prioridade
+            ]),
+            theme: 'striped',
+            headStyles: { fillColor: [55, 96, 216], textColor: [255, 255, 255], fontSize: 10 },
+            bodyStyles: { fontSize: 9 },
+            alternateRowStyles: { fillColor: [245, 245, 245] },
+          });
+        }
       }
 
       doc.save(`relatorio-metas-${new Date().toISOString().split('T')[0]}.pdf`);
@@ -120,27 +184,31 @@ export function ExportButtons({ metas, superMetas, chartRef }: ExportButtonsProp
     }
   };
 
-  const exportChartAsPNG = async () => {
-    if (!chartRef?.current) {
-      toast.error('Gráfico não encontrado');
+  const exportDashboardAsPNG = async () => {
+    if (!dashboardRef?.current) {
+      toast.error('Dashboard não encontrado');
       return;
     }
 
     try {
-      const canvas = await html2canvas(chartRef.current, {
-        backgroundColor: '#17212b',
-        scale: 2
+      toast.info('Gerando imagem do painel...');
+      
+      const canvas = await html2canvas(dashboardRef.current, {
+        backgroundColor: '#161616',
+        scale: 2,
+        logging: false,
+        useCORS: true,
       });
       
       const link = document.createElement('a');
-      link.download = `grafico-metas-${new Date().toISOString().split('T')[0]}.png`;
-      link.href = canvas.toDataURL();
+      link.download = `painel-metas-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = canvas.toDataURL('image/png');
       link.click();
       
-      toast.success('Gráfico exportado como PNG');
+      toast.success('Painel exportado como PNG');
     } catch (error) {
-      console.error('Erro ao exportar gráfico:', error);
-      toast.error('Erro ao exportar gráfico');
+      console.error('Erro ao exportar painel:', error);
+      toast.error('Erro ao exportar painel');
     }
   };
 
@@ -164,11 +232,11 @@ export function ExportButtons({ metas, superMetas, chartRef }: ExportButtonsProp
         <FileSpreadsheet className="h-4 w-4" />
         Excel
       </Button>
-      {chartRef && (
+      {dashboardRef && (
         <Button
           variant="outline"
           size="sm"
-          onClick={exportChartAsPNG}
+          onClick={exportDashboardAsPNG}
           className="gap-2"
         >
           <Image className="h-4 w-4" />

@@ -3,6 +3,7 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { KPICard } from '@/components/KPICard';
 import { CreateMetaDialog } from '@/components/CreateMetaDialog';
 import { MetasChart } from '@/components/MetasChart';
+import { DonutChart } from '@/components/DonutChart';
 import { MetasTable } from '@/components/MetasTable';
 import { ExportButtons } from '@/components/ExportButtons';
 import { Target, TrendingUp, Award, Calendar } from 'lucide-react';
@@ -22,7 +23,7 @@ export default function Dashboard() {
   const {
     user
   } = useAuth();
-  const chartRef = useRef<HTMLDivElement>(null);
+  const dashboardRef = useRef<HTMLDivElement>(null);
   const [stats, setStats] = useState<DashboardStats>({
     totalSuperMetas: 0,
     totalMetas: 0,
@@ -44,6 +45,11 @@ export default function Dashboard() {
     setor: string;
     metas: number;
     superMetas: number;
+  }>>([]);
+  const [donutData, setDonutData] = useState<Array<{
+    setor: string;
+    total: number;
+    concluidas: number;
   }>>([]);
   const [filters, setFilters] = useState({
     ano: new Date().getFullYear(),
@@ -163,6 +169,36 @@ export default function Dashboard() {
         setor,
         ...counts
       })));
+
+      // Preparar dados para o donut chart
+      const donutDataMap: {
+        [key: string]: {
+          total: number;
+          concluidas: number;
+        };
+      } = {};
+      
+      setores.forEach(setor => {
+        donutDataMap[setor.nome] = {
+          total: 0,
+          concluidas: 0,
+        };
+      });
+      
+      [...(metas || []), ...(superMetas || [])].forEach((item: any) => {
+        const setorNome = item.setores?.nome || 'Outros';
+        if (donutDataMap[setorNome]) {
+          donutDataMap[setorNome].total++;
+          if (item.status) {
+            donutDataMap[setorNome].concluidas++;
+          }
+        }
+      });
+      
+      setDonutData(Object.entries(donutDataMap).map(([setor, counts]) => ({
+        setor,
+        ...counts
+      })));
     } catch (error: any) {
       toast.error('Erro ao carregar estatísticas');
       console.error('Error loading stats:', error);
@@ -178,11 +214,11 @@ export default function Dashboard() {
       </DashboardLayout>;
   }
   return <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-8" ref={dashboardRef}>
         {/* Page Header */}
         <div>
           <h1 className="text-4xl font-display font-bold mb-2">Painel de Metas - Loja Neua</h1>
-          <p className="text-muted-foreground">Acompanhe o progresso das suas metas e super metas. 
+          <p className="text-muted-foreground">Acompanhe o progresso das suas metas e super metas. 
 
 "Nós não vamos colocar uma meta. Nós vamos deixar uma meta aberta. Quando a gente atingir a meta, nós dobramos a meta".</p>
         </div>
@@ -253,17 +289,23 @@ export default function Dashboard() {
             </div>
 
             <div className="flex gap-2">
-              <ExportButtons metas={metas} superMetas={superMetas} chartRef={chartRef} />
+              <ExportButtons metas={metas} superMetas={superMetas} dashboardRef={dashboardRef} />
               <CreateMetaDialog tipo="meta" onSuccess={loadStats} setores={setores} />
               <CreateMetaDialog tipo="super_meta" onSuccess={loadStats} setores={setores} metas={allMetas} />
             </div>
           </div>
         </div>
 
-        {/* Gráfico */}
-        <div ref={chartRef}>
-          <MetasChart data={chartData} />
-        </div>
+        {/* Gráficos de Pizza */}
+        <DonutChart 
+          data={donutData} 
+          onSectorClick={(setor) => {
+            const setorObj = setores.find(s => s.nome === setor);
+            if (setorObj) {
+              setFilters({ ...filters, setor: setorObj.id });
+            }
+          }} 
+        />
 
         {/* Tabelas */}
         <Tabs defaultValue="geral" className="w-full">
@@ -282,6 +324,9 @@ export default function Dashboard() {
             <MetasTable metas={metas} superMetas={superMetas} setores={setores} allMetas={allMetas} onUpdate={loadStats} viewType="resumo" />
           </TabsContent>
         </Tabs>
+
+        {/* Gráfico de Barras - Movido para o final */}
+        <MetasChart data={chartData} />
       </div>
     </DashboardLayout>;
 }
