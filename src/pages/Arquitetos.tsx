@@ -6,15 +6,12 @@ import { DesempenhoFinanceiro } from '@/components/arquitetos/DesempenhoFinancei
 import { LogisticaConteudo } from '@/components/arquitetos/LogisticaConteudo';
 import { HistoricoInteracoes } from '@/components/arquitetos/HistoricoInteracoes';
 import { ArquitetosKPIs } from '@/components/arquitetos/ArquitetosKPIs';
-
 export default function Arquitetos() {
   const [selectedArquiteto, setSelectedArquiteto] = useState<string | null>(null);
-
-  return (
-    <DashboardLayout>
+  return <DashboardLayout>
       <div className="space-y-8">
         <div>
-          <h1 className="text-4xl font-display font-bold mb-2">Arquitetos de Conteúdo</h1>
+          <h1 className="text-4xl font-display font-bold mb-2">Neua Creators Club                    </h1>
           <p className="text-muted-foreground">
             Gerencie seus criadores de conteúdo, acompanhe desempenho e controle obrigações.
           </p>
@@ -47,6 +44,5 @@ export default function Arquitetos() {
           </TabsContent>
         </Tabs>
       </div>
-    </DashboardLayout>
-  );
+    </DashboardLayout>;
 }

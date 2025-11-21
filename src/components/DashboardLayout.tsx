@@ -11,7 +11,10 @@ interface DashboardLayoutProps {
 export function DashboardLayout({
   children
 }: DashboardLayoutProps) {
-  const { signOut, user } = useAuth();
+  const {
+    signOut,
+    user
+  } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   return <div className="min-h-screen bg-background">
@@ -29,23 +32,13 @@ export function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-3 absolute right-4">
-            <Button 
-              variant={location.pathname === '/dashboard' ? 'default' : 'outline'} 
-              size="sm" 
-              onClick={() => navigate('/dashboard')}
-              className="gap-2"
-            >
+            <Button variant={location.pathname === '/dashboard' ? 'default' : 'outline'} size="sm" onClick={() => navigate('/dashboard')} className="gap-2">
               <Target className="h-4 w-4" />
               <span className="hidden sm:inline">Metas</span>
             </Button>
-            <Button 
-              variant={location.pathname === '/arquitetos' ? 'default' : 'outline'} 
-              size="sm" 
-              onClick={() => navigate('/arquitetos')}
-              className="gap-2"
-            >
+            <Button variant={location.pathname === '/arquitetos' ? 'default' : 'outline'} size="sm" onClick={() => navigate('/arquitetos')} className="gap-2">
               <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Arquitetos</span>
+              <span className="hidden sm:inline font-bold">Creators</span>
             </Button>
             <Button variant="outline" size="sm" onClick={signOut} className="gap-2 backdrop-blur-sm">
               <LogOut className="h-4 w-4" />
