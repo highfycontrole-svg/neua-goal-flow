@@ -14,6 +14,291 @@ export type Database = {
   }
   public: {
     Tables: {
+      arquitetos: {
+        Row: {
+          arroba_principal: string | null
+          classificacao_tier:
+            | Database["public"]["Enums"]["tier_classificacao"]
+            | null
+          condicao_obrigacao_conteudo: string | null
+          created_at: string | null
+          cupom_exclusivo: string | null
+          data_entrada_club: string | null
+          data_envio_boas_vindas: string | null
+          email_contato: string | null
+          endereco_completo: string | null
+          id: string
+          link_contrato_assinado: string | null
+          links_redes_sociais: Json | null
+          nome_completo: string
+          notas_internas: string | null
+          produto_boas_vindas_enviado: string | null
+          seguidores_entrada: number | null
+          status_arquiteto:
+            | Database["public"]["Enums"]["status_arquiteto"]
+            | null
+          telefone_contato: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          arroba_principal?: string | null
+          classificacao_tier?:
+            | Database["public"]["Enums"]["tier_classificacao"]
+            | null
+          condicao_obrigacao_conteudo?: string | null
+          created_at?: string | null
+          cupom_exclusivo?: string | null
+          data_entrada_club?: string | null
+          data_envio_boas_vindas?: string | null
+          email_contato?: string | null
+          endereco_completo?: string | null
+          id?: string
+          link_contrato_assinado?: string | null
+          links_redes_sociais?: Json | null
+          nome_completo: string
+          notas_internas?: string | null
+          produto_boas_vindas_enviado?: string | null
+          seguidores_entrada?: number | null
+          status_arquiteto?:
+            | Database["public"]["Enums"]["status_arquiteto"]
+            | null
+          telefone_contato?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          arroba_principal?: string | null
+          classificacao_tier?:
+            | Database["public"]["Enums"]["tier_classificacao"]
+            | null
+          condicao_obrigacao_conteudo?: string | null
+          created_at?: string | null
+          cupom_exclusivo?: string | null
+          data_entrada_club?: string | null
+          data_envio_boas_vindas?: string | null
+          email_contato?: string | null
+          endereco_completo?: string | null
+          id?: string
+          link_contrato_assinado?: string | null
+          links_redes_sociais?: Json | null
+          nome_completo?: string
+          notas_internas?: string | null
+          produto_boas_vindas_enviado?: string | null
+          seguidores_entrada?: number | null
+          status_arquiteto?:
+            | Database["public"]["Enums"]["status_arquiteto"]
+            | null
+          telefone_contato?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      desempenho_financeiro: {
+        Row: {
+          arquiteto_id: string
+          comissao_base: number | null
+          comissao_escalavel: number | null
+          comissao_total_a_pagar: number | null
+          created_at: string | null
+          data_pagamento: string | null
+          historico_classificacao_tier: Json | null
+          id: string
+          mes_referencia: string
+          status_pagamento:
+            | Database["public"]["Enums"]["status_pagamento"]
+            | null
+          taxa_conversao_cupom: number | null
+          ticket_medio: number | null
+          updated_at: string | null
+          user_id: string
+          valor_total_vendido: number | null
+          vendas_pedidos: number | null
+        }
+        Insert: {
+          arquiteto_id: string
+          comissao_base?: number | null
+          comissao_escalavel?: number | null
+          comissao_total_a_pagar?: number | null
+          created_at?: string | null
+          data_pagamento?: string | null
+          historico_classificacao_tier?: Json | null
+          id?: string
+          mes_referencia: string
+          status_pagamento?:
+            | Database["public"]["Enums"]["status_pagamento"]
+            | null
+          taxa_conversao_cupom?: number | null
+          ticket_medio?: number | null
+          updated_at?: string | null
+          user_id: string
+          valor_total_vendido?: number | null
+          vendas_pedidos?: number | null
+        }
+        Update: {
+          arquiteto_id?: string
+          comissao_base?: number | null
+          comissao_escalavel?: number | null
+          comissao_total_a_pagar?: number | null
+          created_at?: string | null
+          data_pagamento?: string | null
+          historico_classificacao_tier?: Json | null
+          id?: string
+          mes_referencia?: string
+          status_pagamento?:
+            | Database["public"]["Enums"]["status_pagamento"]
+            | null
+          taxa_conversao_cupom?: number | null
+          ticket_medio?: number | null
+          updated_at?: string | null
+          user_id?: string
+          valor_total_vendido?: number | null
+          vendas_pedidos?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "desempenho_financeiro_arquiteto_id_fkey"
+            columns: ["arquiteto_id"]
+            isOneToOne: false
+            referencedRelation: "arquitetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      interacoes: {
+        Row: {
+          arquiteto_id: string
+          assunto_motivo: string | null
+          created_at: string | null
+          data_interacao: string | null
+          id: string
+          proxima_acao_follow_up: string | null
+          responsavel_interacao: string | null
+          resumo_interacao: string | null
+          tipo_interacao: Database["public"]["Enums"]["tipo_interacao"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          arquiteto_id: string
+          assunto_motivo?: string | null
+          created_at?: string | null
+          data_interacao?: string | null
+          id?: string
+          proxima_acao_follow_up?: string | null
+          responsavel_interacao?: string | null
+          resumo_interacao?: string | null
+          tipo_interacao: Database["public"]["Enums"]["tipo_interacao"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          arquiteto_id?: string
+          assunto_motivo?: string | null
+          created_at?: string | null
+          data_interacao?: string | null
+          id?: string
+          proxima_acao_follow_up?: string | null
+          responsavel_interacao?: string | null
+          resumo_interacao?: string | null
+          tipo_interacao?: Database["public"]["Enums"]["tipo_interacao"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interacoes_arquiteto_id_fkey"
+            columns: ["arquiteto_id"]
+            isOneToOne: false
+            referencedRelation: "arquitetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      logistica_conteudo: {
+        Row: {
+          arquiteto_id: string
+          codigo_rastreio: string | null
+          confirmacao_recebimento: boolean | null
+          created_at: string | null
+          cupom_mencionado_conteudo: boolean | null
+          data_envio_efetiva: string | null
+          data_ultimo_envio_produto: string | null
+          id: string
+          link_reel: string | null
+          links_stories: string | null
+          mes_referencia: string
+          obrigacao_conteudo_mensal: string | null
+          observacoes_conteudo: string | null
+          produtos_enviados_sku: string | null
+          proxima_data_envio_programada: string | null
+          qualidade_conteudo_avaliacao: number | null
+          status_envio: Database["public"]["Enums"]["status_envio"] | null
+          status_reel: Database["public"]["Enums"]["status_conteudo"] | null
+          status_stories: Database["public"]["Enums"]["status_conteudo"] | null
+          tipo_envio: Database["public"]["Enums"]["tipo_envio"] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          arquiteto_id: string
+          codigo_rastreio?: string | null
+          confirmacao_recebimento?: boolean | null
+          created_at?: string | null
+          cupom_mencionado_conteudo?: boolean | null
+          data_envio_efetiva?: string | null
+          data_ultimo_envio_produto?: string | null
+          id?: string
+          link_reel?: string | null
+          links_stories?: string | null
+          mes_referencia: string
+          obrigacao_conteudo_mensal?: string | null
+          observacoes_conteudo?: string | null
+          produtos_enviados_sku?: string | null
+          proxima_data_envio_programada?: string | null
+          qualidade_conteudo_avaliacao?: number | null
+          status_envio?: Database["public"]["Enums"]["status_envio"] | null
+          status_reel?: Database["public"]["Enums"]["status_conteudo"] | null
+          status_stories?: Database["public"]["Enums"]["status_conteudo"] | null
+          tipo_envio?: Database["public"]["Enums"]["tipo_envio"] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          arquiteto_id?: string
+          codigo_rastreio?: string | null
+          confirmacao_recebimento?: boolean | null
+          created_at?: string | null
+          cupom_mencionado_conteudo?: boolean | null
+          data_envio_efetiva?: string | null
+          data_ultimo_envio_produto?: string | null
+          id?: string
+          link_reel?: string | null
+          links_stories?: string | null
+          mes_referencia?: string
+          obrigacao_conteudo_mensal?: string | null
+          observacoes_conteudo?: string | null
+          produtos_enviados_sku?: string | null
+          proxima_data_envio_programada?: string | null
+          qualidade_conteudo_avaliacao?: number | null
+          status_envio?: Database["public"]["Enums"]["status_envio"] | null
+          status_reel?: Database["public"]["Enums"]["status_conteudo"] | null
+          status_stories?: Database["public"]["Enums"]["status_conteudo"] | null
+          tipo_envio?: Database["public"]["Enums"]["tipo_envio"] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logistica_conteudo_arquiteto_id_fkey"
+            columns: ["arquiteto_id"]
+            isOneToOne: false
+            referencedRelation: "arquitetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       metas: {
         Row: {
           ano: number
@@ -168,7 +453,17 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      status_arquiteto: "Ativo" | "Em Análise" | "Pausado" | "Desligado"
+      status_conteudo: "Entregue" | "Pendente" | "Atrasado" | "Não Aplicável"
+      status_envio: "Enviado" | "Em Trânsito" | "Entregue" | "Problema"
+      status_pagamento: "Pendente" | "Pago" | "Em Revisão"
+      tier_classificacao: "Bronze" | "Prata" | "Ouro" | "Platina"
+      tipo_envio:
+        | "Kit Trimestral"
+        | "Lançamento"
+        | "Evento Especial"
+        | "Boas-Vindas"
+      tipo_interacao: "E-mail" | "Ligação" | "WhatsApp" | "Reunião" | "Feedback"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -295,6 +590,19 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      status_arquiteto: ["Ativo", "Em Análise", "Pausado", "Desligado"],
+      status_conteudo: ["Entregue", "Pendente", "Atrasado", "Não Aplicável"],
+      status_envio: ["Enviado", "Em Trânsito", "Entregue", "Problema"],
+      status_pagamento: ["Pendente", "Pago", "Em Revisão"],
+      tier_classificacao: ["Bronze", "Prata", "Ouro", "Platina"],
+      tipo_envio: [
+        "Kit Trimestral",
+        "Lançamento",
+        "Evento Especial",
+        "Boas-Vindas",
+      ],
+      tipo_interacao: ["E-mail", "Ligação", "WhatsApp", "Reunião", "Feedback"],
+    },
   },
 } as const

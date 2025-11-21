@@ -2,7 +2,8 @@ import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { LogOut, Target, Users } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '@/assets/logo.png';
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -10,10 +11,9 @@ interface DashboardLayoutProps {
 export function DashboardLayout({
   children
 }: DashboardLayoutProps) {
-  const {
-    signOut,
-    user
-  } = useAuth();
+  const { signOut, user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   return <div className="min-h-screen bg-background">
       {/* Glass Morphism Header */}
       <header className="glass-morphism sticky top-0 z-50">
@@ -28,7 +28,25 @@ export function DashboardLayout({
             </div>
           </div>
 
-          <div className="absolute right-4">
+          <div className="flex items-center gap-3 absolute right-4">
+            <Button 
+              variant={location.pathname === '/dashboard' ? 'default' : 'outline'} 
+              size="sm" 
+              onClick={() => navigate('/dashboard')}
+              className="gap-2"
+            >
+              <Target className="h-4 w-4" />
+              <span className="hidden sm:inline">Metas</span>
+            </Button>
+            <Button 
+              variant={location.pathname === '/arquitetos' ? 'default' : 'outline'} 
+              size="sm" 
+              onClick={() => navigate('/arquitetos')}
+              className="gap-2"
+            >
+              <Users className="h-4 w-4" />
+              <span className="hidden sm:inline">Arquitetos</span>
+            </Button>
             <Button variant="outline" size="sm" onClick={signOut} className="gap-2 backdrop-blur-sm">
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline">Sair</span>
