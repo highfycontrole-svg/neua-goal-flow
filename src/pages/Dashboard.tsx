@@ -177,14 +177,12 @@ export default function Dashboard() {
           concluidas: number;
         };
       } = {};
-      
       setores.forEach(setor => {
         donutDataMap[setor.nome] = {
           total: 0,
-          concluidas: 0,
+          concluidas: 0
         };
       });
-      
       [...(metas || []), ...(superMetas || [])].forEach((item: any) => {
         const setorNome = item.setores?.nome || 'Outros';
         if (donutDataMap[setorNome]) {
@@ -194,7 +192,6 @@ export default function Dashboard() {
           }
         }
       });
-      
       setDonutData(Object.entries(donutDataMap).map(([setor, counts]) => ({
         setor,
         ...counts
@@ -218,9 +215,7 @@ export default function Dashboard() {
         {/* Page Header */}
         <div>
           <h1 className="text-4xl font-display font-bold mb-2">Painel de Metas - Loja Neua</h1>
-          <p className="text-muted-foreground">Acompanhe o progresso das suas metas e super metas. 
-
-"Nós não vamos colocar uma meta. Nós vamos deixar uma meta aberta. Quando a gente atingir a meta, nós dobramos a meta".</p>
+          <p className="text-muted-foreground">Acompanhe o progresso das suas metas e super metas da Neua. </p>
         </div>
 
         {/* KPI Cards Grid */}
@@ -297,15 +292,15 @@ export default function Dashboard() {
         </div>
 
         {/* Gráficos de Pizza */}
-        <DonutChart 
-          data={donutData} 
-          onSectorClick={(setor) => {
-            const setorObj = setores.find(s => s.nome === setor);
-            if (setorObj) {
-              setFilters({ ...filters, setor: setorObj.id });
-            }
-          }} 
-        />
+        <DonutChart data={donutData} onSectorClick={setor => {
+        const setorObj = setores.find(s => s.nome === setor);
+        if (setorObj) {
+          setFilters({
+            ...filters,
+            setor: setorObj.id
+          });
+        }
+      }} />
 
         {/* Tabelas */}
         <Tabs defaultValue="geral" className="w-full">
