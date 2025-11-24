@@ -96,28 +96,30 @@ export function LogisticaConteudo({ selectedArquitetoId }: LogisticaConteudoProp
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-display font-bold">Logística & Conteúdo</h2>
-        <div className="flex gap-3">
-          <Select value={filterArquiteto} onValueChange={setFilterArquiteto}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filtrar por creator" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              {arquitetos.map((arq) => (
-                <SelectItem key={arq.id} value={arq.id}>
-                  {arq.nome_completo}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <CreateLogisticaDialog arquitetos={arquitetos} onSuccess={loadLogisticas} />
+      {/* Obrigações de Conteúdo */}
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-display font-semibold">Obrigações de Conteúdo</h3>
+          <div className="flex gap-3">
+            <Select value={filterArquiteto} onValueChange={setFilterArquiteto}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Filtrar por creator" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {arquitetos.map((arq) => (
+                  <SelectItem key={arq.id} value={arq.id}>
+                    {arq.nome_completo}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <CreateLogisticaDialog arquitetos={arquitetos} onSuccess={loadLogisticas} />
+          </div>
         </div>
-      </div>
 
-      <div className="card-neua overflow-hidden">
-        <Table>
+        <div className="card-neua overflow-hidden">
+          <Table>
           <TableHeader>
             <TableRow className="border-border/50 hover:bg-transparent">
               <TableHead>Creator</TableHead>
@@ -173,6 +175,15 @@ export function LogisticaConteudo({ selectedArquitetoId }: LogisticaConteudoProp
             )}
           </TableBody>
         </Table>
+        </div>
+      </div>
+
+      {/* Envio de Produtos */}
+      <div>
+        <h3 className="text-xl font-display font-semibold mb-4">Envio de Produtos</h3>
+        <p className="text-muted-foreground text-sm mb-4">
+          Informações de envio de produtos estão integradas à tabela acima. Use o tipo de envio e status para acompanhar as entregas.
+        </p>
       </div>
     </div>
   );

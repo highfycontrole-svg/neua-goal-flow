@@ -31,20 +31,31 @@ export default function CreatorsResumo() {
   
   const [filterMes, setFilterMes] = useState<string>(new Date().getMonth().toString());
   const [filterAno, setFilterAno] = useState<string>(new Date().getFullYear().toString());
+  const [filterTier, setFilterTier] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
 
   useEffect(() => {
     if (user) loadData();
-  }, [user, filterMes, filterAno]);
+  }, [user, filterMes, filterAno, filterTier, filterStatus]);
 
   const loadData = async () => {
     try {
       setLoading(true);
       
       // KPIs
-      const { data: creators } = await supabase
+      let creatorsQuery = supabase
         .from('arquitetos')
         .select('id, status_arquiteto, classificacao_tier')
         .eq('user_id', user?.id);
+
+      if (filterTier !== 'all') {
+        creatorsQuery = creatorsQuery.eq('classificacao_tier', filterTier as any);
+      }
+      if (filterStatus !== 'all') {
+        creatorsQuery = creatorsQuery.eq('status_arquiteto', filterStatus as any);
+      }
+
+      const { data: creators } = await creatorsQuery;
 
       const totalAtivos = creators?.filter(c => c.status_arquiteto === 'Ativo').length || 0;
 
@@ -158,7 +169,7 @@ export default function CreatorsResumo() {
       </div>
 
       {/* Filtros */}
-      <div className="flex gap-4">
+      <div className="flex flex-wrap gap-4">
         <Select value={filterMes} onValueChange={setFilterMes}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Mês" />
@@ -177,9 +188,35 @@ export default function CreatorsResumo() {
             <SelectValue placeholder="Ano" />
           </SelectTrigger>
           <SelectContent>
-            {[2024, 2023, 2022].map((ano) => (
+            {[2026, 2025, 2024, 2023].map((ano) => (
               <SelectItem key={ano} value={ano.toString()}>{ano}</SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filterTier} onValueChange={setFilterTier}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Classificação" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas</SelectItem>
+            <SelectItem value="Bronze">Bronze</SelectItem>
+            <SelectItem value="Prata">Prata</SelectItem>
+            <SelectItem value="Ouro">Ouro</SelectItem>
+            <SelectItem value="Platina">Platina</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="Ativo">Ativo</SelectItem>
+            <SelectItem value="Em Análise">Em Análise</SelectItem>
+            <SelectItem value="Pausado">Pausado</SelectItem>
+            <SelectItem value="Desligado">Desligado</SelectItem>
           </SelectContent>
         </Select>
       </div>

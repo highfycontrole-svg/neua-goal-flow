@@ -93,28 +93,30 @@ export function HistoricoInteracoes({ selectedArquitetoId }: HistoricoInteracoes
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-display font-bold">Histórico de Interações</h2>
-        <div className="flex gap-3">
-          <Select value={filterArquiteto} onValueChange={setFilterArquiteto}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filtrar por creator" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              {arquitetos.map((arq) => (
-                <SelectItem key={arq.id} value={arq.id}>
-                  {arq.nome_completo}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <CreateInteracaoDialog arquitetos={arquitetos} onSuccess={loadInteracoes} />
+      {/* Comunicações Registradas */}
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-display font-semibold">Comunicações Registradas</h3>
+          <div className="flex gap-3">
+            <Select value={filterArquiteto} onValueChange={setFilterArquiteto}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Filtrar por creator" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {arquitetos.map((arq) => (
+                  <SelectItem key={arq.id} value={arq.id}>
+                    {arq.nome_completo}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <CreateInteracaoDialog arquitetos={arquitetos} onSuccess={loadInteracoes} />
+          </div>
         </div>
-      </div>
 
-      <div className="card-neua overflow-hidden">
-        <Table>
+        <div className="card-neua overflow-hidden">
+          <Table>
           <TableHeader>
             <TableRow className="border-border/50 hover:bg-transparent">
               <TableHead>Data/Hora</TableHead>
@@ -158,6 +160,38 @@ export function HistoricoInteracoes({ selectedArquitetoId }: HistoricoInteracoes
             )}
           </TableBody>
         </Table>
+        </div>
+      </div>
+
+      {/* Follow-ups Pendentes */}
+      <div>
+        <h3 className="text-xl font-display font-semibold mb-4">Follow-ups Pendentes</h3>
+        <div className="space-y-4">
+          {interacoes
+            .filter(int => int.proxima_acao_follow_up && int.proxima_acao_follow_up.trim() !== '')
+            .slice(0, 5)
+            .map((inter) => (
+              <div key={inter.id} className="card-neua p-4 border-l-4 border-primary">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <Badge variant="outline" className={getTipoColor(inter.tipo_interacao)}>
+                      {inter.tipo_interacao}
+                    </Badge>
+                    <h4 className="font-semibold mt-2">{inter.assunto_motivo}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {inter.arquitetos?.nome_completo}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-sm font-semibold text-primary mt-2">
+                  Próxima ação: {inter.proxima_acao_follow_up}
+                </p>
+              </div>
+            ))}
+          {interacoes.filter(int => int.proxima_acao_follow_up && int.proxima_acao_follow_up.trim() !== '').length === 0 && (
+            <p className="text-center text-muted-foreground py-4">Nenhum follow-up pendente</p>
+          )}
+        </div>
       </div>
     </div>
   );

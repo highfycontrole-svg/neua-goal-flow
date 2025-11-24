@@ -1,6 +1,7 @@
 import { Target, Users, BarChart3, User, DollarSign, Package, MessageSquare, LogOut } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import logo from '@/assets/logo.png';
 import {
   Sidebar,
   SidebarContent,
@@ -41,12 +42,12 @@ export function AppSidebar() {
   const isGroupActive = (basePath: string) => location.pathname.startsWith(basePath);
 
   return (
-    <Sidebar className="border-r border-border/50">
+    <Sidebar className="m-2.5 rounded-2xl border border-border/50 bg-black">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-lg font-display font-bold px-4 py-6">
-            {open ? 'Neua' : 'N'}
-          </SidebarGroupLabel>
+          <div className="px-4 py-6 flex items-center justify-center">
+            <img src={logo} alt="Neua" className="h-10 w-auto" />
+          </div>
           
           <SidebarGroupContent>
             <SidebarMenu>
@@ -54,7 +55,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   onClick={() => navigate('/dashboard')}
                   isActive={isGroupActive('/dashboard')}
-                  className="font-semibold"
+                  className="font-semibold hover:bg-primary hover:text-primary-foreground transition-colors"
                 >
                   <Target className="h-5 w-5" />
                   {open && <span>Metas</span>}
@@ -66,6 +67,7 @@ export function AppSidebar() {
                         <SidebarMenuSubButton
                           onClick={() => navigate(item.url)}
                           isActive={isActive(item.url)}
+                          className="hover:bg-primary hover:text-primary-foreground transition-colors"
                         >
                           <item.icon className="h-4 w-4" />
                           <span>{item.title}</span>
@@ -80,7 +82,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   onClick={() => navigate('/creators')}
                   isActive={isGroupActive('/creators')}
-                  className="font-semibold"
+                  className="font-semibold hover:bg-primary hover:text-primary-foreground transition-colors"
                 >
                   <Users className="h-5 w-5" />
                   {open && <span>Creators</span>}
@@ -92,6 +94,7 @@ export function AppSidebar() {
                         <SidebarMenuSubButton
                           onClick={() => navigate(item.url)}
                           isActive={isActive(item.url)}
+                          className="hover:bg-primary hover:text-primary-foreground transition-colors"
                         >
                           <item.icon className="h-4 w-4" />
                           <span>{item.title}</span>
@@ -109,7 +112,10 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-border/50">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={signOut}>
+            <SidebarMenuButton 
+              onClick={signOut}
+              className="hover:bg-primary hover:text-primary-foreground transition-colors"
+            >
               <LogOut className="h-5 w-5" />
               {open && <span>Sair</span>}
             </SidebarMenuButton>

@@ -97,28 +97,30 @@ export function DesempenhoFinanceiro({ selectedArquitetoId }: DesempenhoFinancei
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-display font-bold">Desempenho & Financeiro</h2>
-        <div className="flex gap-3">
-          <Select value={filterArquiteto} onValueChange={setFilterArquiteto}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filtrar por creator" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              {arquitetos.map((arq) => (
-                <SelectItem key={arq.id} value={arq.id}>
-                  {arq.nome_completo}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <CreateDesempenhoDialog arquitetos={arquitetos} onSuccess={loadDesempenhos} />
+      {/* Relatório Mensal */}
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-display font-semibold">Relatório Mensal</h3>
+          <div className="flex gap-3">
+            <Select value={filterArquiteto} onValueChange={setFilterArquiteto}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Filtrar por creator" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {arquitetos.map((arq) => (
+                  <SelectItem key={arq.id} value={arq.id}>
+                    {arq.nome_completo}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <CreateDesempenhoDialog arquitetos={arquitetos} onSuccess={loadDesempenhos} />
+          </div>
         </div>
-      </div>
 
-      <div className="card-neua overflow-hidden">
-        <Table>
+        <div className="card-neua overflow-hidden">
+          <Table>
           <TableHeader>
             <TableRow className="border-border/50 hover:bg-transparent">
               <TableHead>Creator</TableHead>
@@ -170,6 +172,15 @@ export function DesempenhoFinanceiro({ selectedArquitetoId }: DesempenhoFinancei
             )}
           </TableBody>
         </Table>
+        </div>
+      </div>
+
+      {/* Histórico de Pagamentos */}
+      <div>
+        <h3 className="text-xl font-display font-semibold mb-4">Histórico de Pagamentos</h3>
+        <p className="text-muted-foreground text-sm">
+          Os pagamentos são processados mensalmente e refletidos na tabela acima.
+        </p>
       </div>
     </div>
   );
