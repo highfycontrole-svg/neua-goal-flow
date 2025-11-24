@@ -98,7 +98,7 @@ export function HistoricoInteracoes({ selectedArquitetoId }: HistoricoInteracoes
         <div className="flex gap-3">
           <Select value={filterArquiteto} onValueChange={setFilterArquiteto}>
             <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filtrar por arquiteto" />
+              <SelectValue placeholder="Filtrar por creator" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
@@ -118,7 +118,7 @@ export function HistoricoInteracoes({ selectedArquitetoId }: HistoricoInteracoes
           <TableHeader>
             <TableRow className="border-border/50 hover:bg-transparent">
               <TableHead>Data/Hora</TableHead>
-              <TableHead>Arquiteto</TableHead>
+              <TableHead>Creator</TableHead>
               <TableHead>Tipo</TableHead>
               <TableHead>Assunto</TableHead>
               <TableHead>Responsável</TableHead>

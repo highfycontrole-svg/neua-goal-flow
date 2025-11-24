@@ -64,7 +64,7 @@ export function CreateArquitetoDialog({ onSuccess }: CreateArquitetoDialogProps)
 
       if (error) throw error;
 
-      toast.success('Arquiteto criado com sucesso');
+      toast.success('Creator criado com sucesso');
       setOpen(false);
       setFormData({
         nome_completo: '',
@@ -85,7 +85,7 @@ export function CreateArquitetoDialog({ onSuccess }: CreateArquitetoDialogProps)
       });
       onSuccess();
     } catch (error: any) {
-      toast.error('Erro ao criar arquiteto');
+      toast.error('Erro ao criar creator');
       console.error(error);
     } finally {
       setLoading(false);
@@ -97,14 +97,14 @@ export function CreateArquitetoDialog({ onSuccess }: CreateArquitetoDialogProps)
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
-          Adicionar Arquiteto
+          Adicionar Creator
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Adicionar Novo Arquiteto</DialogTitle>
+          <DialogTitle>Adicionar Novo Creator</DialogTitle>
           <DialogDescription>
-            Preencha as informações do novo arquiteto de conteúdo
+            Preencha as informações do novo creator de conteúdo
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">

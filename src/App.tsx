@@ -2,14 +2,20 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
-import Arquitetos from "./pages/Arquitetos";
+import CreatorsResumo from "./pages/creators/CreatorsResumo";
+import CreatorsRegistro from "./pages/creators/CreatorsRegistro";
+import CreatorsDesempenho from "./pages/creators/CreatorsDesempenho";
+import CreatorsLogistica from "./pages/creators/CreatorsLogistica";
+import CreatorsInteracoes from "./pages/creators/CreatorsInteracoes";
+import CreatorDetalhes from "./pages/creators/CreatorDetalhes";
 import NotFound from "./pages/NotFound";
+import { AppLayout } from "@/components/AppLayout";
 
 const queryClient = new QueryClient();
 
@@ -27,15 +33,69 @@ const App = () => (
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <AppLayout>
+                    <Dashboard />
+                  </AppLayout>
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/arquitetos"
+              path="/creators"
               element={
                 <ProtectedRoute>
-                  <Arquitetos />
+                  <AppLayout>
+                    <CreatorsResumo />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/creators/registro"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <CreatorsRegistro />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/creators/desempenho"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <CreatorsDesempenho />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/creators/logistica"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <CreatorsLogistica />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/creators/interacoes"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <CreatorsInteracoes />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/creators/:id"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <CreatorDetalhes />
+                  </AppLayout>
                 </ProtectedRoute>
               }
             />

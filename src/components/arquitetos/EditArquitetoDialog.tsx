@@ -86,11 +86,11 @@ export function EditArquitetoDialog({ arquiteto, open, onOpenChange, onSuccess }
 
       if (error) throw error;
 
-      toast.success('Arquiteto atualizado com sucesso');
+      toast.success('Creator atualizado com sucesso');
       onOpenChange(false);
       onSuccess();
     } catch (error: any) {
-      toast.error('Erro ao atualizar arquiteto');
+      toast.error('Erro ao atualizar creator');
       console.error(error);
     } finally {
       setLoading(false);
@@ -101,9 +101,9 @@ export function EditArquitetoDialog({ arquiteto, open, onOpenChange, onSuccess }
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Editar Arquiteto</DialogTitle>
+          <DialogTitle>Editar Creator</DialogTitle>
           <DialogDescription>
-            Atualize as informações do arquiteto de conteúdo
+            Atualize as informações do creator de conteúdo
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -101,7 +101,7 @@ export function LogisticaConteudo({ selectedArquitetoId }: LogisticaConteudoProp
         <div className="flex gap-3">
           <Select value={filterArquiteto} onValueChange={setFilterArquiteto}>
             <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filtrar por arquiteto" />
+              <SelectValue placeholder="Filtrar por creator" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
@@ -120,7 +120,7 @@ export function LogisticaConteudo({ selectedArquitetoId }: LogisticaConteudoProp
         <Table>
           <TableHeader>
             <TableRow className="border-border/50 hover:bg-transparent">
-              <TableHead>Arquiteto</TableHead>
+              <TableHead>Creator</TableHead>
               <TableHead>Mês</TableHead>
               <TableHead>Status Reel</TableHead>
               <TableHead>Status Stories</TableHead>

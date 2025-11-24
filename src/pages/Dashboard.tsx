@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import { DashboardLayout } from '@/components/DashboardLayout';
 import { KPICard } from '@/components/KPICard';
 import { CreateMetaDialog } from '@/components/CreateMetaDialog';
 import { MetasChart } from '@/components/MetasChart';
@@ -204,14 +203,15 @@ export default function Dashboard() {
     }
   };
   if (loading) {
-    return <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      </DashboardLayout>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
   }
-  return <DashboardLayout>
-      <div className="space-y-8" ref={dashboardRef}>
+  
+  return (
+    <div className="space-y-8" ref={dashboardRef}>
         {/* Page Header */}
         <div>
           <h1 className="text-4xl font-display font-bold mb-2">Painel de Metas - Loja Neua</h1>
@@ -323,5 +323,5 @@ export default function Dashboard() {
         {/* Gráfico de Barras - Movido para o final */}
         <MetasChart data={chartData} />
       </div>
-    </DashboardLayout>;
+  );
 }
