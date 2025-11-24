@@ -76,7 +76,7 @@ export function ArquitetosKPIs() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <KPICard
-        title="Arquitetos Ativos"
+        title="Creators Ativos"
         value={stats.totalAtivos}
         icon={Users}
         description="Total de criadores ativos"

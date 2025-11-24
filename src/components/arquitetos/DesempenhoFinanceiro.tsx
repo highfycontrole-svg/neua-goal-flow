@@ -102,7 +102,7 @@ export function DesempenhoFinanceiro({ selectedArquitetoId }: DesempenhoFinancei
         <div className="flex gap-3">
           <Select value={filterArquiteto} onValueChange={setFilterArquiteto}>
             <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filtrar por arquiteto" />
+              <SelectValue placeholder="Filtrar por creator" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
@@ -121,7 +121,7 @@ export function DesempenhoFinanceiro({ selectedArquitetoId }: DesempenhoFinancei
         <Table>
           <TableHeader>
             <TableRow className="border-border/50 hover:bg-transparent">
-              <TableHead>Arquiteto</TableHead>
+              <TableHead>Creator</TableHead>
               <TableHead>Mês</TableHead>
               <TableHead>Pedidos</TableHead>
               <TableHead>Total Vendido</TableHead>
