@@ -1,4 +1,4 @@
-import { Target, Users, BarChart3, User, DollarSign, Package, MessageSquare, LogOut } from 'lucide-react';
+import { Target, Users, BarChart3, User, DollarSign, Package, MessageSquare, LogOut, LayoutGrid } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
@@ -36,6 +36,12 @@ const creatorsItems = [{
   title: 'Histórico de Interações',
   url: '/creators/interacoes',
   icon: MessageSquare
+}];
+
+const workspaceItems = [{
+  title: 'Workspace',
+  url: '/workspace',
+  icon: LayoutGrid
 }];
 export function AppSidebar() {
   const location = useLocation();
@@ -85,6 +91,13 @@ export function AppSidebar() {
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>)}
                   </SidebarMenuSub>}
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => navigate('/workspace')} isActive={isActive('/workspace')} className="font-semibold hover:bg-primary hover:text-primary-foreground transition-colors">
+                  <LayoutGrid className="h-5 w-5" />
+                  {open && <span>Workspace Neua</span>}
+                </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
