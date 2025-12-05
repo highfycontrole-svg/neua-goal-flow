@@ -275,24 +275,22 @@ export function EditMetaDialog({ meta, tipo, open, onOpenChange, onSuccess, seto
             </div>
           )}
 
-          {tipo === 'super_meta' && (
-            <div className="space-y-2">
-              <Label htmlFor="prioridade">Prioridade</Label>
-              <Select
-                value={formData.prioridade}
-                onValueChange={(value) => setFormData({ ...formData, prioridade: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Alta">Alta</SelectItem>
-                  <SelectItem value="Média">Média</SelectItem>
-                  <SelectItem value="Baixa">Baixa</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="prioridade">Prioridade</Label>
+            <Select
+              value={formData.prioridade}
+              onValueChange={(value) => setFormData({ ...formData, prioridade: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Alta">Alta</SelectItem>
+                <SelectItem value="Média">Média</SelectItem>
+                <SelectItem value="Baixa">Baixa</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="flex items-center space-x-2">
             <input
