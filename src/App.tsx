@@ -8,6 +8,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import MetasPage from "./pages/metas/MetasPage";
+import SuperMetasPage from "./pages/metas/SuperMetasPage";
 import CreatorsResumo from "./pages/creators/CreatorsResumo";
 import CreatorsRegistro from "./pages/creators/CreatorsRegistro";
 import CreatorsDesempenho from "./pages/creators/CreatorsDesempenho";
@@ -36,6 +38,26 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <Dashboard />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/metas"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <MetasPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/super-metas"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <SuperMetasPage />
                   </AppLayout>
                 </ProtectedRoute>
               }
