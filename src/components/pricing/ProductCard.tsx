@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Package, Trash2, DollarSign, TrendingUp, Percent, Star, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Package, Trash2, DollarSign, TrendingUp, Percent, Star, ThumbsUp, ThumbsDown, Edit } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,9 +35,10 @@ interface Produto {
 interface ProductCardProps {
   produto: Produto;
   onDelete: () => void;
+  onEdit: () => void;
 }
 
-export default function ProductCard({ produto, onDelete }: ProductCardProps) {
+export default function ProductCard({ produto, onDelete, onEdit }: ProductCardProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -58,19 +59,6 @@ export default function ProductCard({ produto, onDelete }: ProductCardProps) {
     }
   };
 
-  const getRankingLabel = (ranking: string) => {
-    switch (ranking) {
-      case 'campeao':
-        return 'Campeão';
-      case 'bom':
-        return 'Bom Produto';
-      case 'ruim':
-        return 'Ruim';
-      default:
-        return 'Normal';
-    }
-  };
-
   const getStatusColor = (status: string) => {
     return status === 'ativo' 
       ? 'bg-green-500/10 text-green-500 border-green-500/30'
@@ -84,7 +72,10 @@ export default function ProductCard({ produto, onDelete }: ProductCardProps) {
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
     >
-      <Card className="bg-card border-border/50 overflow-hidden group">
+      <Card 
+        className="bg-card border-border/50 overflow-hidden group cursor-pointer"
+        onClick={onEdit}
+      >
         {/* Image */}
         <div className="relative h-40 bg-muted/30">
           {produto.foto_url ? (
@@ -107,35 +98,52 @@ export default function ProductCard({ produto, onDelete }: ProductCardProps) {
             {produto.status === 'ativo' ? 'Ativo' : 'Inativo'}
           </Badge>
 
-          {/* Delete Button */}
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-destructive hover:text-destructive-foreground"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Excluir produto?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta ação não pode ser desfeita. O produto "{produto.nome}" será removido permanentemente.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={onDelete}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          {/* Action Buttons */}
+          <div className="absolute top-2 right-2 flex gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-primary/80 hover:text-primary-foreground h-8 w-8"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-destructive hover:text-destructive-foreground h-8 w-8"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  Excluir
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Excluir produto?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação não pode ser desfeita. O produto "{produto.nome}" será removido permanentemente.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete();
+                    }}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Excluir
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
 
         <CardContent className="p-4 space-y-4">
