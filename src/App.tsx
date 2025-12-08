@@ -17,6 +17,7 @@ import CreatorsLogistica from "./pages/creators/CreatorsLogistica";
 import CreatorsInteracoes from "./pages/creators/CreatorsInteracoes";
 import CreatorDetalhes from "./pages/creators/CreatorDetalhes";
 import WorkspaceNeua from "./pages/workspace/WorkspaceNeua";
+import PricingPage from "./pages/pricing/PricingPage";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "@/components/AppLayout";
 
@@ -128,6 +129,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <WorkspaceNeua />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pricing"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PricingPage />
                   </AppLayout>
                 </ProtectedRoute>
               }
