@@ -4,19 +4,55 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { Calculator, Package, Plus, DollarSign, TrendingUp, Percent, BarChart3 } from "lucide-react";
+import { 
+  Calculator, Package, Plus, DollarSign, TrendingUp, Percent, BarChart3,
+  LayoutGrid, List, Filter, Star, ThumbsUp, ThumbsDown
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import AddProductDialog from "@/components/pricing/AddProductDialog";
+import EditProductDialog from "@/components/pricing/EditProductDialog";
 import ProductCard from "@/components/pricing/ProductCard";
 
 const TAXA_GATEWAY = 5.69;
 const TAXA_CHECKOUT = 1.69;
 const IMPOSTOS = 6;
-const CUSTO_PERCENTUAL = 40;
+
+interface Produto {
+  id: string;
+  nome: string;
+  foto_url: string | null;
+  categoria: string | null;
+  colecao: string | null;
+  status: string;
+  ranking: string;
+  preco_custo: number;
+  frete: number;
+  total_taxas: number;
+  preco_venda: number;
+  lucro: number;
+  markup: number;
+  margem_liquida: number;
+}
 
 export default function PricingPage() {
   const { user } = useAuth();
@@ -25,19 +61,26 @@ export default function PricingPage() {
   const [custoProduto, setCustoProduto] = useState<number>(0);
   const [frete, setFrete] = useState<number>(0);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Produto | null>(null);
+  
+  // Filtros
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [statusFilter, setStatusFilter] = useState<string>('todos');
+  const [rankingFilter, setRankingFilter] = useState<string>('todos');
 
-  // Cálculos automáticos
+  // Cálculos automáticos - custos = 40% do preço final
   const calculos = useMemo(() => {
     const custoTotal = custoProduto + frete;
     const totalTaxasPercent = TAXA_GATEWAY + TAXA_CHECKOUT + IMPOSTOS;
     
-    // Se custos = 40% do preço final, então preço final = custos / 0.40
-    const precoVenda = custoTotal > 0 ? custoTotal / (CUSTO_PERCENTUAL / 100) : 0;
+    // Custos = 40% do preço final, então preço final = custos / 0.40 = custos * 2.5
+    const precoVenda = custoTotal > 0 ? custoTotal / 0.40 : 0;
     
     // Total de taxas em valor
     const totalTaxasValor = precoVenda * (totalTaxasPercent / 100);
     
-    // Lucro = Preço de venda - custo total - taxas
+    // Lucro = 60% do preço de venda - taxas
     const lucro = precoVenda - custoTotal - totalTaxasValor;
     
     // Markup = (preço final / custo) 
@@ -74,10 +117,21 @@ export default function PricingPage() {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data as Produto[];
     },
     enabled: !!user?.id
   });
+
+  // Filtrar produtos
+  const filteredProducts = useMemo(() => {
+    if (!produtos) return [];
+    
+    return produtos.filter(produto => {
+      const matchStatus = statusFilter === 'todos' || produto.status === statusFilter;
+      const matchRanking = rankingFilter === 'todos' || produto.ranking === rankingFilter;
+      return matchStatus && matchRanking;
+    });
+  }, [produtos, statusFilter, rankingFilter]);
 
   // Delete mutation
   const deleteMutation = useMutation({
@@ -99,6 +153,43 @@ export default function PricingPage() {
       style: 'currency',
       currency: 'BRL'
     }).format(value);
+  };
+
+  const handleEditProduct = (produto: Produto) => {
+    setSelectedProduct(produto);
+    setEditDialogOpen(true);
+  };
+
+  const getRankingIcon = (ranking: string) => {
+    switch (ranking) {
+      case 'campeao':
+        return <Star className="h-4 w-4 text-yellow-500" />;
+      case 'bom':
+        return <ThumbsUp className="h-4 w-4 text-green-500" />;
+      case 'ruim':
+        return <ThumbsDown className="h-4 w-4 text-red-500" />;
+      default:
+        return <Package className="h-4 w-4 text-muted-foreground" />;
+    }
+  };
+
+  const getRankingLabel = (ranking: string) => {
+    switch (ranking) {
+      case 'campeao':
+        return 'Campeão';
+      case 'bom':
+        return 'Bom Produto';
+      case 'ruim':
+        return 'Ruim';
+      default:
+        return 'Normal';
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    return status === 'ativo' 
+      ? <Badge className="bg-green-500/10 text-green-500 border-green-500/30">Ativo</Badge>
+      : <Badge className="bg-red-500/10 text-red-500 border-red-500/30">Inativo</Badge>;
   };
 
   return (
@@ -273,10 +364,64 @@ export default function PricingPage() {
       >
         <Card className="bg-card border-border/50">
           <CardHeader>
-            <CardTitle className="text-xl text-foreground flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
-              Catálogo de Produtos Neua
-            </CardTitle>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <CardTitle className="text-xl text-foreground flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" />
+                Catálogo de Produtos Neua
+              </CardTitle>
+              
+              {/* Filtros e Visualização */}
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Filtro Status */}
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[130px]">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos</SelectItem>
+                      <SelectItem value="ativo">Ativo</SelectItem>
+                      <SelectItem value="inativo">Inativo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Filtro Ranking */}
+                <Select value={rankingFilter} onValueChange={setRankingFilter}>
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue placeholder="Ranking" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos Rankings</SelectItem>
+                    <SelectItem value="campeao">⭐ Campeão</SelectItem>
+                    <SelectItem value="bom">👍 Bom Produto</SelectItem>
+                    <SelectItem value="normal">📦 Normal</SelectItem>
+                    <SelectItem value="ruim">👎 Ruim</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* Toggle Visualização */}
+                <div className="flex items-center bg-muted/50 rounded-lg p-1">
+                  <Button
+                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('grid')}
+                    className="px-3"
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'list' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('list')}
+                    className="px-3"
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -285,24 +430,104 @@ export default function PricingPage() {
                   <Skeleton key={i} className="h-64 rounded-xl" />
                 ))}
               </div>
-            ) : produtos && produtos.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {produtos.map((produto) => (
-                  <ProductCard
-                    key={produto.id}
-                    produto={produto}
-                    onDelete={() => deleteMutation.mutate(produto.id)}
-                  />
-                ))}
-              </div>
+            ) : filteredProducts && filteredProducts.length > 0 ? (
+              viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredProducts.map((produto) => (
+                    <ProductCard
+                      key={produto.id}
+                      produto={produto}
+                      onDelete={() => deleteMutation.mutate(produto.id)}
+                      onEdit={() => handleEditProduct(produto)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-lg border border-border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Produto</TableHead>
+                        <TableHead>Categoria</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Ranking</TableHead>
+                        <TableHead className="text-right">Custo</TableHead>
+                        <TableHead className="text-right">Venda</TableHead>
+                        <TableHead className="text-right">Lucro</TableHead>
+                        <TableHead className="text-right">Markup</TableHead>
+                        <TableHead className="text-right">Margem</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredProducts.map((produto) => (
+                        <TableRow 
+                          key={produto.id} 
+                          className="cursor-pointer hover:bg-muted/50"
+                          onClick={() => handleEditProduct(produto)}
+                        >
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              {produto.foto_url ? (
+                                <img
+                                  src={produto.foto_url}
+                                  alt={produto.nome}
+                                  className="w-10 h-10 object-cover rounded-lg"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                                  <Package className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                              )}
+                              <span className="font-medium">{produto.nome}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {produto.categoria ? (
+                              <Badge variant="secondary">{produto.categoria}</Badge>
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell>{getStatusBadge(produto.status)}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {getRankingIcon(produto.ranking)}
+                              <span className="text-sm">{getRankingLabel(produto.ranking)}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatCurrency(produto.preco_custo + produto.frete)}
+                          </TableCell>
+                          <TableCell className="text-right text-green-500 font-medium">
+                            {formatCurrency(produto.preco_venda)}
+                          </TableCell>
+                          <TableCell className="text-right text-emerald-500 font-medium">
+                            {formatCurrency(produto.lucro)}
+                          </TableCell>
+                          <TableCell className="text-right text-primary font-medium">
+                            {produto.markup.toFixed(2)}x
+                          </TableCell>
+                          <TableCell className="text-right text-purple-500 font-medium">
+                            {produto.margem_liquida.toFixed(1)}%
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )
             ) : (
               <div className="text-center py-12">
                 <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">
-                  Nenhum produto cadastrado ainda.
+                  {produtos && produtos.length > 0 
+                    ? 'Nenhum produto encontrado com os filtros selecionados.'
+                    : 'Nenhum produto cadastrado ainda.'
+                  }
                 </p>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Use a calculadora acima para adicionar seu primeiro produto.
+                  {produtos && produtos.length > 0 
+                    ? 'Tente ajustar os filtros para ver mais produtos.'
+                    : 'Use a calculadora acima para adicionar seu primeiro produto.'
+                  }
                 </p>
               </div>
             )}
@@ -323,6 +548,13 @@ export default function PricingPage() {
           markup: calculos.markup,
           margemLiquida: calculos.margemLiquida
         }}
+      />
+
+      {/* Dialog Editar Produto */}
+      <EditProductDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        produto={selectedProduct}
       />
     </div>
   );
