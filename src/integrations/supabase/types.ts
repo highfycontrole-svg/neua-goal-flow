@@ -358,6 +358,66 @@ export type Database = {
           },
         ]
       }
+      produtos: {
+        Row: {
+          categoria: string | null
+          colecao: string | null
+          created_at: string
+          foto_url: string | null
+          frete: number
+          id: string
+          lucro: number
+          margem_liquida: number
+          markup: number
+          nome: string
+          preco_custo: number
+          preco_venda: number
+          ranking: string
+          status: string
+          total_taxas: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          categoria?: string | null
+          colecao?: string | null
+          created_at?: string
+          foto_url?: string | null
+          frete?: number
+          id?: string
+          lucro?: number
+          margem_liquida?: number
+          markup?: number
+          nome: string
+          preco_custo?: number
+          preco_venda?: number
+          ranking?: string
+          status?: string
+          total_taxas?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          categoria?: string | null
+          colecao?: string | null
+          created_at?: string
+          foto_url?: string | null
+          frete?: number
+          id?: string
+          lucro?: number
+          margem_liquida?: number
+          markup?: number
+          nome?: string
+          preco_custo?: number
+          preco_venda?: number
+          ranking?: string
+          status?: string
+          total_taxas?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       setores: {
         Row: {
           created_at: string
