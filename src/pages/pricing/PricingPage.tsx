@@ -45,6 +45,7 @@ interface Produto {
   colecao: string | null;
   status: string;
   ranking: string;
+  link_produto: string | null;
   preco_custo: number;
   frete: number;
   total_taxas: number;

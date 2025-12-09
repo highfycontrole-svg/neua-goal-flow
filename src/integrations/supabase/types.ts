@@ -366,6 +366,7 @@ export type Database = {
           foto_url: string | null
           frete: number
           id: string
+          link_produto: string | null
           lucro: number
           margem_liquida: number
           markup: number
@@ -385,6 +386,7 @@ export type Database = {
           foto_url?: string | null
           frete?: number
           id?: string
+          link_produto?: string | null
           lucro?: number
           margem_liquida?: number
           markup?: number
@@ -404,6 +406,7 @@ export type Database = {
           foto_url?: string | null
           frete?: number
           id?: string
+          link_produto?: string | null
           lucro?: number
           margem_liquida?: number
           markup?: number
