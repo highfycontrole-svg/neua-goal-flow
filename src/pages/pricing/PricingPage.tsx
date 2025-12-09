@@ -69,19 +69,28 @@ export default function PricingPage() {
   const [statusFilter, setStatusFilter] = useState<string>('todos');
   const [rankingFilter, setRankingFilter] = useState<string>('todos');
 
-  // Cálculos automáticos - custos = 40% do preço final
+  // Cálculos automáticos - margem líquida final = 60%
+  // Fórmula: custos + taxas = 40% do preço final, então lucro = 60%
   const calculos = useMemo(() => {
     const custoTotal = custoProduto + frete;
-    const totalTaxasPercent = TAXA_GATEWAY + TAXA_CHECKOUT + IMPOSTOS;
+    const totalTaxasPercent = TAXA_GATEWAY + TAXA_CHECKOUT + IMPOSTOS; // 13.38%
     
-    // Custos = 40% do preço final, então preço final = custos / 0.40 = custos * 2.5
-    const precoVenda = custoTotal > 0 ? custoTotal / 0.40 : 0;
+    // Para margem líquida de 60%, precisamos que:
+    // lucro = 60% do preço de venda
+    // preço_venda = custo_total + taxas + lucro
+    // preço_venda = custo_total + (preço_venda * 13.38%) + (preço_venda * 60%)
+    // preço_venda = custo_total + preço_venda * 73.38%
+    // preço_venda - preço_venda * 0.7338 = custo_total
+    // preço_venda * 0.2662 = custo_total
+    // preço_venda = custo_total / 0.2662
+    const percentualCusto = (100 - 60 - totalTaxasPercent) / 100; // 26.62%
+    const precoVenda = custoTotal > 0 ? custoTotal / percentualCusto : 0;
     
     // Total de taxas em valor
     const totalTaxasValor = precoVenda * (totalTaxasPercent / 100);
     
-    // Lucro = 60% do preço de venda - taxas
-    const lucro = precoVenda - custoTotal - totalTaxasValor;
+    // Lucro = 60% do preço de venda
+    const lucro = precoVenda * 0.60;
     
     // Markup = (preço final / custo) 
     const markup = custoTotal > 0 ? precoVenda / custoTotal : 0;
