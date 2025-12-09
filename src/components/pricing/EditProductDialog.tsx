@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, X, Package, DollarSign, TrendingUp, Percent, Edit } from "lucide-react";
+import { Upload, X, Package, DollarSign, TrendingUp, Percent, Edit, Link } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +35,7 @@ interface Produto {
   colecao: string | null;
   status: string;
   ranking: string;
+  link_produto: string | null;
   preco_custo: number;
   frete: number;
   total_taxas: number;
@@ -60,6 +61,7 @@ export default function EditProductDialog({ open, onOpenChange, produto }: EditP
   const [colecao, setColecao] = useState("");
   const [status, setStatus] = useState("ativo");
   const [ranking, setRanking] = useState("normal");
+  const [linkProduto, setLinkProduto] = useState("");
   const [precoCusto, setPrecoCusto] = useState<number>(0);
   const [frete, setFrete] = useState<number>(0);
   const [precoVendaManual, setPrecoVendaManual] = useState<number>(0);
@@ -101,6 +103,7 @@ export default function EditProductDialog({ open, onOpenChange, produto }: EditP
       setColecao(produto.colecao || "");
       setStatus(produto.status);
       setRanking(produto.ranking);
+      setLinkProduto(produto.link_produto || "");
       setPrecoCusto(produto.preco_custo);
       setFrete(produto.frete);
       setPrecoVendaManual(produto.preco_venda);
@@ -171,6 +174,7 @@ export default function EditProductDialog({ open, onOpenChange, produto }: EditP
         colecao,
         status,
         ranking,
+        link_produto: linkProduto || null,
         preco_custo: precoCusto,
         frete: frete,
         total_taxas: calculos.totalTaxasValor,
@@ -336,6 +340,20 @@ export default function EditProductDialog({ open, onOpenChange, produto }: EditP
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="linkProduto" className="flex items-center gap-1">
+                <Link className="h-3 w-3" />
+                Link do Produto
+              </Label>
+              <Input
+                id="linkProduto"
+                type="url"
+                value={linkProduto}
+                onChange={(e) => setLinkProduto(e.target.value)}
+                placeholder="https://exemplo.com/produto"
+              />
             </div>
           </div>
 

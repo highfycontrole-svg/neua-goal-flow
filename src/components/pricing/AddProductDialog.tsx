@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, X, Package, DollarSign, TrendingUp, Percent } from "lucide-react";
+import { Upload, X, Package, DollarSign, TrendingUp, Percent, Link } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -46,6 +46,7 @@ export default function AddProductDialog({ open, onOpenChange, calculos }: AddPr
   const [colecao, setColecao] = useState("");
   const [status, setStatus] = useState("ativo");
   const [ranking, setRanking] = useState("normal");
+  const [linkProduto, setLinkProduto] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -83,6 +84,7 @@ export default function AddProductDialog({ open, onOpenChange, calculos }: AddPr
     setColecao("");
     setStatus("ativo");
     setRanking("normal");
+    setLinkProduto("");
     setImageFile(null);
     setImagePreview(null);
   };
@@ -121,6 +123,7 @@ export default function AddProductDialog({ open, onOpenChange, calculos }: AddPr
         colecao,
         status,
         ranking,
+        link_produto: linkProduto || null,
         preco_custo: calculos.precoCusto,
         frete: calculos.frete,
         total_taxas: calculos.totalTaxas,
@@ -287,6 +290,20 @@ export default function AddProductDialog({ open, onOpenChange, calculos }: AddPr
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="linkProduto" className="flex items-center gap-1">
+                <Link className="h-3 w-3" />
+                Link do Produto
+              </Label>
+              <Input
+                id="linkProduto"
+                type="url"
+                value={linkProduto}
+                onChange={(e) => setLinkProduto(e.target.value)}
+                placeholder="https://exemplo.com/produto"
+              />
             </div>
           </div>
 
