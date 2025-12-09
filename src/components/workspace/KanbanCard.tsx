@@ -47,14 +47,8 @@ export function KanbanCard({ task, onClick, isDragging }: KanbanCardProps) {
         }`}
       >
         <h4 className="font-medium text-sm mb-2 text-foreground">{task.title}</h4>
-        
-        {task.description && (
-          <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
-            {task.description}
-          </p>
-        )}
 
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
           {task.date && (
             <div className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />
@@ -71,6 +65,14 @@ export function KanbanCard({ task, onClick, isDragging }: KanbanCardProps) {
               )}
               <span>
                 {subtasksCompleted}/{subtasksTotal}
+              </span>
+            </div>
+          )}
+
+          {task.responsible && (
+            <div className="flex items-center gap-1">
+              <span className="bg-muted px-1.5 py-0.5 rounded text-xs">
+                {task.responsible}
               </span>
             </div>
           )}

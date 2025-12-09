@@ -25,6 +25,7 @@ import {
 const TAXA_GATEWAY = 5.69;
 const TAXA_CHECKOUT = 1.69;
 const IMPOSTOS = 6;
+const TOTAL_TAXAS_PERCENT = TAXA_GATEWAY + TAXA_CHECKOUT + IMPOSTOS; // 13.38%
 
 interface Produto {
   id: string;
@@ -61,22 +62,20 @@ export default function EditProductDialog({ open, onOpenChange, produto }: EditP
   const [ranking, setRanking] = useState("normal");
   const [precoCusto, setPrecoCusto] = useState<number>(0);
   const [frete, setFrete] = useState<number>(0);
+  const [precoVendaManual, setPrecoVendaManual] = useState<number>(0);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  // Recalcular quando precoCusto ou frete mudar
+  // Recalcular baseado no preço de venda manual
   const calculos = useMemo(() => {
     const custoTotal = precoCusto + frete;
-    const totalTaxasPercent = TAXA_GATEWAY + TAXA_CHECKOUT + IMPOSTOS;
-    
-    // Custos = 40% do preço final, então preço final = custos / 0.40 = custos * 2.5
-    const precoVenda = custoTotal > 0 ? custoTotal / 0.40 : 0;
+    const precoVenda = precoVendaManual;
     
     // Total de taxas em valor
-    const totalTaxasValor = precoVenda * (totalTaxasPercent / 100);
+    const totalTaxasValor = precoVenda * (TOTAL_TAXAS_PERCENT / 100);
     
-    // Lucro = 60% do preço de venda (já que custos são 40%)
+    // Lucro = preço de venda - custo total - taxas
     const lucro = precoVenda - custoTotal - totalTaxasValor;
     
     // Markup = (preço final / custo) 
@@ -93,7 +92,7 @@ export default function EditProductDialog({ open, onOpenChange, produto }: EditP
       markup,
       margemLiquida
     };
-  }, [precoCusto, frete]);
+  }, [precoCusto, frete, precoVendaManual]);
 
   useEffect(() => {
     if (produto) {
@@ -104,6 +103,7 @@ export default function EditProductDialog({ open, onOpenChange, produto }: EditP
       setRanking(produto.ranking);
       setPrecoCusto(produto.preco_custo);
       setFrete(produto.frete);
+      setPrecoVendaManual(produto.preco_venda);
       setImagePreview(produto.foto_url);
       setImageFile(null);
     }
@@ -345,7 +345,7 @@ export default function EditProductDialog({ open, onOpenChange, produto }: EditP
               Precificação
             </h3>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="precoCusto">Custo do Produto (R$)</Label>
                 <Input
@@ -368,6 +368,19 @@ export default function EditProductDialog({ open, onOpenChange, produto }: EditP
                   value={frete || ''}
                   onChange={(e) => setFrete(parseFloat(e.target.value) || 0)}
                   placeholder="0,00"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="precoVenda">Preço de Venda (R$)</Label>
+                <Input
+                  id="precoVenda"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={precoVendaManual || ''}
+                  onChange={(e) => setPrecoVendaManual(parseFloat(e.target.value) || 0)}
+                  placeholder="0,00"
+                  className="border-primary/50"
                 />
               </div>
             </div>
@@ -414,13 +427,6 @@ export default function EditProductDialog({ open, onOpenChange, produto }: EditP
                 <p className="font-semibold text-purple-500">{calculos.margemLiquida.toFixed(1)}%</p>
               </div>
 
-              <div className="bg-emerald-500/10 rounded-lg p-3">
-                <div className="flex items-center gap-1 mb-1">
-                  <DollarSign className="h-3 w-3 text-emerald-500" />
-                  <span className="text-xs text-emerald-500">Preço de Venda</span>
-                </div>
-                <p className="font-semibold text-emerald-500">{formatCurrency(calculos.precoVenda)}</p>
-              </div>
             </div>
           </div>
 

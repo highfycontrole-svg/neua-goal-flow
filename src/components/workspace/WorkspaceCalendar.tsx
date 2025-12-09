@@ -150,14 +150,28 @@ export function WorkspaceCalendar({ workspaceId, searchQuery }: WorkspaceCalenda
                         <div
                           key={task.id}
                           onClick={() => setSelectedTaskId(task.id)}
-                          className="text-xs p-1.5 rounded cursor-pointer hover:opacity-80 transition-opacity truncate"
+                          className="text-xs p-1.5 rounded cursor-pointer hover:opacity-80 transition-opacity"
                           style={{
                             backgroundColor: status?.color || '#6B7280',
                             color: 'white',
                           }}
                           title={task.title}
                         >
-                          {task.title}
+                          <div className="font-medium truncate">{task.title}</div>
+                          {task.tags && task.tags.length > 0 && (
+                            <div className="flex gap-0.5 mt-0.5 flex-wrap">
+                              {task.tags.slice(0, 2).map((tag: string, idx: number) => (
+                                <span key={idx} className="bg-white/20 px-1 rounded text-[10px]">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {task.responsible && (
+                            <div className="text-[10px] opacity-80 mt-0.5 truncate">
+                              {task.responsible}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
