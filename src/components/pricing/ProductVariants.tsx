@@ -91,7 +91,10 @@ export function ProductVariants({ productId }: ProductVariantsProps) {
       toast.success('Variante adicionada!');
       resetForm();
     },
-    onError: () => toast.error('Erro ao adicionar variante'),
+    onError: (error) => {
+      console.error('Error adding variant:', error);
+      toast.error('Erro ao adicionar variante');
+    },
     onSettled: () => setUploading(false),
   });
 
@@ -157,8 +160,10 @@ export function ProductVariants({ productId }: ProductVariantsProps) {
     }).format(value);
   };
 
-  const handleAddVariant = (e: React.FormEvent) => {
+  const handleAddVariant = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     if (!newVariant.nome.trim()) {
       toast.error('Digite o nome da variante');
       return;
@@ -179,7 +184,11 @@ export function ProductVariants({ productId }: ProductVariantsProps) {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => setIsAdding(true)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsAdding(true);
+            }}
             className="gap-1"
           >
             <Plus className="h-4 w-4" />
@@ -191,11 +200,10 @@ export function ProductVariants({ productId }: ProductVariantsProps) {
       {/* Add Variant Form */}
       <AnimatePresence>
         {isAdding && (
-          <motion.form
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            onSubmit={handleAddVariant}
             className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border"
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -220,7 +228,9 @@ export function ProductVariants({ productId }: ProductVariantsProps) {
                       />
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           setNewVariant(prev => ({ ...prev, foto_url: null }));
                           setImageFile(null);
                         }}
@@ -234,7 +244,11 @@ export function ProductVariants({ productId }: ProductVariantsProps) {
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        fileInputRef.current?.click();
+                      }}
                     >
                       <Upload className="h-4 w-4 mr-1" />
                       Foto
@@ -277,14 +291,26 @@ export function ProductVariants({ productId }: ProductVariantsProps) {
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="ghost" onClick={resetForm}>
+              <Button 
+                type="button" 
+                variant="ghost" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  resetForm();
+                }}
+              >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={uploading || addMutation.isPending}>
+              <Button 
+                type="button"
+                onClick={handleAddVariant}
+                disabled={uploading || addMutation.isPending}
+              >
                 {uploading || addMutation.isPending ? 'Salvando...' : 'Adicionar'}
               </Button>
             </div>
-          </motion.form>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -367,10 +393,29 @@ function VariantItem({
             />
           </div>
           <div className="flex gap-1">
-            <Button size="sm" onClick={() => onSave(editData)} className="h-9">
+            <Button 
+              type="button"
+              size="sm" 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onSave(editData);
+              }} 
+              className="h-9"
+            >
               <Save className="h-4 w-4" />
             </Button>
-            <Button size="sm" variant="ghost" onClick={onCancel} className="h-9">
+            <Button 
+              type="button"
+              size="sm" 
+              variant="ghost" 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onCancel();
+              }} 
+              className="h-9"
+            >
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -396,10 +441,30 @@ function VariantItem({
           </p>
         </div>
         <div className="flex gap-1">
-          <Button size="icon" variant="ghost" onClick={onEdit} className="h-8 w-8">
+          <Button 
+            type="button"
+            size="icon" 
+            variant="ghost" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onEdit();
+            }} 
+            className="h-8 w-8"
+          >
             <Edit2 className="h-4 w-4" />
           </Button>
-          <Button size="icon" variant="ghost" onClick={onDelete} className="h-8 w-8 text-destructive">
+          <Button 
+            type="button"
+            size="icon" 
+            variant="ghost" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onDelete();
+            }} 
+            className="h-8 w-8 text-destructive"
+          >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
