@@ -1,23 +1,27 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Plus, LayoutGrid, Table as TableIcon, Calendar as CalendarIcon, Search } from 'lucide-react';
+import { Plus, LayoutGrid, Table as TableIcon, Calendar as CalendarIcon } from 'lucide-react';
 import { CreateWorkspaceDialog } from '@/components/workspace/CreateWorkspaceDialog';
 import { WorkspaceKanban } from '@/components/workspace/WorkspaceKanban';
 import { WorkspaceTable } from '@/components/workspace/WorkspaceTable';
 import { WorkspaceCalendar } from '@/components/workspace/WorkspaceCalendar';
+import { WorkspaceFilters } from '@/components/workspace/WorkspaceFilters';
 import { motion } from 'framer-motion';
+import { isToday, isThisWeek, isThisMonth, isBefore, startOfDay } from 'date-fns';
 
 export default function WorkspaceNeua() {
   const { user } = useAuth();
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string | null>(null);
   const [view, setView] = useState<'kanban' | 'table' | 'calendar'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
+  const [responsibleFilter, setResponsibleFilter] = useState('todos');
+  const [tagFilter, setTagFilter] = useState('todas');
+  const [dateFilter, setDateFilter] = useState('todas');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const { data: workspaces = [], isLoading } = useQuery({
@@ -35,6 +39,79 @@ export default function WorkspaceNeua() {
     enabled: !!user?.id,
   });
 
+  const { data: tasks = [] } = useQuery({
+    queryKey: ['workspace-tasks', selectedWorkspaceId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('workspace_tasks')
+        .select('*, workspace_subtasks(*)')
+        .eq('workspace_id', selectedWorkspaceId!)
+        .order('order_index', { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedWorkspaceId,
+  });
+
+  // Extract unique responsibles and tags from tasks
+  const { availableResponsibles, availableTags } = useMemo(() => {
+    const responsibles = new Set<string>();
+    const tags = new Set<string>();
+    
+    tasks.forEach(task => {
+      if (task.responsible) responsibles.add(task.responsible);
+      if (task.tags) task.tags.forEach((tag: string) => tags.add(tag));
+    });
+    
+    return {
+      availableResponsibles: Array.from(responsibles).sort(),
+      availableTags: Array.from(tags).sort(),
+    };
+  }, [tasks]);
+
+  // Filter function for tasks
+  const filterTasks = (task: any) => {
+    // Search query filter
+    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Responsible filter
+    const matchesResponsible = responsibleFilter === 'todos' || 
+      task.responsible === responsibleFilter;
+    
+    // Tag filter
+    const matchesTag = tagFilter === 'todas' || 
+      (task.tags && task.tags.includes(tagFilter));
+    
+    // Date filter
+    let matchesDate = true;
+    if (dateFilter !== 'todas') {
+      const taskDate = task.date ? new Date(task.date) : null;
+      const today = startOfDay(new Date());
+      
+      switch (dateFilter) {
+        case 'hoje':
+          matchesDate = taskDate ? isToday(taskDate) : false;
+          break;
+        case 'semana':
+          matchesDate = taskDate ? isThisWeek(taskDate, { weekStartsOn: 1 }) : false;
+          break;
+        case 'mes':
+          matchesDate = taskDate ? isThisMonth(taskDate) : false;
+          break;
+        case 'atrasadas':
+          matchesDate = taskDate ? isBefore(taskDate, today) : false;
+          break;
+        case 'sem-data':
+          matchesDate = !taskDate;
+          break;
+      }
+    }
+    
+    return matchesSearch && matchesResponsible && matchesTag && matchesDate;
+  };
+
   const selectedWorkspace = workspaces?.find(w => w.id === selectedWorkspaceId);
 
   if (isLoading) {
@@ -46,29 +123,29 @@ export default function WorkspaceNeua() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6 md:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 text-foreground font-['Space_Grotesk']">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-4xl font-bold mb-2 text-foreground font-['Space_Grotesk']">
             Workspace Neua
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm md:text-base text-muted-foreground">
             Gerencie suas tarefas e projetos de forma visual e organizada
           </p>
         </div>
 
         {/* Workspace Selector & Actions */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
           <Select value={selectedWorkspaceId || ''} onValueChange={setSelectedWorkspaceId}>
-            <SelectTrigger className="w-full md:w-[300px]">
+            <SelectTrigger className="w-full sm:w-[300px]">
               <SelectValue placeholder="Selecione um workspace" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-popover border border-border">
               {workspaces?.map((workspace) => (
                 <SelectItem key={workspace.id} value={workspace.id}>
                   {workspace.name}
@@ -85,31 +162,34 @@ export default function WorkspaceNeua() {
 
         {selectedWorkspace && (
           <>
-            {/* Search & View Tabs */}
-            <div className="flex flex-col md:flex-row gap-4 mb-6 items-center justify-between">
-              <div className="relative w-full md:w-[400px]">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar tarefas..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+            {/* Filters & View Tabs */}
+            <div className="flex flex-col gap-4 mb-6">
+              <WorkspaceFilters
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                responsibleFilter={responsibleFilter}
+                onResponsibleChange={setResponsibleFilter}
+                tagFilter={tagFilter}
+                onTagChange={setTagFilter}
+                dateFilter={dateFilter}
+                onDateChange={setDateFilter}
+                availableResponsibles={availableResponsibles}
+                availableTags={availableTags}
+              />
 
-              <Tabs value={view} onValueChange={(v) => setView(v as any)} className="w-auto">
-                <TabsList>
+              <Tabs value={view} onValueChange={(v) => setView(v as any)} className="w-full sm:w-auto">
+                <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:inline-flex">
                   <TabsTrigger value="kanban" className="gap-2">
                     <LayoutGrid className="h-4 w-4" />
-                    Kanban
+                    <span className="hidden sm:inline">Kanban</span>
                   </TabsTrigger>
                   <TabsTrigger value="table" className="gap-2">
                     <TableIcon className="h-4 w-4" />
-                    Tabela
+                    <span className="hidden sm:inline">Tabela</span>
                   </TabsTrigger>
                   <TabsTrigger value="calendar" className="gap-2">
                     <CalendarIcon className="h-4 w-4" />
-                    Calendário
+                    <span className="hidden sm:inline">Calendário</span>
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -125,19 +205,19 @@ export default function WorkspaceNeua() {
               {view === 'kanban' && (
                 <WorkspaceKanban
                   workspaceId={selectedWorkspace.id}
-                  searchQuery={searchQuery}
+                  filterFn={filterTasks}
                 />
               )}
               {view === 'table' && (
                 <WorkspaceTable
                   workspaceId={selectedWorkspace.id}
-                  searchQuery={searchQuery}
+                  filterFn={filterTasks}
                 />
               )}
               {view === 'calendar' && (
                 <WorkspaceCalendar
                   workspaceId={selectedWorkspace.id}
-                  searchQuery={searchQuery}
+                  filterFn={filterTasks}
                 />
               )}
             </motion.div>
