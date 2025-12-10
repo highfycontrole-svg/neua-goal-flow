@@ -12,10 +12,10 @@ import { motion } from 'framer-motion';
 
 interface WorkspaceCalendarProps {
   workspaceId: string;
-  searchQuery: string;
+  filterFn?: (task: any) => boolean;
 }
 
-export function WorkspaceCalendar({ workspaceId, searchQuery }: WorkspaceCalendarProps) {
+export function WorkspaceCalendar({ workspaceId, filterFn }: WorkspaceCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
@@ -47,9 +47,7 @@ export function WorkspaceCalendar({ workspaceId, searchQuery }: WorkspaceCalenda
     },
   });
 
-  const filteredTasks = tasks.filter(task =>
-    task.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTasks = filterFn ? tasks.filter(filterFn) : tasks;
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);

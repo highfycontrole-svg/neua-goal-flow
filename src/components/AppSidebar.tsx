@@ -54,7 +54,7 @@ export function AppSidebar() {
   } = useSidebar();
   const isActive = (path: string) => location.pathname === path;
   const isGroupActive = (basePath: string) => location.pathname.startsWith(basePath);
-  return <Sidebar className="m-2.5 rounded-2xl border border-border/50 bg-black">
+  return <Sidebar variant="floating" className="m-2.5 md:m-[10px] rounded-2xl border border-border/50 bg-black h-[calc(100vh-20px)] md:h-[calc(100vh-20px)]">
       <SidebarContent>
         <SidebarGroup>
           <div className="px-4 py-6 flex items-center justify-center">

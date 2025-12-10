@@ -358,6 +358,47 @@ export type Database = {
           },
         ]
       }
+      product_variants: {
+        Row: {
+          created_at: string
+          foto_url: string | null
+          id: string
+          nome: string
+          preco_custo: number
+          preco_venda: number
+          product_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          foto_url?: string | null
+          id?: string
+          nome: string
+          preco_custo?: number
+          preco_venda?: number
+          product_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          foto_url?: string | null
+          id?: string
+          nome?: string
+          preco_custo?: number
+          preco_venda?: number
+          product_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       produtos: {
         Row: {
           categoria: string | null
@@ -548,6 +589,7 @@ export type Database = {
           completed: boolean
           created_at: string
           id: string
+          order_index: number | null
           task_id: string
           title: string
         }
@@ -555,6 +597,7 @@ export type Database = {
           completed?: boolean
           created_at?: string
           id?: string
+          order_index?: number | null
           task_id: string
           title: string
         }
@@ -562,6 +605,7 @@ export type Database = {
           completed?: boolean
           created_at?: string
           id?: string
+          order_index?: number | null
           task_id?: string
           title?: string
         }
@@ -582,6 +626,7 @@ export type Database = {
           description: string | null
           id: string
           notes: string | null
+          order_index: number | null
           responsible: string | null
           status_id: string | null
           tags: string[] | null
@@ -595,6 +640,7 @@ export type Database = {
           description?: string | null
           id?: string
           notes?: string | null
+          order_index?: number | null
           responsible?: string | null
           status_id?: string | null
           tags?: string[] | null
@@ -608,6 +654,7 @@ export type Database = {
           description?: string | null
           id?: string
           notes?: string | null
+          order_index?: number | null
           responsible?: string | null
           status_id?: string | null
           tags?: string[] | null
