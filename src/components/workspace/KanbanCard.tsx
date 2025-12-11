@@ -42,9 +42,10 @@ export function KanbanCard({ task, onClick, isDragging }: KanbanCardProps) {
     >
       <Card
         onClick={onClick}
-        className={`p-3 cursor-pointer hover:shadow-md transition-shadow ${
+        className={`p-3 cursor-pointer hover:shadow-md transition-shadow border-border/50 ${
           isDragging ? 'shadow-lg' : ''
         }`}
+        style={{ backgroundColor: '#1a1a1a' }}
       >
         <h4 className="font-medium text-sm mb-2 text-foreground">{task.title}</h4>
 

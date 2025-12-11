@@ -73,8 +73,9 @@ export default function ProductCard({ produto, onDelete, onEdit }: ProductCardPr
       transition={{ duration: 0.2 }}
     >
       <Card 
-        className="bg-card border-border/50 overflow-hidden group cursor-pointer"
+        className="border-border/50 overflow-hidden group cursor-pointer"
         onClick={onEdit}
+        style={{ backgroundColor: '#161616' }}
       >
         {/* Image */}
         <div className="relative h-40 bg-muted/30">
