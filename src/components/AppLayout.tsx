@@ -10,11 +10,16 @@ interface AppLayoutProps {
 function MainContent({ children }: { children: ReactNode }) {
   const { open, isMobile } = useSidebar();
   
+  // Sidebar width + 30px gap
+  // Open sidebar: 350px + 30px margin + 30px gap = 410px
+  // Collapsed sidebar: 70px + 30px margin + 30px gap = 130px
+  const sidebarSpace = open ? 410 : 130;
+  
   return (
     <div 
       className="flex-1 flex flex-col min-h-screen transition-all duration-300"
       style={{
-        marginLeft: isMobile ? 0 : (open ? '380px' : '100px'),
+        marginLeft: isMobile ? 0 : `${sidebarSpace}px`,
         marginRight: isMobile ? 0 : '30px',
         marginTop: isMobile ? 0 : '30px',
         marginBottom: isMobile ? 0 : '30px',
@@ -28,7 +33,7 @@ function MainContent({ children }: { children: ReactNode }) {
         </header>
       )}
 
-      {/* Floating Content Block */}
+      {/* Floating Content Block - #292929 */}
       <motion.main 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -36,11 +41,15 @@ function MainContent({ children }: { children: ReactNode }) {
         className={`
           flex-1 
           ${isMobile 
-            ? 'bg-card' 
-            : 'floating-content rounded-[18px]'
+            ? '' 
+            : 'rounded-[18px]'
           }
           overflow-hidden
         `}
+        style={{
+          backgroundColor: '#292929',
+          boxShadow: isMobile ? 'none' : '0 8px 32px -8px hsl(0 0% 0% / 0.4)',
+        }}
       >
         <div className="h-full overflow-auto content-spacing">
           {children}
@@ -53,7 +62,7 @@ function MainContent({ children }: { children: ReactNode }) {
 export function AppLayout({ children }: AppLayoutProps) {
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full" style={{ backgroundColor: '#161616' }}>
         <AppSidebar />
         <MainContent>{children}</MainContent>
       </div>
