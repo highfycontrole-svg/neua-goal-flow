@@ -160,18 +160,18 @@ export default function CreatorsResumo() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6 md:space-y-8 p-3 sm:p-4 md:p-6">
       <div>
-        <h1 className="text-4xl font-display font-bold mb-2">Resumo - Creators</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold mb-2">Resumo - Creators</h1>
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Visão estratégica do desempenho do Neua Creators Club
         </p>
       </div>
 
       {/* Filtros */}
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-4">
         <Select value={filterMes} onValueChange={setFilterMes}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[120px] sm:w-[150px] md:w-[180px]">
             <SelectValue placeholder="Mês" />
           </SelectTrigger>
           <SelectContent>
@@ -184,7 +184,7 @@ export default function CreatorsResumo() {
         </Select>
 
         <Select value={filterAno} onValueChange={setFilterAno}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[100px] sm:w-[120px] md:w-[180px]">
             <SelectValue placeholder="Ano" />
           </SelectTrigger>
           <SelectContent>
@@ -195,7 +195,7 @@ export default function CreatorsResumo() {
         </Select>
 
         <Select value={filterTier} onValueChange={setFilterTier}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[120px] sm:w-[150px] md:w-[180px]">
             <SelectValue placeholder="Classificação" />
           </SelectTrigger>
           <SelectContent>
@@ -208,7 +208,7 @@ export default function CreatorsResumo() {
         </Select>
 
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[120px] sm:w-[150px] md:w-[180px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -222,7 +222,7 @@ export default function CreatorsResumo() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
         <KPICard
           title="Creators Ativos"
           value={stats.totalAtivos}
@@ -250,19 +250,19 @@ export default function CreatorsResumo() {
       </div>
 
       {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Vendas por Creator */}
-        <div className="card-neua p-6">
-          <h3 className="text-xl font-display font-bold mb-4">Vendas por Creator</h3>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: '#161616' }}>
+          <h3 className="text-lg sm:text-xl font-display font-bold mb-4">Vendas por Creator</h3>
+          <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
             <BarChart data={vendasPorCreator}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: 'hsl(var(--card))', 
-                  border: '1px solid hsl(var(--border))',
+                  backgroundColor: '#1a1a1a', 
+                  border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '8px'
                 }}
               />
@@ -272,17 +272,17 @@ export default function CreatorsResumo() {
         </div>
 
         {/* Evolução de Creators */}
-        <div className="card-neua p-6">
-          <h3 className="text-xl font-display font-bold mb-4">Evolução de Creators Ativos</h3>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: '#161616' }}>
+          <h3 className="text-lg sm:text-xl font-display font-bold mb-4">Evolução de Creators Ativos</h3>
+          <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
             <LineChart data={evolucaoCreators}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-              <XAxis dataKey="mes" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+              <XAxis dataKey="mes" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: 'hsl(var(--card))', 
-                  border: '1px solid hsl(var(--border))',
+                  backgroundColor: '#1a1a1a', 
+                  border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '8px'
                 }}
               />
@@ -292,16 +292,16 @@ export default function CreatorsResumo() {
         </div>
 
         {/* Distribuição por Tier */}
-        <div className="card-neua p-6">
-          <h3 className="text-xl font-display font-bold mb-4">Distribuição por Tier</h3>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: '#161616' }}>
+          <h3 className="text-lg sm:text-xl font-display font-bold mb-4">Distribuição por Tier</h3>
+          <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
             <PieChart>
               <Pie
                 data={distribuicaoTier}
                 cx="50%"
                 cy="50%"
-                innerRadius={60}
-                outerRadius={100}
+                innerRadius={50}
+                outerRadius={80}
                 fill="#8884d8"
                 paddingAngle={5}
                 dataKey="value"
@@ -311,23 +311,29 @@ export default function CreatorsResumo() {
                   <Cell key={`cell-${index}`} fill={tierColors[entry.name] || COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#1a1a1a', 
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px'
+                }}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>
 
         {/* Status de Conteúdo */}
-        <div className="card-neua p-6">
-          <h3 className="text-xl font-display font-bold mb-4">Status de Entrega de Conteúdo</h3>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: '#161616' }}>
+          <h3 className="text-lg sm:text-xl font-display font-bold mb-4">Status de Entrega de Conteúdo</h3>
+          <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
             <BarChart data={conteudoStatus}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: 'hsl(var(--card))', 
-                  border: '1px solid hsl(var(--border))',
+                  backgroundColor: '#1a1a1a', 
+                  border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '8px'
                 }}
               />

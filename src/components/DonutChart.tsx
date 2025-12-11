@@ -43,21 +43,22 @@ export function DonutChart({ data, onSectorClick }: DonutChartProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="card-neua p-6"
+        className="p-4 sm:p-6 rounded-2xl border border-border/30"
+        style={{ backgroundColor: '#161616' }}
       >
-        <h3 className="text-xl font-display font-semibold mb-4">Distribuição por Setor</h3>
-        <ResponsiveContainer width="100%" height={300}>
+        <h3 className="text-lg sm:text-xl font-display font-semibold mb-4">Distribuição por Setor</h3>
+        <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
           <PieChart>
             <Pie
               data={chartData}
               cx="50%"
               cy="50%"
-              innerRadius={60}
-              outerRadius={100}
+              innerRadius={50}
+              outerRadius={80}
               paddingAngle={2}
               dataKey="value"
               onClick={(data) => onSectorClick?.(data.name)}
@@ -69,12 +70,12 @@ export function DonutChart({ data, onSectorClick }: DonutChartProps) {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: 'hsl(var(--card))',
-                border: '1px solid hsl(var(--border))',
+                backgroundColor: '#1a1a1a',
+                border: '1px solid rgba(255,255,255,0.1)',
                 borderRadius: '0.75rem',
               }}
             />
-            <Legend />
+            <Legend wrapperStyle={{ fontSize: '12px' }} />
           </PieChart>
         </ResponsiveContainer>
       </motion.div>
@@ -83,17 +84,18 @@ export function DonutChart({ data, onSectorClick }: DonutChartProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="card-neua p-6"
+        className="p-4 sm:p-6 rounded-2xl border border-border/30"
+        style={{ backgroundColor: '#161616' }}
       >
-        <h3 className="text-xl font-display font-semibold mb-4">Status das Metas</h3>
-        <ResponsiveContainer width="100%" height={300}>
+        <h3 className="text-lg sm:text-xl font-display font-semibold mb-4">Status das Metas</h3>
+        <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
           <PieChart>
             <Pie
               data={statusChartData}
               cx="50%"
               cy="50%"
-              innerRadius={60}
-              outerRadius={100}
+              innerRadius={50}
+              outerRadius={80}
               paddingAngle={5}
               dataKey="value"
             >
@@ -102,12 +104,12 @@ export function DonutChart({ data, onSectorClick }: DonutChartProps) {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: 'hsl(var(--card))',
-                border: '1px solid hsl(var(--border))',
+                backgroundColor: '#1a1a1a',
+                border: '1px solid rgba(255,255,255,0.1)',
                 borderRadius: '0.75rem',
               }}
             />
-            <Legend />
+            <Legend wrapperStyle={{ fontSize: '12px' }} />
           </PieChart>
         </ResponsiveContainer>
       </motion.div>

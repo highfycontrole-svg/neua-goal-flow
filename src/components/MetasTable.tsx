@@ -79,22 +79,23 @@ export function MetasTable({ metas, superMetas, setores, allMetas = [], onUpdate
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="card-neua p-6 mb-6"
+      className="p-3 sm:p-4 md:p-6 mb-4 sm:mb-6 rounded-xl border border-border/30"
+      style={{ backgroundColor: '#1a1a1a' }}
     >
-      <h3 className="text-xl font-display font-semibold mb-4">{title}</h3>
-      <div className="rounded-xl border border-border overflow-hidden">
+      <h3 className="text-lg sm:text-xl font-display font-semibold mb-3 sm:mb-4">{title}</h3>
+      <div className="rounded-xl border border-border/30 overflow-x-auto" style={{ backgroundColor: '#161616' }}>
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead>Status</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Setor</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Meta</TableHead>
-              <TableHead>Realizado</TableHead>
-              <TableHead>Prioridade</TableHead>
-              <TableHead>Período</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+            <TableRow className="bg-white/5">
+              <TableHead className="text-xs sm:text-sm">Status</TableHead>
+              <TableHead className="text-xs sm:text-sm">Nome</TableHead>
+              <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Setor</TableHead>
+              <TableHead className="text-xs sm:text-sm hidden md:table-cell">Tipo</TableHead>
+              <TableHead className="text-xs sm:text-sm">Meta</TableHead>
+              <TableHead className="text-xs sm:text-sm hidden lg:table-cell">Realizado</TableHead>
+              <TableHead className="text-xs sm:text-sm hidden md:table-cell">Prioridade</TableHead>
+              <TableHead className="text-xs sm:text-sm hidden lg:table-cell">Período</TableHead>
+              <TableHead className="text-xs sm:text-sm text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -106,51 +107,53 @@ export function MetasTable({ metas, superMetas, setores, allMetas = [], onUpdate
               </TableRow>
             ) : (
               items.map((item) => (
-                <TableRow key={item.id} className="hover:bg-muted/30">
+                <TableRow key={item.id} className="hover:bg-white/5 transition-colors">
                   <TableCell>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleToggleStatus(item.id, item.status, tipo)}
-                      className="p-0 h-8 w-8"
+                      className="p-0 h-6 w-6 sm:h-8 sm:w-8"
                     >
                       {item.status ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-500" />
+                        <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
                       ) : (
-                        <Circle className="h-5 w-5 text-muted-foreground" />
+                        <Circle className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
                       )}
                     </Button>
                   </TableCell>
-                  <TableCell className="font-medium">{item.nome}</TableCell>
-                  <TableCell>{item.setores?.nome || '-'}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{item.tipo}</Badge>
+                  <TableCell className="font-medium text-xs sm:text-sm max-w-[120px] sm:max-w-none truncate">{item.nome}</TableCell>
+                  <TableCell className="text-xs sm:text-sm hidden sm:table-cell">{item.setores?.nome || '-'}</TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <Badge variant="outline" className="text-xs">{item.tipo}</Badge>
                   </TableCell>
-                  <TableCell>{item.valor_meta}</TableCell>
-                  <TableCell>{item.valor_realizado || '-'}</TableCell>
-                  <TableCell>
-                    <Badge variant={getPriorityColor(item.prioridade)}>
+                  <TableCell className="text-xs sm:text-sm">{item.valor_meta}</TableCell>
+                  <TableCell className="text-xs sm:text-sm hidden lg:table-cell">{item.valor_realizado || '-'}</TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <Badge variant={getPriorityColor(item.prioridade)} className="text-xs">
                       {item.prioridade}
                     </Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-xs sm:text-sm hidden lg:table-cell">
                     {new Date(2000, item.mes - 1).toLocaleString('pt-BR', { month: 'short' })}/{item.ano}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-1 sm:gap-2">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setEditingItem({ item, tipo })}
+                        className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-3 w-3 sm:h-4 sm:w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(item.id, tipo)}
+                        className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
+                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-destructive" />
                       </Button>
                     </div>
                   </TableCell>
