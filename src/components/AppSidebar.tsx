@@ -1,125 +1,199 @@
-import { Target, Users, BarChart3, User, DollarSign, Package, MessageSquare, LogOut, LayoutGrid, Calculator } from 'lucide-react';
+import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarFooter, useSidebar } from '@/components/ui/sidebar';
-const metasItems = [{
-  title: 'Resumo',
-  url: '/dashboard',
-  icon: BarChart3
-}, {
-  title: 'Metas',
-  url: '/dashboard/metas',
-  icon: Target
-}, {
-  title: 'Super Metas',
-  url: '/dashboard/super-metas',
-  icon: Target
-}];
-const creatorsItems = [{
-  title: 'Resumo',
-  url: '/creators',
-  icon: BarChart3
-}, {
-  title: 'Registro',
-  url: '/creators/registro',
-  icon: User
-}, {
-  title: 'Desempenho & Financeiro',
-  url: '/creators/desempenho',
-  icon: DollarSign
-}, {
-  title: 'Logística & Conteúdo',
-  url: '/creators/logistica',
-  icon: Package
-}, {
-  title: 'Histórico de Interações',
-  url: '/creators/interacoes',
-  icon: MessageSquare
-}];
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarFooter,
+  useSidebar,
+} from '@/components/ui/sidebar';
 
-const workspaceItems = [{
-  title: 'Workspace',
-  url: '/workspace',
-  icon: LayoutGrid
-}];
+const menuItems = [
+  {
+    title: 'Metas',
+    url: '/dashboard',
+    icon: Target,
+    basePath: '/dashboard',
+  },
+  {
+    title: 'Neua Creators',
+    url: '/creators',
+    icon: Users,
+    basePath: '/creators',
+  },
+  {
+    title: 'Workspace Neua',
+    url: '/workspace',
+    icon: LayoutGrid,
+    basePath: '/workspace',
+  },
+  {
+    title: 'Precificação & Catálogo',
+    url: '/pricing',
+    icon: Calculator,
+    basePath: '/pricing',
+  },
+];
+
 export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const {
-    signOut
-  } = useAuth();
-  const {
-    open
-  } = useSidebar();
-  const isActive = (path: string) => location.pathname === path;
-  const isGroupActive = (basePath: string) => location.pathname.startsWith(basePath);
-  return <Sidebar variant="floating" className="m-2.5 md:m-[10px] rounded-2xl border border-border/50 bg-black h-[calc(100vh-20px)] md:h-[calc(100vh-20px)]">
-      <SidebarContent>
-        <SidebarGroup>
-          <div className="px-4 py-6 flex items-center justify-center">
-            <img src={logo} alt="Neua" className="h-10 w-auto" />
+  const { signOut } = useAuth();
+  const { open, setOpen, isMobile } = useSidebar();
+
+  const isActive = (basePath: string) => location.pathname.startsWith(basePath);
+  
+  const currentDate = format(new Date(), "dd MMM, yyyy", { locale: ptBR });
+
+  return (
+    <Sidebar
+      className={`
+        fixed left-0 top-0 h-screen z-50
+        ${isMobile 
+          ? 'w-[280px]' 
+          : open 
+            ? 'w-[350px] ml-[30px] my-[30px] h-[calc(100vh-60px)]' 
+            : 'w-[70px] ml-[30px] my-[30px] h-[calc(100vh-60px)]'
+        }
+        bg-background border-none
+        transition-all duration-300 ease-out
+      `}
+      collapsible="icon"
+    >
+      <SidebarContent className="px-4 py-6 flex flex-col h-full">
+        {/* Header */}
+        <SidebarGroup className="mb-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <motion.img 
+                src={logo} 
+                alt="Neua" 
+                className={`${open ? 'h-10' : 'h-8'} w-auto transition-all duration-300`}
+                whileHover={{ scale: 1.05 }}
+              />
+              <AnimatePresence>
+                {open && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex flex-col"
+                  >
+                    <span className="font-display font-semibold text-foreground text-lg">Neua</span>
+                    <span className="text-xs text-muted-foreground">@neua.co</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            
+            {!isMobile && (
+              <motion.button
+                onClick={() => setOpen(!open)}
+                className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-all duration-200"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {open ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeft className="h-5 w-5" />}
+              </motion.button>
+            )}
           </div>
-          
+        </SidebarGroup>
+
+        {/* Divider */}
+        <div className="divider-neua my-4" />
+
+        {/* Welcome Message */}
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="px-2 mb-6"
+            >
+              <p className="text-foreground font-medium">Bem-vindo de volta, <span className="text-primary">Neua</span></p>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                <Calendar className="h-3.5 w-3.5" />
+                <span className="capitalize">{currentDate}</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Menu Items */}
+        <SidebarGroup className="flex-1">
           <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/dashboard')} isActive={isGroupActive('/dashboard')} className="font-semibold hover:bg-primary hover:text-primary-foreground transition-colors">
-                  <Target className="h-5 w-5" />
-                  {open && <span>Metas</span>}
-                </SidebarMenuButton>
-                {open && isGroupActive('/dashboard') && <SidebarMenuSub>
-                    {metasItems.map(item => <SidebarMenuSubItem key={item.url}>
-                        <SidebarMenuSubButton onClick={() => navigate(item.url)} isActive={isActive(item.url)} className="hover:bg-primary hover:text-primary-foreground transition-colors">
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.title}</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>)}
-                  </SidebarMenuSub>}
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/creators')} isActive={isGroupActive('/creators')} className="font-semibold hover:bg-primary hover:text-primary-foreground transition-colors">
-                  <Users className="h-5 w-5" />
-                  {open && <span>Neua Creators</span>}
-                </SidebarMenuButton>
-                {open && isGroupActive('/creators') && <SidebarMenuSub>
-                    {creatorsItems.map(item => <SidebarMenuSubItem key={item.url}>
-                        <SidebarMenuSubButton onClick={() => navigate(item.url)} isActive={isActive(item.url)} className="hover:bg-primary hover:text-primary-foreground transition-colors">
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.title}</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>)}
-                  </SidebarMenuSub>}
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/workspace')} isActive={isActive('/workspace')} className="font-semibold hover:bg-primary hover:text-primary-foreground transition-colors">
-                  <LayoutGrid className="h-5 w-5" />
-                  {open && <span>Workspace Neua</span>}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/pricing')} isActive={isActive('/pricing')} className="font-semibold hover:bg-primary hover:text-primary-foreground transition-colors">
-                  <Calculator className="h-5 w-5" />
-                  {open && <span>Precificação & Produtos</span>}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+            <SidebarMenu className="space-y-2">
+              {menuItems.map((item, index) => {
+                const active = isActive(item.basePath);
+                return (
+                  <SidebarMenuItem key={item.url}>
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                    >
+                      <SidebarMenuButton
+                        onClick={() => navigate(item.url)}
+                        className={`
+                          w-full h-12 rounded-xl transition-all duration-300
+                          ${active 
+                            ? 'bg-primary text-primary-foreground shadow-lg' 
+                            : 'text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:shadow-lg'
+                          }
+                          ${open ? 'px-4' : 'px-3 justify-center'}
+                        `}
+                        style={{
+                          boxShadow: active ? '0 0 25px hsl(217 91% 60% / 0.4)' : undefined,
+                        }}
+                      >
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <item.icon className={`${open ? 'h-5 w-5' : 'h-6 w-6'}`} />
+                        </motion.div>
+                        {open && (
+                          <span className="ml-3 font-medium truncate">{item.title}</span>
+                        )}
+                      </SidebarMenuButton>
+                    </motion.div>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-      </SidebarContent>
 
-      <SidebarFooter className="border-t border-border/50">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={signOut} className="hover:bg-primary hover:text-primary-foreground transition-colors">
-              <LogOut className="h-5 w-5" />
-              {open && <span>Sair</span>}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>;
+        {/* Footer - Logout */}
+        <SidebarFooter className="mt-auto pt-4">
+          <div className="divider-neua mb-4" />
+          <motion.button
+            onClick={signOut}
+            className={`
+              w-full h-12 rounded-xl bg-secondary text-foreground
+              flex items-center gap-3 transition-all duration-300
+              hover:bg-destructive hover:text-destructive-foreground
+              ${open ? 'px-4 justify-start' : 'px-3 justify-center'}
+            `}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <LogOut className={`${open ? 'h-5 w-5' : 'h-6 w-6'}`} />
+            {open && <span className="font-medium">Sair</span>}
+          </motion.button>
+        </SidebarFooter>
+      </SidebarContent>
+    </Sidebar>
+  );
 }
