@@ -10,19 +10,20 @@ interface AppLayoutProps {
 function MainContent({ children }: { children: ReactNode }) {
   const { open, isMobile } = useSidebar();
   
-  // Sidebar width + 30px gap
-  // Open sidebar: 350px + 30px margin + 30px gap = 410px
-  // Collapsed sidebar: 70px + 30px margin + 30px gap = 130px
-  const sidebarSpace = open ? 410 : 130;
+  // Dynamic spacing: sidebar width + 30px left margin of sidebar + 30px gap
+  // Open: 320px sidebar + 30px margin + 30px gap = 380px
+  // Collapsed: 80px sidebar + 30px margin + 30px gap = 140px
+  const leftMargin = open ? 380 : 140;
   
   return (
     <div 
-      className="flex-1 flex flex-col min-h-screen transition-all duration-300"
+      className="flex-1 flex flex-col transition-all duration-300 ease-out"
       style={{
-        marginLeft: isMobile ? 0 : `${sidebarSpace}px`,
+        marginLeft: isMobile ? 0 : `${leftMargin}px`,
         marginRight: isMobile ? 0 : '30px',
         marginTop: isMobile ? 0 : '30px',
         marginBottom: isMobile ? 0 : '30px',
+        minHeight: isMobile ? '100vh' : 'calc(100vh - 60px)',
       }}
     >
       {/* Mobile Header */}
@@ -33,17 +34,14 @@ function MainContent({ children }: { children: ReactNode }) {
         </header>
       )}
 
-      {/* Floating Content Block - #292929 */}
+      {/* Floating Content Block */}
       <motion.main 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
         className={`
           flex-1 
-          ${isMobile 
-            ? '' 
-            : 'rounded-[18px]'
-          }
+          ${isMobile ? '' : 'rounded-[18px]'}
           overflow-hidden
         `}
         style={{
