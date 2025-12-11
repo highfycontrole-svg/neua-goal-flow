@@ -19,8 +19,8 @@
     --background: 0 0% 9%; /* #161616 */
     --foreground: 0 0% 95%; /* #f2f2f2 */
     
-    /* Floating Content Block */
-    --card: 0 0% 19%; /* #303030 */
+    /* Floating Content Block - #292929 */
+    --card: 0 0% 16%; /* #292929 */
     --card-foreground: 0 0% 95%;
     
     /* Popover/Dialog */
