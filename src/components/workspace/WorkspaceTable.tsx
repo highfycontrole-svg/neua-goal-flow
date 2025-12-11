@@ -39,7 +39,7 @@ function SortableTableRow({ task, status, isExpanded, isHovered, subtasks, onRow
       onClick={onRowClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="cursor-pointer hover:bg-muted/50"
+      className="cursor-pointer transition-all duration-200 hover:bg-white/5"
     >
       <TableCell className="font-medium">
         <div className="flex items-center gap-2">

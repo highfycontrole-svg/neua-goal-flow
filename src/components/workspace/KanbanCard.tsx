@@ -42,8 +42,8 @@ export function KanbanCard({ task, onClick, isDragging }: KanbanCardProps) {
     >
       <Card
         onClick={onClick}
-        className={`p-3 cursor-pointer hover:shadow-md transition-shadow border-border/50 ${
-          isDragging ? 'shadow-lg' : ''
+        className={`p-3 cursor-pointer transition-all duration-200 border-border/30 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 ${
+          isDragging ? 'shadow-lg shadow-primary/20 border-primary' : ''
         }`}
         style={{ backgroundColor: '#1a1a1a' }}
       >

@@ -18,7 +18,7 @@ export function KanbanColumn({ status, tasks, onTaskClick, onAddTask }: KanbanCo
   });
 
   return (
-    <Card className="p-4 border-border/50" style={{ backgroundColor: '#161616' }}>
+    <Card className="p-4 border-border/30 transition-all duration-200 hover:border-border/50" style={{ backgroundColor: '#161616' }}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div
