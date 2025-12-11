@@ -16,7 +16,8 @@ import CreatorsDesempenho from "./pages/creators/CreatorsDesempenho";
 import CreatorsLogistica from "./pages/creators/CreatorsLogistica";
 import CreatorsInteracoes from "./pages/creators/CreatorsInteracoes";
 import CreatorDetalhes from "./pages/creators/CreatorDetalhes";
-import WorkspaceNeua from "./pages/workspace/WorkspaceNeua";
+import WorkspaceResumo from "./pages/workspace/WorkspaceResumo";
+import WorkspaceDetalhe from "./pages/workspace/WorkspaceDetalhe";
 import PricingPage from "./pages/pricing/PricingPage";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "@/components/AppLayout";
@@ -128,7 +129,17 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AppLayout>
-                    <WorkspaceNeua />
+                    <WorkspaceResumo />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/workspace/:id"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <WorkspaceDetalhe />
                   </AppLayout>
                 </ProtectedRoute>
               }
