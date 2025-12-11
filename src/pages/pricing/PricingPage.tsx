@@ -372,7 +372,7 @@ export default function PricingPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <Card className="bg-card border-border/50">
+        <Card className="border-border/30" style={{ backgroundColor: '#161616' }}>
           <CardHeader>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <CardTitle className="text-xl text-foreground flex items-center gap-2">
@@ -453,7 +453,7 @@ export default function PricingPage() {
                   ))}
                 </div>
               ) : (
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-border/30" style={{ backgroundColor: '#1a1a1a' }}>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -472,7 +472,7 @@ export default function PricingPage() {
                       {filteredProducts.map((produto) => (
                         <TableRow 
                           key={produto.id} 
-                          className="cursor-pointer hover:bg-muted/50"
+                          className="cursor-pointer transition-all duration-200 hover:bg-white/5"
                           onClick={() => handleEditProduct(produto)}
                         >
                           <TableCell>
