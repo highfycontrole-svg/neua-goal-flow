@@ -203,18 +203,18 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="space-y-8 p-6">
+    <div className="space-y-4 sm:space-y-6 md:space-y-8 p-3 sm:p-4 md:p-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col gap-2"
       >
-        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-          <Calculator className="h-8 w-8 text-primary" />
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2 sm:gap-3">
+          <Calculator className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
           Precificação & Produtos Neua
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Calcule preços de venda e gerencie seu catálogo de produtos
         </p>
       </motion.div>
@@ -226,17 +226,17 @@ export default function PricingPage() {
         transition={{ delay: 0.1 }}
       >
         <Card className="border-border/30 backdrop-blur-xl" style={{ backgroundColor: 'rgba(22, 22, 22, 0.85)' }}>
-          <CardHeader>
-            <CardTitle className="text-xl text-foreground flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-primary" />
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl text-foreground flex items-center gap-2">
+              <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               Calculadora de Precificação
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6 pt-0">
             {/* Inputs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div className="space-y-2">
-                <Label htmlFor="custo" className="text-foreground">
+                <Label htmlFor="custo" className="text-foreground text-sm">
                   Custo do Fornecedor (R$)
                 </Label>
                 <Input
@@ -251,7 +251,7 @@ export default function PricingPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="frete" className="text-foreground">
+                <Label htmlFor="frete" className="text-foreground text-sm">
                   Frete (R$)
                 </Label>
                 <Input
@@ -268,18 +268,18 @@ export default function PricingPage() {
             </div>
 
             {/* Taxas Fixas */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-background/30 rounded-lg p-4 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Taxa Gateway</p>
-                <p className="text-lg font-bold text-foreground">{TAXA_GATEWAY}%</p>
+            <div className="grid grid-cols-3 gap-2 sm:gap-4">
+              <div className="bg-background/30 rounded-lg p-2 sm:p-4 text-center">
+                <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">Taxa Gateway</p>
+                <p className="text-sm sm:text-lg font-bold text-foreground">{TAXA_GATEWAY}%</p>
               </div>
-              <div className="bg-background/30 rounded-lg p-4 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Taxa Checkout</p>
-                <p className="text-lg font-bold text-foreground">{TAXA_CHECKOUT}%</p>
+              <div className="bg-background/30 rounded-lg p-2 sm:p-4 text-center">
+                <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">Taxa Checkout</p>
+                <p className="text-sm sm:text-lg font-bold text-foreground">{TAXA_CHECKOUT}%</p>
               </div>
-              <div className="bg-background/30 rounded-lg p-4 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Impostos</p>
-                <p className="text-lg font-bold text-foreground">{IMPOSTOS}%</p>
+              <div className="bg-background/30 rounded-lg p-2 sm:p-4 text-center">
+                <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">Impostos</p>
+                <p className="text-sm sm:text-lg font-bold text-foreground">{IMPOSTOS}%</p>
               </div>
             </div>
 

@@ -211,15 +211,15 @@ export default function Dashboard() {
   }
   
   return (
-    <div className="space-y-8" ref={dashboardRef}>
+    <div className="space-y-4 sm:space-y-6 md:space-y-8 p-3 sm:p-4 md:p-6" ref={dashboardRef}>
         {/* Page Header */}
         <div>
-          <h1 className="text-4xl font-display font-bold mb-2">Painel de Metas - Loja Neua</h1>
-          <p className="text-muted-foreground">Acompanhe o progresso das suas metas e super metas da Neua. </p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold mb-2">Painel de Metas - Loja Neua</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">Acompanhe o progresso das suas metas e super metas da Neua. </p>
         </div>
 
         {/* KPI Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           <KPICard title="Super Metas" value={stats.totalSuperMetas} icon={Target} description="Total de super metas cadastradas" />
           <KPICard title="Metas" value={stats.totalMetas} icon={TrendingUp} description="Total de metas cadastradas" />
           <KPICard title="Conclusão Geral" value={`${stats.percentualConclusao}%`} icon={Award} description="Percentual de metas concluídas" />
@@ -227,14 +227,14 @@ export default function Dashboard() {
         </div>
 
         {/* Filtros e Ações */}
-        <div className="card-neua p-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-3">
+        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: '#161616' }}>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <Select value={filters.ano.toString()} onValueChange={value => setFilters({
               ...filters,
               ano: parseInt(value)
             })}>
-                <SelectTrigger className="w-[120px]">
+                <SelectTrigger className="w-[100px] sm:w-[120px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -246,7 +246,7 @@ export default function Dashboard() {
               ...filters,
               mes: parseInt(value)
             })}>
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-[110px] sm:w-[140px]">
                   <SelectValue placeholder="Todos os meses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -265,7 +265,7 @@ export default function Dashboard() {
               ...filters,
               setor: value === 'all' ? '' : value
             })}>
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-[110px] sm:w-[140px]">
                   <SelectValue placeholder="Todos setores" />
                 </SelectTrigger>
                 <SelectContent>
@@ -283,7 +283,7 @@ export default function Dashboard() {
               </Button>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <ExportButtons metas={metas} superMetas={superMetas} dashboardRef={dashboardRef} />
               <CreateMetaDialog tipo="meta" onSuccess={loadStats} setores={setores} />
               <CreateMetaDialog tipo="super_meta" onSuccess={loadStats} setores={setores} metas={allMetas} />
@@ -303,22 +303,24 @@ export default function Dashboard() {
       }} />
 
         {/* Tabelas */}
-        <Tabs defaultValue="geral" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="geral">Geral</TabsTrigger>
-            <TabsTrigger value="por-setor">Por Setor</TabsTrigger>
-            <TabsTrigger value="resumo">Resumo</TabsTrigger>
-          </TabsList>
-          <TabsContent value="geral" className="mt-6">
-            <MetasTable metas={metas} superMetas={superMetas} setores={setores} allMetas={allMetas} onUpdate={loadStats} viewType="geral" />
-          </TabsContent>
-          <TabsContent value="por-setor" className="mt-6">
-            <MetasTable metas={metas} superMetas={superMetas} setores={setores} allMetas={allMetas} onUpdate={loadStats} viewType="por-setor" />
-          </TabsContent>
-          <TabsContent value="resumo" className="mt-6">
-            <MetasTable metas={metas} superMetas={superMetas} setores={setores} allMetas={allMetas} onUpdate={loadStats} viewType="resumo" />
-          </TabsContent>
-        </Tabs>
+        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: '#161616' }}>
+          <Tabs defaultValue="geral" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-4">
+              <TabsTrigger value="geral" className="text-xs sm:text-sm">Geral</TabsTrigger>
+              <TabsTrigger value="por-setor" className="text-xs sm:text-sm">Por Setor</TabsTrigger>
+              <TabsTrigger value="resumo" className="text-xs sm:text-sm">Resumo</TabsTrigger>
+            </TabsList>
+            <TabsContent value="geral">
+              <MetasTable metas={metas} superMetas={superMetas} setores={setores} allMetas={allMetas} onUpdate={loadStats} viewType="geral" />
+            </TabsContent>
+            <TabsContent value="por-setor">
+              <MetasTable metas={metas} superMetas={superMetas} setores={setores} allMetas={allMetas} onUpdate={loadStats} viewType="por-setor" />
+            </TabsContent>
+            <TabsContent value="resumo">
+              <MetasTable metas={metas} superMetas={superMetas} setores={setores} allMetas={allMetas} onUpdate={loadStats} viewType="resumo" />
+            </TabsContent>
+          </Tabs>
+        </div>
 
         {/* Gráfico de Barras - Movido para o final */}
         <MetasChart data={chartData} />

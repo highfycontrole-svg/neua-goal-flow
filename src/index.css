@@ -107,9 +107,26 @@
     box-shadow: var(--shadow-card);
   }
   
-  /* Premium Card Styles */
+  /* Container Card - #161616 background */
+  .card-container {
+    background-color: #161616;
+    @apply border border-border/30 rounded-2xl;
+  }
+  
+  /* Content Card - #242424 background (for items inside containers) */
+  .card-content {
+    background-color: #242424;
+    @apply border border-border/30 rounded-xl transition-all duration-200;
+  }
+  
+  .card-content:hover {
+    @apply border-primary/30;
+  }
+  
+  /* Premium Card Styles - Updated with proper contrast */
   .card-neua {
-    @apply bg-card/80 backdrop-blur-sm border border-border/30 rounded-2xl shadow-lg transition-all duration-300;
+    background-color: #161616;
+    @apply backdrop-blur-sm border border-border/30 rounded-2xl shadow-lg transition-all duration-300;
   }
   
   .card-neua:hover {
@@ -118,7 +135,8 @@
   }
   
   .card-neua-elevated {
-    @apply bg-card/90 backdrop-blur-md border border-border/20 rounded-2xl shadow-xl transition-all duration-300;
+    background-color: #1a1a1a;
+    @apply backdrop-blur-md border border-border/20 rounded-2xl shadow-xl transition-all duration-300;
   }
   
   .card-neua-elevated:hover {
@@ -247,7 +265,7 @@
 /* Responsive Utilities */
 @layer utilities {
   .content-spacing {
-    @apply p-4 md:p-6 lg:p-8;
+    @apply p-3 sm:p-4 md:p-6 lg:p-8;
   }
   
   .floating-block {
@@ -261,5 +279,51 @@
     .floating-block {
       margin-left: 0;
     }
+  }
+  
+  /* Mobile-first responsive text */
+  .text-responsive-title {
+    @apply text-xl sm:text-2xl md:text-3xl lg:text-4xl;
+  }
+  
+  .text-responsive-subtitle {
+    @apply text-sm sm:text-base;
+  }
+  
+  /* Mobile-friendly grids */
+  .grid-responsive-kpi {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6;
+  }
+  
+  .grid-responsive-charts {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6;
+  }
+  
+  .grid-responsive-cards {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4;
+  }
+  
+  /* Mobile-friendly flex */
+  .flex-responsive {
+    @apply flex flex-col sm:flex-row gap-3 sm:gap-4;
+  }
+  
+  .flex-responsive-wrap {
+    @apply flex flex-wrap gap-2 sm:gap-3;
+  }
+}
+
+/* Dialog/Modal Mobile Optimization */
+@layer components {
+  .dialog-mobile {
+    @apply w-[95vw] max-w-lg sm:max-w-xl md:max-w-2xl max-h-[90vh] overflow-y-auto;
+  }
+  
+  .dialog-content-mobile {
+    @apply space-y-3 sm:space-y-4;
+  }
+  
+  .dialog-grid-mobile {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4;
   }
 }
