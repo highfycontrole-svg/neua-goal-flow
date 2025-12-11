@@ -45,7 +45,7 @@ function MainContent({ children }: { children: ReactNode }) {
           overflow-hidden
         `}
         style={{
-          backgroundColor: '#292929',
+          backgroundColor: '#242424',
           boxShadow: isMobile ? 'none' : '0 8px 32px -8px hsl(0 0% 0% / 0.4)',
         }}
       >
