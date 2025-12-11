@@ -225,7 +225,7 @@ export default function PricingPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <Card className="bg-[#1E1E1E] border-border/50">
+        <Card className="border-border/30 backdrop-blur-xl" style={{ backgroundColor: 'rgba(22, 22, 22, 0.85)' }}>
           <CardHeader>
             <CardTitle className="text-xl text-foreground flex items-center gap-2">
               <DollarSign className="h-5 w-5 text-primary" />

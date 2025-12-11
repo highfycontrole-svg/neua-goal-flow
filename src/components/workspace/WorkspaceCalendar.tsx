@@ -109,7 +109,7 @@ export function WorkspaceCalendar({ workspaceId, filterFn }: WorkspaceCalendarPr
         </div>
 
         {/* Calendar Grid */}
-        <Card className="p-4">
+        <Card className="p-4 border-border/50" style={{ backgroundColor: '#161616' }}>
           <div className="grid grid-cols-7 gap-2">
             {/* Week Days Header */}
             {weekDays.map((day) => (
@@ -132,11 +132,12 @@ export function WorkspaceCalendar({ workspaceId, filterFn }: WorkspaceCalendarPr
                   transition={{ duration: 0.2, delay: index * 0.01 }}
                   className={`min-h-[120px] p-2 rounded-lg border transition-colors ${
                     isToday
-                      ? 'border-primary bg-primary/5'
-                      : isCurrentMonth
-                      ? 'border-border bg-card'
-                      : 'border-border/50 bg-muted/30'
+                      ? 'border-primary'
+                      : 'border-border/30'
                   }`}
+                  style={{ 
+                    backgroundColor: isCurrentMonth ? '#1e1e1e' : '#191919'
+                  }}
                 >
                   <div className="text-sm font-medium mb-2">
                     {format(day, 'd')}
