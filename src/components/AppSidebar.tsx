@@ -122,29 +122,29 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
   return (
     <div className="flex flex-col h-full py-4 px-3">
       {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-3 min-w-0">
-          <motion.img 
-            src={logo} 
-            alt="Neua" 
-            className="h-9 w-9 flex-shrink-0"
-            whileHover={{ scale: 1.05 }}
-          />
-          <AnimatePresence mode="wait">
-            {open && (
-              <motion.div
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.2 }}
-                className="flex flex-col overflow-hidden"
-              >
+      <div className={`flex items-center mb-2 ${open ? 'justify-between' : 'justify-center'}`}>
+        <AnimatePresence mode="wait">
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: 'auto' }}
+              exit={{ opacity: 0, width: 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center gap-3 min-w-0"
+            >
+              <motion.img 
+                src={logo} 
+                alt="Neua" 
+                className="h-9 w-9 flex-shrink-0"
+                whileHover={{ scale: 1.05 }}
+              />
+              <div className="flex flex-col overflow-hidden">
                 <span className="font-display font-semibold text-foreground text-lg whitespace-nowrap">Neua</span>
                 <span className="text-xs text-muted-foreground whitespace-nowrap">@neua.co</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         
         {!isMobile && (
           <motion.button
