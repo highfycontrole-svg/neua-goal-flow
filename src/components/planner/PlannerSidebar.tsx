@@ -83,8 +83,8 @@ export function PlannerSidebar({
               </div>
 
               {/* Planners list */}
-              <ScrollArea className="flex-1">
-                <div className="space-y-2 pr-2">
+              <ScrollArea className="flex-1 -mx-1 px-1">
+                <div className="space-y-2">
                   {planners.length === 0 ? (
                     <div className="text-center py-6 text-muted-foreground text-sm">
                       <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -97,7 +97,7 @@ export function PlannerSidebar({
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className={cn(
-                          'group p-3 rounded-xl cursor-pointer transition-all duration-200',
+                          'group p-3 rounded-xl cursor-pointer transition-all duration-200 w-full',
                           currentPlannerId === planner.id
                             ? 'bg-primary/20 border border-primary/30'
                             : 'bg-[#1a1a1a] hover:bg-[#242424] border border-transparent'
@@ -109,25 +109,29 @@ export function PlannerSidebar({
                           }
                         }}
                       >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm text-foreground truncate">
+                        {/* Card content */}
+                        <div className="flex items-start gap-2 w-full">
+                          {/* Text content */}
+                          <div className="flex-1 min-w-0 overflow-hidden">
+                            <p className="font-medium text-sm text-foreground truncate pr-1">
                               {planner.nome_empresa || 'Novo Planejamento'}
                             </p>
-                            <div className="flex items-center gap-2 mt-1 flex-wrap">
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <span className="text-[11px] text-muted-foreground whitespace-nowrap">
                                 Etapa {planner.etapa_atual}/8
                               </span>
-                              <span className="text-xs text-muted-foreground hidden sm:inline">•</span>
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                {format(new Date(planner.created_at), "dd MMM yyyy", { locale: ptBR })}
+                              <span className="text-[11px] text-muted-foreground">•</span>
+                              <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+                                {format(new Date(planner.created_at), "dd/MM/yy", { locale: ptBR })}
                               </span>
                             </div>
                           </div>
+                          
+                          {/* Delete button - always visible on mobile, hover on desktop */}
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/20 hover:text-destructive flex-shrink-0"
+                            className="h-7 w-7 flex-shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity hover:bg-destructive/20 hover:text-destructive"
                             onClick={(e) => {
                               e.stopPropagation();
                               onDeletePlanner(planner.id);
@@ -136,8 +140,9 @@ export function PlannerSidebar({
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
+                        
                         {/* Progress bar */}
-                        <div className="mt-2 h-1.5 bg-[#242424] rounded-full overflow-hidden">
+                        <div className="mt-2 h-1.5 bg-[#242424] rounded-full overflow-hidden w-full">
                           <div
                             className="h-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-300"
                             style={{ width: `${(planner.etapa_atual / 8) * 100}%` }}
