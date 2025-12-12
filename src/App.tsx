@@ -19,6 +19,7 @@ import CreatorDetalhes from "./pages/creators/CreatorDetalhes";
 import WorkspaceResumo from "./pages/workspace/WorkspaceResumo";
 import WorkspaceDetalhe from "./pages/workspace/WorkspaceDetalhe";
 import PricingPage from "./pages/pricing/PricingPage";
+import Planner2026Page from "./pages/planner/Planner2026Page";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "@/components/AppLayout";
 
@@ -150,6 +151,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <PricingPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/planner"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Planner2026Page />
                   </AppLayout>
                 </ProtectedRoute>
               }

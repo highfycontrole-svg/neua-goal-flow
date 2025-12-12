@@ -358,6 +358,185 @@ export type Database = {
           },
         ]
       }
+      planner_2026: {
+        Row: {
+          automacao_atual: string | null
+          cac_medio: number | null
+          canais_marketing: string | null
+          canais_organicos: string | null
+          cliente_ideal: string | null
+          concorrentes_diretos: string | null
+          concorrentes_indiretos: string | null
+          created_at: string
+          despesas_fixas: number | null
+          diagnostico_externo: Json | null
+          diagnostico_interno: Json | null
+          dores_cliente: string | null
+          etapa_atual: number | null
+          faturamento_mensal: number | null
+          fornecedores: string | null
+          frequencia_conteudo: string | null
+          id: string
+          influenciadores: string | null
+          kpis: Json | null
+          margem_contribuicao: number | null
+          margem_lucro: number | null
+          metas_macro: Json | null
+          metas_smart: Json | null
+          modelo_negocio: string | null
+          nicho: string | null
+          nome_empresa: string | null
+          orcamento: Json | null
+          plano_acao: Json | null
+          problemas_operacionais: string | null
+          produtos_maior_margem: string | null
+          produtos_mais_vendidos: string | null
+          responsaveis: Json | null
+          resultados_trafego: string | null
+          resumo_executivo: string | null
+          riscos: Json | null
+          sistema_acompanhamento: Json | null
+          situacao_atual: string | null
+          swot: Json | null
+          taxa_devolucao: number | null
+          tempo_medio_envio: string | null
+          tempo_operacao: string | null
+          tendencias_mercado: string | null
+          ticket_medio: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          automacao_atual?: string | null
+          cac_medio?: number | null
+          canais_marketing?: string | null
+          canais_organicos?: string | null
+          cliente_ideal?: string | null
+          concorrentes_diretos?: string | null
+          concorrentes_indiretos?: string | null
+          created_at?: string
+          despesas_fixas?: number | null
+          diagnostico_externo?: Json | null
+          diagnostico_interno?: Json | null
+          dores_cliente?: string | null
+          etapa_atual?: number | null
+          faturamento_mensal?: number | null
+          fornecedores?: string | null
+          frequencia_conteudo?: string | null
+          id?: string
+          influenciadores?: string | null
+          kpis?: Json | null
+          margem_contribuicao?: number | null
+          margem_lucro?: number | null
+          metas_macro?: Json | null
+          metas_smart?: Json | null
+          modelo_negocio?: string | null
+          nicho?: string | null
+          nome_empresa?: string | null
+          orcamento?: Json | null
+          plano_acao?: Json | null
+          problemas_operacionais?: string | null
+          produtos_maior_margem?: string | null
+          produtos_mais_vendidos?: string | null
+          responsaveis?: Json | null
+          resultados_trafego?: string | null
+          resumo_executivo?: string | null
+          riscos?: Json | null
+          sistema_acompanhamento?: Json | null
+          situacao_atual?: string | null
+          swot?: Json | null
+          taxa_devolucao?: number | null
+          tempo_medio_envio?: string | null
+          tempo_operacao?: string | null
+          tendencias_mercado?: string | null
+          ticket_medio?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          automacao_atual?: string | null
+          cac_medio?: number | null
+          canais_marketing?: string | null
+          canais_organicos?: string | null
+          cliente_ideal?: string | null
+          concorrentes_diretos?: string | null
+          concorrentes_indiretos?: string | null
+          created_at?: string
+          despesas_fixas?: number | null
+          diagnostico_externo?: Json | null
+          diagnostico_interno?: Json | null
+          dores_cliente?: string | null
+          etapa_atual?: number | null
+          faturamento_mensal?: number | null
+          fornecedores?: string | null
+          frequencia_conteudo?: string | null
+          id?: string
+          influenciadores?: string | null
+          kpis?: Json | null
+          margem_contribuicao?: number | null
+          margem_lucro?: number | null
+          metas_macro?: Json | null
+          metas_smart?: Json | null
+          modelo_negocio?: string | null
+          nicho?: string | null
+          nome_empresa?: string | null
+          orcamento?: Json | null
+          plano_acao?: Json | null
+          problemas_operacionais?: string | null
+          produtos_maior_margem?: string | null
+          produtos_mais_vendidos?: string | null
+          responsaveis?: Json | null
+          resultados_trafego?: string | null
+          resumo_executivo?: string | null
+          riscos?: Json | null
+          sistema_acompanhamento?: Json | null
+          situacao_atual?: string | null
+          swot?: Json | null
+          taxa_devolucao?: number | null
+          tempo_medio_envio?: string | null
+          tempo_operacao?: string | null
+          tendencias_mercado?: string | null
+          ticket_medio?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      planner_2026_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          planner_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          planner_id: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          planner_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planner_2026_messages_planner_id_fkey"
+            columns: ["planner_id"]
+            isOneToOne: false
+            referencedRelation: "planner_2026"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_variants: {
         Row: {
           created_at: string
