@@ -1,4 +1,4 @@
-import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar } from 'lucide-react';
+import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
@@ -31,6 +31,12 @@ const menuItems = [
     url: '/pricing',
     icon: Calculator,
     basePath: '/pricing',
+  },
+  {
+    title: 'Planner Neua 2026',
+    url: '/planner',
+    icon: Rocket,
+    basePath: '/planner',
   },
 ];
 
