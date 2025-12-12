@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Plus, Send, Loader2, FileText, RotateCcw, Download, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -32,6 +31,70 @@ type Planner = {
   metas_smart?: unknown;
   riscos?: unknown;
 };
+
+// Keywords that indicate each stage
+const STAGE_KEYWORDS = [
+  { stage: 1, keywords: ['nome da empresa', 'nicho', 'tempo de operação', 'modelo de negócio', 'faturamento', 'margem de lucro'] },
+  { stage: 2, keywords: ['cliente ideal', 'dores do cliente', 'concorrentes', 'produtos mais vendidos', 'problemas operacionais'] },
+  { stage: 3, keywords: ['canais de marketing', 'tráfego pago', 'canais orgânicos', 'influenciadores', 'automação'] },
+  { stage: 4, keywords: ['diagnóstico interno', 'diagnóstico externo', 'swot', 'pontos fortes', 'pontos fracos'] },
+  { stage: 5, keywords: ['metas macro', 'metas smart', 'kpis', 'indicadores'] },
+  { stage: 6, keywords: ['plano de ação', 'marketing & aquisição', 'vendas & conversão', 'operação & logística'] },
+  { stage: 7, keywords: ['responsáveis', 'orçamento', 'investimento mensal'] },
+  { stage: 8, keywords: ['riscos', 'contingência', 'resumo executivo', 'sistema de acompanhamento'] },
+];
+
+function detectCurrentStage(messages: Message[]): number {
+  if (messages.length === 0) return 1;
+  
+  const allContent = messages.map(m => m.content.toLowerCase()).join(' ');
+  
+  let highestStage = 1;
+  
+  for (const { stage, keywords } of STAGE_KEYWORDS) {
+    const matchCount = keywords.filter(keyword => allContent.includes(keyword)).length;
+    if (matchCount >= 2) {
+      highestStage = Math.max(highestStage, stage);
+    }
+  }
+  
+  return highestStage;
+}
+
+function extractPlannerData(messages: Message[]): Partial<Planner> {
+  const allContent = messages.map(m => m.content).join('\n');
+  const data: Partial<Planner> = {};
+  
+  // Try to extract faturamento
+  const faturamentoMatch = allContent.match(/faturamento[^\d]*(\d+[.,]?\d*)\s*(mil|k|reais|R\$)?/i);
+  if (faturamentoMatch) {
+    let value = parseFloat(faturamentoMatch[1].replace(',', '.'));
+    if (faturamentoMatch[2]?.toLowerCase().includes('mil') || faturamentoMatch[2]?.toLowerCase() === 'k') {
+      value *= 1000;
+    }
+    data.faturamento_mensal = value;
+  }
+  
+  // Try to extract margem
+  const margemMatch = allContent.match(/margem[^\d]*(\d+[.,]?\d*)\s*%/i);
+  if (margemMatch) {
+    data.margem_lucro = parseFloat(margemMatch[1].replace(',', '.'));
+  }
+  
+  // Try to extract ticket medio
+  const ticketMatch = allContent.match(/ticket[^\d]*(\d+[.,]?\d*)/i);
+  if (ticketMatch) {
+    data.ticket_medio = parseFloat(ticketMatch[1].replace(',', '.'));
+  }
+  
+  // Try to extract nicho
+  const nichoMatch = allContent.match(/nicho[:\s]+([^,.\n]+)/i);
+  if (nichoMatch) {
+    data.nicho = nichoMatch[1].trim().slice(0, 50);
+  }
+  
+  return data;
+}
 
 export default function Planner2026Page() {
   const { user } = useAuth();
@@ -79,6 +142,34 @@ export default function Planner2026Page() {
     }
   }, [inputValue]);
 
+  // Update planner stage and data when messages change
+  const updatePlannerProgress = useCallback(async (plannerId: string, msgs: Message[]) => {
+    const newStage = detectCurrentStage(msgs);
+    const extractedData = extractPlannerData(msgs);
+    
+    const updateData: Record<string, unknown> = {
+      etapa_atual: newStage,
+    };
+    
+    if (extractedData.nicho) updateData.nicho = extractedData.nicho;
+    if (extractedData.faturamento_mensal) updateData.faturamento_mensal = extractedData.faturamento_mensal;
+    if (extractedData.margem_lucro) updateData.margem_lucro = extractedData.margem_lucro;
+    if (extractedData.ticket_medio) updateData.ticket_medio = extractedData.ticket_medio;
+    
+    await supabase
+      .from('planner_2026')
+      .update(updateData)
+      .eq('id', plannerId);
+    
+    // Update local state
+    setPlanners(prev => prev.map(p => 
+      p.id === plannerId ? { ...p, etapa_atual: newStage } : p
+    ));
+    
+    // Refresh planner data
+    fetchPlannerData(plannerId);
+  }, []);
+
   const fetchPlanners = async () => {
     const { data, error } = await supabase
       .from('planner_2026')
@@ -123,7 +214,13 @@ export default function Planner2026Page() {
       return;
     }
 
-    setMessages(data?.map(m => ({ id: m.id, role: m.role as 'user' | 'assistant', content: m.content })) || []);
+    const msgs = data?.map(m => ({ id: m.id, role: m.role as 'user' | 'assistant', content: m.content })) || [];
+    setMessages(msgs);
+    
+    // Update progress based on messages
+    if (msgs.length > 0) {
+      updatePlannerProgress(plannerId, msgs);
+    }
   };
 
   const createNewPlanner = async () => {
@@ -275,7 +372,8 @@ export default function Planner2026Page() {
     if (!inputValue.trim() || !currentPlannerId || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: inputValue.trim() };
-    setMessages(prev => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInputValue('');
     setIsLoading(true);
 
@@ -300,7 +398,7 @@ export default function Planner2026Page() {
 
     try {
       await streamChat({
-        messages: [...messages, userMessage],
+        messages: newMessages,
         onDelta: upsertAssistant,
         onDone: async () => {
           await supabase.from('planner_2026_messages').insert({
@@ -310,17 +408,20 @@ export default function Planner2026Page() {
             content: assistantContent
           });
 
-          if (assistantContent.length > 0 && userMessage.content.length > 0) {
-            const currentPlanner = planners.find(p => p.id === currentPlannerId);
-            if (!currentPlanner?.nome_empresa) {
-              await supabase
-                .from('planner_2026')
-                .update({ nome_empresa: userMessage.content.slice(0, 50) })
-                .eq('id', currentPlannerId);
-              fetchPlanners();
-            }
+          // Update nome_empresa if not set
+          const currentPlanner = planners.find(p => p.id === currentPlannerId);
+          if (!currentPlanner?.nome_empresa && userMessage.content.length > 0) {
+            await supabase
+              .from('planner_2026')
+              .update({ nome_empresa: userMessage.content.slice(0, 50) })
+              .eq('id', currentPlannerId);
           }
 
+          // Update progress and extracted data
+          const finalMessages = [...newMessages, { role: 'assistant' as const, content: assistantContent }];
+          await updatePlannerProgress(currentPlannerId, finalMessages);
+          
+          fetchPlanners();
           setIsLoading(false);
           textareaRef.current?.focus();
         }
@@ -366,7 +467,6 @@ export default function Planner2026Page() {
     const contentWidth = pageWidth - (margin * 2);
     let yPosition = 20;
 
-    // Header
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
     doc.text('Planejamento Estratégico 2026', margin, yPosition);
@@ -383,12 +483,10 @@ export default function Planner2026Page() {
     doc.setTextColor(0);
     yPosition += 15;
 
-    // Separator
     doc.setDrawColor(200);
     doc.line(margin, yPosition, pageWidth - margin, yPosition);
     yPosition += 15;
 
-    // Messages content
     doc.setFontSize(10);
     messages.forEach((message) => {
       const prefix = message.role === 'user' ? 'Você: ' : 'Assistente: ';
@@ -415,7 +513,7 @@ export default function Planner2026Page() {
   const currentPlanner = planners.find(p => p.id === currentPlannerId);
 
   return (
-    <div className="h-[calc(100vh-180px)] flex flex-col lg:flex-row gap-4">
+    <div className="h-[calc(100vh-180px)] flex flex-col lg:flex-row gap-3 sm:gap-4">
       {/* Sidebar */}
       <PlannerSidebar
         planners={planners}
@@ -432,38 +530,38 @@ export default function Planner2026Page() {
           <>
             {/* Header */}
             <div className="flex-shrink-0 p-3 sm:p-4 border-b border-border/30 bg-[#1a1a1a]">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
                     <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <h2 className="font-semibold text-foreground text-sm sm:text-base truncate">
                       {currentPlanner?.nome_empresa || 'Novo Planejamento'}
                     </h2>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">
                       Planner Neua 2026
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={() => setShowSummary(!showSummary)}
-                    className="text-xs h-8"
+                    className="text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3"
                   >
-                    {showSummary ? <EyeOff className="h-3 w-3 mr-1.5" /> : <Eye className="h-3 w-3 mr-1.5" />}
-                    <span className="hidden sm:inline">Resumo</span>
+                    {showSummary ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                    <span className="hidden sm:inline ml-1">Resumo</span>
                   </Button>
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={exportToPDF}
-                    className="text-xs h-8"
+                    className="text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3"
                   >
-                    <Download className="h-3 w-3 mr-1.5" />
-                    <span className="hidden sm:inline">Exportar PDF</span>
+                    <Download className="h-3 w-3" />
+                    <span className="hidden sm:inline ml-1">PDF</span>
                   </Button>
                   <Button 
                     variant="outline" 
@@ -472,16 +570,15 @@ export default function Planner2026Page() {
                       setMessages([]);
                       sendInitialMessage(currentPlannerId);
                     }}
-                    className="text-xs h-8"
+                    className="text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3"
                   >
-                    <RotateCcw className="h-3 w-3 sm:mr-1.5" />
-                    <span className="hidden sm:inline">Reiniciar</span>
+                    <RotateCcw className="h-3 w-3" />
                   </Button>
                 </div>
               </div>
 
               {/* Progress Indicator */}
-              <div className="mt-4">
+              <div className="mt-3 sm:mt-4">
                 <PlannerProgressIndicator etapaAtual={currentPlanner?.etapa_atual || 1} />
               </div>
 
@@ -492,7 +589,7 @@ export default function Planner2026Page() {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="mt-4 overflow-hidden"
+                    className="mt-3 sm:mt-4 overflow-hidden"
                   >
                     <PlannerSummary data={currentPlannerData} />
                   </motion.div>
@@ -505,7 +602,7 @@ export default function Planner2026Page() {
               ref={messagesContainerRef}
               className="flex-1 overflow-y-auto p-3 sm:p-4"
             >
-              <div className="space-y-4 max-w-4xl mx-auto pb-4">
+              <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto pb-4">
                 <AnimatePresence mode="popLayout">
                   {messages.map((message, index) => (
                     <motion.div
@@ -534,7 +631,7 @@ export default function Planner2026Page() {
 
             {/* Input - Fixed at bottom */}
             <div className="flex-shrink-0 p-3 sm:p-4 border-t border-border/30 bg-[#1a1a1a]">
-              <div className="flex gap-2 sm:gap-3 max-w-4xl mx-auto">
+              <div className="flex gap-2 max-w-4xl mx-auto">
                 <Textarea
                   ref={textareaRef}
                   value={inputValue}
@@ -542,13 +639,13 @@ export default function Planner2026Page() {
                   onKeyDown={handleKeyDown}
                   placeholder="Digite sua mensagem... (Shift+Enter para nova linha)"
                   disabled={isLoading}
-                  className="flex-1 bg-[#242424] border-border/30 min-h-[44px] max-h-[150px] resize-none text-sm"
+                  className="flex-1 bg-[#242424] border-border/30 min-h-[40px] max-h-[120px] resize-none text-sm"
                   rows={1}
                 />
                 <Button 
                   onClick={sendMessage} 
                   disabled={isLoading || !inputValue.trim()}
-                  className="h-11 px-4 sm:px-6 self-end"
+                  className="h-10 w-10 sm:h-11 sm:w-auto sm:px-6 self-end"
                 >
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -557,21 +654,21 @@ export default function Planner2026Page() {
                   )}
                 </Button>
               </div>
-              <p className="text-[10px] text-muted-foreground text-center mt-2">
-                Pressione Enter para enviar • Shift+Enter para nova linha
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground text-center mt-1.5 sm:mt-2">
+                Enter para enviar • Shift+Enter para nova linha
               </p>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-8 text-center">
-            <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-primary/20 flex items-center justify-center mb-6">
-              <FileText className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
+          <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 text-center">
+            <div className="h-14 w-14 sm:h-20 sm:w-20 rounded-2xl bg-primary/20 flex items-center justify-center mb-4 sm:mb-6">
+              <FileText className="h-7 w-7 sm:h-10 sm:w-10 text-primary" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Planner Neua 2026</h2>
-            <p className="text-sm sm:text-base text-muted-foreground mb-6 max-w-md">
+            <h2 className="text-lg sm:text-2xl font-bold text-foreground mb-2">Planner Neua 2026</h2>
+            <p className="text-xs sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-md">
               Crie um planejamento estratégico completo para o seu e-commerce em 2026 com a ajuda de IA.
             </p>
-            <Button onClick={createNewPlanner} disabled={isCreating} size="lg">
+            <Button onClick={createNewPlanner} disabled={isCreating} size="lg" className="h-10 sm:h-12">
               {isCreating ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
               ) : (
