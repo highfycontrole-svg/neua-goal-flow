@@ -157,12 +157,13 @@ export function CreateTaskDialog({ open, onOpenChange, workspaceId, defaultStatu
                       {date ? format(date, 'dd/MM/yyyy', { locale: ptBR }) : 'Selecione'}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={date}
                       onSelect={setDate}
                       locale={ptBR}
+                      className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
