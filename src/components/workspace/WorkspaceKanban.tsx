@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { DndContext, DragEndEvent, DragOverlay, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragOverlay, PointerSensor, useSensor, useSensors, rectIntersection } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
@@ -28,7 +28,7 @@ export function WorkspaceKanban({ workspaceId, filterFn }: WorkspaceKanbanProps)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
+      activationConstraint: { distance: 5 },
     })
   );
 
@@ -82,50 +82,79 @@ export function WorkspaceKanban({ workspaceId, filterFn }: WorkspaceKanbanProps)
     const { active, over } = event;
     setActiveTaskId(null);
 
-    if (!over || active.id === over.id) return;
-
+    if (!over) return;
+    
     const taskId = active.id as string;
     const overId = over.id as string;
-
-    // Check if dropping on a status column
-    const isStatusColumn = statuses.some(s => s.id === overId);
     
-    if (isStatusColumn) {
-      // Move to a new status
-      try {
-        await updateTaskMutation.mutateAsync({
-          taskId,
-          updates: { status_id: overId }
-        });
-        toast({
-          title: 'Tarefa atualizada',
-          description: 'O status da tarefa foi alterado com sucesso.',
-        });
-      } catch (error: any) {
-        toast({
-          title: 'Erro ao atualizar tarefa',
-          description: error.message,
-          variant: 'destructive',
-        });
+    if (taskId === overId) return;
+
+    const activeTask = tasks.find(t => t.id === taskId);
+    if (!activeTask) return;
+
+    // Check if dropping on a status column (column id matches a status id)
+    const targetStatus = statuses.find(s => s.id === overId);
+    
+    if (targetStatus) {
+      // Moving to a different status column
+      if (activeTask.status_id !== targetStatus.id) {
+        try {
+          await updateTaskMutation.mutateAsync({
+            taskId,
+            updates: { status_id: targetStatus.id }
+          });
+          toast({
+            title: 'Tarefa movida',
+            description: `Movido para "${targetStatus.name}"`,
+          });
+        } catch (error: any) {
+          toast({
+            title: 'Erro ao mover tarefa',
+            description: error.message,
+            variant: 'destructive',
+          });
+        }
       }
     } else {
-      // Reordering within the same column
-      const activeTask = tasks.find(t => t.id === taskId);
+      // Dropping on another task - check if it's in a different status
       const overTask = tasks.find(t => t.id === overId);
       
-      if (activeTask && overTask && activeTask.status_id === overTask.status_id) {
-        const statusTasks = tasks.filter(t => t.status_id === activeTask.status_id);
-        const oldIndex = statusTasks.findIndex(t => t.id === taskId);
-        const newIndex = statusTasks.findIndex(t => t.id === overId);
-        
-        const reorderedTasks = arrayMove(statusTasks, oldIndex, newIndex);
-        
-        // Update order_index for all tasks in this status
-        for (let i = 0; i < reorderedTasks.length; i++) {
-          await updateTaskMutation.mutateAsync({
-            taskId: reorderedTasks[i].id,
-            updates: { order_index: i }
-          });
+      if (overTask) {
+        if (activeTask.status_id !== overTask.status_id) {
+          // Moving to a different status (dropping on a task in that status)
+          try {
+            await updateTaskMutation.mutateAsync({
+              taskId,
+              updates: { status_id: overTask.status_id }
+            });
+            toast({
+              title: 'Tarefa movida',
+              description: 'Status da tarefa atualizado.',
+            });
+          } catch (error: any) {
+            toast({
+              title: 'Erro ao mover tarefa',
+              description: error.message,
+              variant: 'destructive',
+            });
+          }
+        } else {
+          // Reordering within the same column
+          const statusTasks = tasks.filter(t => t.status_id === activeTask.status_id);
+          const oldIndex = statusTasks.findIndex(t => t.id === taskId);
+          const newIndex = statusTasks.findIndex(t => t.id === overId);
+          
+          if (oldIndex !== newIndex && oldIndex !== -1 && newIndex !== -1) {
+            const reorderedTasks = arrayMove(statusTasks, oldIndex, newIndex);
+            
+            // Update order_index for all tasks in this status
+            for (let i = 0; i < reorderedTasks.length; i++) {
+              await updateTaskMutation.mutateAsync({
+                taskId: reorderedTasks[i].id,
+                updates: { order_index: i }
+              });
+            }
+          }
         }
       }
     }
@@ -145,7 +174,7 @@ export function WorkspaceKanban({ workspaceId, filterFn }: WorkspaceKanbanProps)
 
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCenter}
+          collisionDetection={rectIntersection}
           onDragStart={(event) => setActiveTaskId(event.active.id as string)}
           onDragEnd={handleDragEnd}
         >

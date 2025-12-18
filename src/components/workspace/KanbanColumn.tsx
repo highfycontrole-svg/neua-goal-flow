@@ -13,12 +13,17 @@ interface KanbanColumnProps {
 }
 
 export function KanbanColumn({ status, tasks, onTaskClick, onAddTask }: KanbanColumnProps) {
-  const { setNodeRef } = useDroppable({
+  const { setNodeRef, isOver } = useDroppable({
     id: status.id,
   });
 
   return (
-    <Card className="p-4 border-border/30 transition-all duration-200 hover:border-border/50" style={{ backgroundColor: '#161616' }}>
+    <Card 
+      className={`p-4 border-border/30 transition-all duration-200 ${
+        isOver ? 'border-primary/50 ring-2 ring-primary/20' : 'hover:border-border/50'
+      }`} 
+      style={{ backgroundColor: isOver ? 'rgba(59, 130, 246, 0.05)' : '#161616' }}
+    >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div
@@ -38,7 +43,12 @@ export function KanbanColumn({ status, tasks, onTaskClick, onAddTask }: KanbanCo
         </Button>
       </div>
 
-      <div ref={setNodeRef} className="space-y-2 min-h-[200px]">
+      <div 
+        ref={setNodeRef} 
+        className={`space-y-2 min-h-[200px] transition-colors duration-200 rounded-lg ${
+          isOver ? 'bg-primary/5' : ''
+        }`}
+      >
         <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
           {tasks.map((task) => (
             <KanbanCard key={task.id} task={task} onClick={() => onTaskClick(task.id)} />
