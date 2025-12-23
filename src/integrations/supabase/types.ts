@@ -537,6 +537,36 @@ export type Database = {
           },
         ]
       }
+      planners_manuais: {
+        Row: {
+          conteudo: Json
+          created_at: string
+          id: string
+          nome: string
+          tipo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conteudo?: Json
+          created_at?: string
+          id?: string
+          nome: string
+          tipo: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conteudo?: Json
+          created_at?: string
+          id?: string
+          nome?: string
+          tipo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       product_variants: {
         Row: {
           created_at: string
