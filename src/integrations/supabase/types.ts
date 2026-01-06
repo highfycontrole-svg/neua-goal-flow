@@ -358,6 +358,39 @@ export type Database = {
           },
         ]
       }
+      pedidos: {
+        Row: {
+          codigos_rastreio: string[] | null
+          created_at: string
+          id: string
+          numero_pedido: string
+          status: string
+          transportadora: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          codigos_rastreio?: string[] | null
+          created_at?: string
+          id?: string
+          numero_pedido: string
+          status?: string
+          transportadora?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          codigos_rastreio?: string[] | null
+          created_at?: string
+          id?: string
+          numero_pedido?: string
+          status?: string
+          transportadora?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       planner_2026: {
         Row: {
           automacao_atual: string | null

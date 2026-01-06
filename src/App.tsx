@@ -20,6 +20,7 @@ import WorkspaceResumo from "./pages/workspace/WorkspaceResumo";
 import WorkspaceDetalhe from "./pages/workspace/WorkspaceDetalhe";
 import PricingPage from "./pages/pricing/PricingPage";
 import Planner2026Page from "./pages/planner/Planner2026Page";
+import PedidosPage from "./pages/pedidos/PedidosPage";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "@/components/AppLayout";
 
@@ -161,6 +162,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <Planner2026Page />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pedidos"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PedidosPage />
                   </AppLayout>
                 </ProtectedRoute>
               }
