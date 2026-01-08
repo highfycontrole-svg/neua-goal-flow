@@ -21,6 +21,8 @@ const STATUS_OPTIONS = [
   "SEM RASTREIO",
 ];
 
+const STATUS_ENTREGA_OPTIONS = ["Excelente", "Prazo", "Ruim", "Péssimo"];
+
 const TRANSPORTADORAS_PADRAO = ["ANJUN", "STARLINK", "WSH"];
 
 interface CreatePedidoDialogProps {
@@ -37,6 +39,8 @@ export function CreatePedidoDialog({ open, onOpenChange }: CreatePedidoDialogPro
   const [transportadora, setTransportadora] = useState("");
   const [novaTransportadora, setNovaTransportadora] = useState("");
   const [transportadoras, setTransportadoras] = useState(TRANSPORTADORAS_PADRAO);
+  const [prazoEntrega, setPrazoEntrega] = useState<string>("");
+  const [statusEntrega, setStatusEntrega] = useState<string>("");
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -48,6 +52,8 @@ export function CreatePedidoDialog({ open, onOpenChange }: CreatePedidoDialogPro
         codigos_rastreio: codigosFiltrados,
         status,
         transportadora: transportadora || null,
+        prazo_entrega: prazoEntrega ? parseInt(prazoEntrega) : null,
+        status_entrega: statusEntrega || null,
       });
 
       if (error) throw error;
@@ -69,6 +75,8 @@ export function CreatePedidoDialog({ open, onOpenChange }: CreatePedidoDialogPro
     setStatus("Aguardando Envio");
     setTransportadora("");
     setNovaTransportadora("");
+    setPrazoEntrega("");
+    setStatusEntrega("");
   };
 
   const addCodigoRastreio = () => {
@@ -199,6 +207,34 @@ export function CreatePedidoDialog({ open, onOpenChange }: CreatePedidoDialogPro
                 Adicionar
               </Button>
             </div>
+          </div>
+
+          {/* Prazo de Entrega */}
+          <div className="space-y-2">
+            <Label htmlFor="prazoEntrega">Prazo de Entrega (dias)</Label>
+            <Input
+              id="prazoEntrega"
+              type="number"
+              min="0"
+              value={prazoEntrega}
+              onChange={(e) => setPrazoEntrega(e.target.value)}
+              placeholder="Ex: 7"
+            />
+          </div>
+
+          {/* Status de Entrega (Qualidade Logística) */}
+          <div className="space-y-2">
+            <Label>Status de Entrega (Qualidade)</Label>
+            <Select value={statusEntrega} onValueChange={setStatusEntrega}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione..." />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_ENTREGA_OPTIONS.map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Preview Links */}

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { Package, Truck, CheckCircle, Clock, TrendingUp, AlertCircle } from "lucide-react";
+import { Package, Truck, CheckCircle, Clock, TrendingUp, AlertCircle, Timer, Star } from "lucide-react";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from "recharts";
 
 interface Pedido {
@@ -10,6 +10,8 @@ interface Pedido {
   status: string;
   transportadora: string | null;
   created_at: string;
+  prazo_entrega: number | null;
+  status_entrega: string | null;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -21,6 +23,13 @@ const STATUS_COLORS: Record<string, string> = {
   "Aguardando Envio": "#eab308",
   "Reenvio": "#06b6d4",
   "SEM RASTREIO": "#6b7280",
+};
+
+const STATUS_ENTREGA_COLORS: Record<string, string> = {
+  "Excelente": "#10b981",
+  "Prazo": "#3b82f6",
+  "Ruim": "#f97316",
+  "Péssimo": "#ef4444",
 };
 
 export function PedidosMetricas() {
@@ -45,6 +54,27 @@ export function PedidosMetricas() {
   const entregues = pedidos.filter((p) => p.status === "Entregue").length;
   const emTransito = pedidos.filter((p) => ["Em trânsito BR", "Enviado"].includes(p.status)).length;
   const taxaEntrega = totalPedidos > 0 ? ((entregues / totalPedidos) * 100).toFixed(1) : "0";
+
+  // Calculate average delivery time (only for "Entregue" orders with prazo_entrega)
+  const entreguesComPrazo = pedidos.filter((p) => p.status === "Entregue" && p.prazo_entrega !== null);
+  const tempoMedioEntrega = entreguesComPrazo.length > 0
+    ? (entreguesComPrazo.reduce((acc, p) => acc + (p.prazo_entrega || 0), 0) / entreguesComPrazo.length).toFixed(1)
+    : null;
+
+  // Calculate logistics quality distribution (only for "Entregue" orders with status_entrega)
+  const entreguesComQualidade = pedidos.filter((p) => p.status === "Entregue" && p.status_entrega);
+  const qualidadeData = Object.entries(
+    entreguesComQualidade.reduce((acc, p) => {
+      const status = p.status_entrega || "";
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>)
+  ).map(([name, value]) => ({
+    name,
+    value,
+    percent: ((value / entreguesComQualidade.length) * 100).toFixed(1),
+    color: STATUS_ENTREGA_COLORS[name] || "#6b7280",
+  }));
 
   // Status distribution
   const statusData = Object.entries(
@@ -105,6 +135,12 @@ export function PedidosMetricas() {
       icon: TrendingUp,
       color: "text-purple-400",
     },
+    {
+      title: "Tempo Médio",
+      value: tempoMedioEntrega ? `${tempoMedioEntrega} dias` : "-",
+      icon: Timer,
+      color: "text-amber-400",
+    },
   ];
 
   if (isLoading) {
@@ -118,7 +154,7 @@ export function PedidosMetricas() {
   return (
     <div className="space-y-8">
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {kpis.map((kpi, index) => (
           <motion.div
             key={kpi.title}
@@ -135,6 +171,66 @@ export function PedidosMetricas() {
           </motion.div>
         ))}
       </div>
+
+      {/* Logistics Quality Chart */}
+      {qualidadeData.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="p-6 rounded-xl bg-card border border-border"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Star className="h-5 w-5 text-amber-400" />
+            <h3 className="text-lg font-semibold">Qualidade Logística (Pedidos Entregues)</h3>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Pie Chart */}
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={qualidadeData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={90}
+                  innerRadius={50}
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} (${percent}%)`}
+                  labelLine={false}
+                >
+                  {qualidadeData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px",
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 gap-4 content-center">
+              {qualidadeData.map((item) => (
+                <div
+                  key={item.name}
+                  className="p-4 rounded-lg border border-border bg-secondary/30"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="text-sm text-muted-foreground">{item.name}</span>
+                  </div>
+                  <p className="text-2xl font-bold">{item.percent}%</p>
+                  <p className="text-xs text-muted-foreground">{item.value} pedidos</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -259,23 +355,44 @@ export function PedidosMetricas() {
         )}
       </motion.div>
 
-      {/* Status Legend */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="p-6 rounded-xl bg-card border border-border"
-      >
-        <h3 className="text-lg font-semibold mb-4">Legenda de Status</h3>
-        <div className="flex flex-wrap gap-4">
-          {Object.entries(STATUS_COLORS).map(([status, color]) => (
-            <div key={status} className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
-              <span className="text-sm text-muted-foreground">{status}</span>
-            </div>
-          ))}
-        </div>
-      </motion.div>
+      {/* Legends */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Status Legend */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="p-6 rounded-xl bg-card border border-border"
+        >
+          <h3 className="text-lg font-semibold mb-4">Legenda de Status</h3>
+          <div className="flex flex-wrap gap-4">
+            {Object.entries(STATUS_COLORS).map(([status, color]) => (
+              <div key={status} className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
+                <span className="text-sm text-muted-foreground">{status}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Quality Legend */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          className="p-6 rounded-xl bg-card border border-border"
+        >
+          <h3 className="text-lg font-semibold mb-4">Legenda de Qualidade Logística</h3>
+          <div className="flex flex-wrap gap-4">
+            {Object.entries(STATUS_ENTREGA_COLORS).map(([status, color]) => (
+              <div key={status} className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
+                <span className="text-sm text-muted-foreground">{status}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }

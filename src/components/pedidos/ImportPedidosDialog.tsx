@@ -21,6 +21,8 @@ interface ParsedRow {
   codigos_rastreio: string[];
   status: string;
   transportadora: string;
+  prazo_entrega: number | null;
+  status_entrega: string;
 }
 
 export function ImportPedidosDialog({ open, onOpenChange }: ImportPedidosDialogProps) {
@@ -34,6 +36,8 @@ export function ImportPedidosDialog({ open, onOpenChange }: ImportPedidosDialogP
     codigos_rastreio: "",
     status: "",
     transportadora: "",
+    prazo_entrega: "",
+    status_entrega: "",
   });
   const [columns, setColumns] = useState<string[]>([]);
   const [conflictMode, setConflictMode] = useState<"overwrite" | "update_empty">("overwrite");
@@ -91,6 +95,8 @@ export function ImportPedidosDialog({ open, onOpenChange }: ImportPedidosDialogP
           codigos_rastreio: codigos,
           status: columnMapping.status ? String(row[columnMapping.status] || "Aguardando Envio") : "Aguardando Envio",
           transportadora: columnMapping.transportadora ? String(row[columnMapping.transportadora] || "") : "",
+          prazo_entrega: columnMapping.prazo_entrega ? (parseInt(String(row[columnMapping.prazo_entrega])) || null) : null,
+          status_entrega: columnMapping.status_entrega ? String(row[columnMapping.status_entrega] || "") : "",
         };
       }).filter((row) => row.numero_pedido);
 
@@ -107,7 +113,7 @@ export function ImportPedidosDialog({ open, onOpenChange }: ImportPedidosDialogP
         // Check if order already exists
         const { data: existing } = await supabase
           .from("pedidos")
-          .select("id, codigos_rastreio, status, transportadora")
+          .select("id, codigos_rastreio, status, transportadora, prazo_entrega, status_entrega")
           .eq("user_id", user?.id)
           .eq("numero_pedido", row.numero_pedido)
           .single();
@@ -120,6 +126,8 @@ export function ImportPedidosDialog({ open, onOpenChange }: ImportPedidosDialogP
                 codigos_rastreio: row.codigos_rastreio,
                 status: row.status,
                 transportadora: row.transportadora || null,
+                prazo_entrega: row.prazo_entrega,
+                status_entrega: row.status_entrega || null,
               })
               .eq("id", existing.id);
           } else {
@@ -134,6 +142,12 @@ export function ImportPedidosDialog({ open, onOpenChange }: ImportPedidosDialogP
             if (!existing.transportadora && row.transportadora) {
               updates.transportadora = row.transportadora;
             }
+            if (existing.prazo_entrega === null && row.prazo_entrega !== null) {
+              updates.prazo_entrega = row.prazo_entrega;
+            }
+            if (!existing.status_entrega && row.status_entrega) {
+              updates.status_entrega = row.status_entrega;
+            }
             if (Object.keys(updates).length > 0) {
               await supabase.from("pedidos").update(updates).eq("id", existing.id);
             }
@@ -145,6 +159,8 @@ export function ImportPedidosDialog({ open, onOpenChange }: ImportPedidosDialogP
             codigos_rastreio: row.codigos_rastreio,
             status: row.status,
             transportadora: row.transportadora || null,
+            prazo_entrega: row.prazo_entrega,
+            status_entrega: row.status_entrega || null,
           });
         }
       }
@@ -163,7 +179,7 @@ export function ImportPedidosDialog({ open, onOpenChange }: ImportPedidosDialogP
     setFile(null);
     setParsedData([]);
     setColumns([]);
-    setColumnMapping({ numero_pedido: "", codigos_rastreio: "", status: "", transportadora: "" });
+    setColumnMapping({ numero_pedido: "", codigos_rastreio: "", status: "", transportadora: "", prazo_entrega: "", status_entrega: "" });
     setStep(1);
     onOpenChange(false);
   };
@@ -283,6 +299,43 @@ export function ImportPedidosDialog({ open, onOpenChange }: ImportPedidosDialogP
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Prazo de Entrega (dias)</Label>
+                <Select
+                  value={columnMapping.prazo_entrega}
+                  onValueChange={(v) => setColumnMapping({ ...columnMapping, prazo_entrega: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a coluna (opcional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {columns.map((col) => (
+                      <SelectItem key={col} value={col}>{col}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Status de Entrega (Qualidade)</Label>
+                <Select
+                  value={columnMapping.status_entrega}
+                  onValueChange={(v) => setColumnMapping({ ...columnMapping, status_entrega: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a coluna (opcional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {columns.map((col) => (
+                      <SelectItem key={col} value={col}>{col}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Valores aceitos: Excelente, Prazo, Ruim, Péssimo
+                </p>
               </div>
             </div>
 

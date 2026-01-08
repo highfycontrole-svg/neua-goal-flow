@@ -24,6 +24,8 @@ interface Pedido {
   transportadora: string | null;
   created_at: string;
   updated_at: string;
+  prazo_entrega: number | null;
+  status_entrega: string | null;
 }
 
 const STATUS_OPTIONS = [
@@ -49,6 +51,16 @@ const getStatusColor = (status: string) => {
     "Aguardando Envio": "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
     "Reenvio": "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
     "SEM RASTREIO": "bg-gray-500/20 text-gray-400 border-gray-500/30",
+  };
+  return colors[status] || "bg-muted text-muted-foreground";
+};
+
+const getStatusEntregaColor = (status: string) => {
+  const colors: Record<string, string> = {
+    "Excelente": "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+    "Prazo": "bg-blue-500/20 text-blue-400 border-blue-500/30",
+    "Ruim": "bg-orange-500/20 text-orange-400 border-orange-500/30",
+    "Péssimo": "bg-red-500/20 text-red-400 border-red-500/30",
   };
   return colors[status] || "bg-muted text-muted-foreground";
 };
@@ -107,6 +119,8 @@ export function PedidosList() {
       "Nº Pedido": p.numero_pedido,
       "Status": p.status,
       "Transportadora": p.transportadora || "-",
+      "Prazo Entrega (dias)": p.prazo_entrega ?? "-",
+      "Status Entrega": p.status_entrega || "-",
       "Data Criação": new Date(p.created_at).toLocaleDateString("pt-BR"),
       "Data Atualização": new Date(p.updated_at).toLocaleDateString("pt-BR"),
       "Códigos de Rastreio": p.codigos_rastreio.join(", "),
@@ -199,6 +213,8 @@ export function PedidosList() {
               <TableHead>Nº Pedido</TableHead>
               <TableHead>Transportadora</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Prazo (dias)</TableHead>
+              <TableHead>Qualidade</TableHead>
               <TableHead>Códigos de Rastreio</TableHead>
               <TableHead>Links</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -217,7 +233,7 @@ export function PedidosList() {
                 </TableRow>
               ) : filteredPedidos.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     Nenhum pedido encontrado
                   </TableCell>
                 </TableRow>
@@ -236,6 +252,22 @@ export function PedidosList() {
                       <Badge className={getStatusColor(pedido.status)} variant="outline">
                         {pedido.status}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {pedido.prazo_entrega !== null ? (
+                        <span className="font-medium">{pedido.prazo_entrega}</span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {pedido.status_entrega ? (
+                        <Badge className={getStatusEntregaColor(pedido.status_entrega)} variant="outline">
+                          {pedido.status_entrega}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
