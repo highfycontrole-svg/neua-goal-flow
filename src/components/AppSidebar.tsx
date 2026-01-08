@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign } from 'lucide-react';
+import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign, Home } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
@@ -20,35 +20,23 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   {
-    title: 'Metas',
-    url: '/dashboard',
-    icon: Target,
-    basePath: '/dashboard',
+    title: 'Geral',
+    url: '/geral',
+    icon: Home,
+    basePath: '/geral',
   },
   {
-    title: 'Neua Creators',
-    url: '/creators',
-    icon: Users,
-    basePath: '/creators',
-  },
-  {
-    title: 'Workspace Neua',
+    title: 'Workspace',
     url: '/workspace',
     icon: LayoutGrid,
     basePath: '/workspace',
     hasSubmenu: true,
   },
   {
-    title: 'Precificação & Catálogo',
-    url: '/pricing',
-    icon: Calculator,
-    basePath: '/pricing',
-  },
-  {
-    title: 'Planner Neua 2026',
-    url: '/planner',
-    icon: Rocket,
-    basePath: '/planner',
+    title: 'Financeiro',
+    url: '/financeiro',
+    icon: DollarSign,
+    basePath: '/financeiro',
   },
   {
     title: 'Pedidos',
@@ -57,10 +45,28 @@ const menuItems: MenuItem[] = [
     basePath: '/pedidos',
   },
   {
-    title: 'Financeiro',
-    url: '/financeiro',
-    icon: DollarSign,
-    basePath: '/financeiro',
+    title: 'Catálogo',
+    url: '/pricing',
+    icon: Calculator,
+    basePath: '/pricing',
+  },
+  {
+    title: 'Metas',
+    url: '/dashboard',
+    icon: Target,
+    basePath: '/dashboard',
+  },
+  {
+    title: 'Planner',
+    url: '/planner',
+    icon: Rocket,
+    basePath: '/planner',
+  },
+  {
+    title: 'Creators',
+    url: '/creators',
+    icon: Users,
+    basePath: '/creators',
   },
 ];
 
