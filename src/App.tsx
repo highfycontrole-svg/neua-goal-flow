@@ -22,6 +22,7 @@ import PricingPage from "./pages/pricing/PricingPage";
 import Planner2026Page from "./pages/planner/Planner2026Page";
 import PedidosPage from "./pages/pedidos/PedidosPage";
 import FinanceiroPage from "./pages/financeiro/FinanceiroPage";
+import GeralPage from "./pages/geral/GeralPage";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "@/components/AppLayout";
 
@@ -37,6 +38,16 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route
+              path="/geral"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <GeralPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard"
               element={
