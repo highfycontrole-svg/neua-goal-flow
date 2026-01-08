@@ -20,6 +20,8 @@ const STATUS_OPTIONS = [
   "SEM RASTREIO",
 ];
 
+const STATUS_ENTREGA_OPTIONS = ["Excelente", "Prazo", "Ruim", "Péssimo"];
+
 const TRANSPORTADORAS_PADRAO = ["ANJUN", "STARLINK", "WSH"];
 
 interface Pedido {
@@ -28,6 +30,8 @@ interface Pedido {
   codigos_rastreio: string[];
   status: string;
   transportadora: string | null;
+  prazo_entrega: number | null;
+  status_entrega: string | null;
 }
 
 interface EditPedidoDialogProps {
@@ -44,6 +48,8 @@ export function EditPedidoDialog({ open, onOpenChange, pedido }: EditPedidoDialo
   const [transportadora, setTransportadora] = useState("");
   const [novaTransportadora, setNovaTransportadora] = useState("");
   const [transportadoras, setTransportadoras] = useState(TRANSPORTADORAS_PADRAO);
+  const [prazoEntrega, setPrazoEntrega] = useState<string>("");
+  const [statusEntrega, setStatusEntrega] = useState<string>("");
 
   useEffect(() => {
     if (pedido) {
@@ -51,6 +57,8 @@ export function EditPedidoDialog({ open, onOpenChange, pedido }: EditPedidoDialo
       setCodigosRastreio(pedido.codigos_rastreio.length > 0 ? pedido.codigos_rastreio : [""]);
       setStatus(pedido.status);
       setTransportadora(pedido.transportadora || "");
+      setPrazoEntrega(pedido.prazo_entrega?.toString() || "");
+      setStatusEntrega(pedido.status_entrega || "");
       
       // Add transportadora to list if it's custom
       if (pedido.transportadora && !TRANSPORTADORAS_PADRAO.includes(pedido.transportadora)) {
@@ -72,6 +80,8 @@ export function EditPedidoDialog({ open, onOpenChange, pedido }: EditPedidoDialo
           codigos_rastreio: codigosFiltrados,
           status,
           transportadora: transportadora || null,
+          prazo_entrega: prazoEntrega ? parseInt(prazoEntrega) : null,
+          status_entrega: statusEntrega || null,
         })
         .eq("id", pedido.id);
 
@@ -215,6 +225,34 @@ export function EditPedidoDialog({ open, onOpenChange, pedido }: EditPedidoDialo
                 Adicionar
               </Button>
             </div>
+          </div>
+
+          {/* Prazo de Entrega */}
+          <div className="space-y-2">
+            <Label htmlFor="prazoEntrega">Prazo de Entrega (dias)</Label>
+            <Input
+              id="prazoEntrega"
+              type="number"
+              min="0"
+              value={prazoEntrega}
+              onChange={(e) => setPrazoEntrega(e.target.value)}
+              placeholder="Ex: 7"
+            />
+          </div>
+
+          {/* Status de Entrega (Qualidade Logística) */}
+          <div className="space-y-2">
+            <Label>Status de Entrega (Qualidade)</Label>
+            <Select value={statusEntrega} onValueChange={setStatusEntrega}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione..." />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_ENTREGA_OPTIONS.map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Preview Links */}
