@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DashboardLayout } from "@/components/DashboardLayout";
 import { FinanceiroDashboard } from "@/components/financeiro/FinanceiroDashboard";
 import { ReceitasList } from "@/components/financeiro/ReceitasList";
 import { DespesasList } from "@/components/financeiro/DespesasList";
@@ -30,58 +29,56 @@ export default function FinanceiroPage() {
   ];
 
   return (
-    <DashboardLayout>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-6"
-      >
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Financeiro</h1>
-          <p className="text-muted-foreground">
-            Gestão financeira completa do seu e-commerce
-          </p>
-        </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6"
+    >
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Financeiro</h1>
+        <p className="text-muted-foreground">
+          Gestão financeira completa do seu e-commerce
+        </p>
+      </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-3 lg:grid-cols-6 gap-2 h-auto bg-transparent p-0">
-            {tabs.map((tab) => (
-              <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 rounded-lg border border-border bg-card"
-              >
-                <tab.icon className="h-4 w-4" />
-                <span className="hidden sm:inline">{tab.label}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid grid-cols-3 lg:grid-cols-6 gap-2 h-auto bg-transparent p-0">
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.id}
+              value={tab.id}
+              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 rounded-lg border border-border bg-card"
+            >
+              <tab.icon className="h-4 w-4" />
+              <span className="hidden sm:inline">{tab.label}</span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-          <TabsContent value="dashboard" className="mt-6">
-            <FinanceiroDashboard />
-          </TabsContent>
+        <TabsContent value="dashboard" className="mt-6">
+          <FinanceiroDashboard />
+        </TabsContent>
 
-          <TabsContent value="receitas" className="mt-6">
-            <ReceitasList />
-          </TabsContent>
+        <TabsContent value="receitas" className="mt-6">
+          <ReceitasList />
+        </TabsContent>
 
-          <TabsContent value="despesas" className="mt-6">
-            <DespesasList />
-          </TabsContent>
+        <TabsContent value="despesas" className="mt-6">
+          <DespesasList />
+        </TabsContent>
 
-          <TabsContent value="marketing" className="mt-6">
-            <MarketingTab />
-          </TabsContent>
+        <TabsContent value="marketing" className="mt-6">
+          <MarketingTab />
+        </TabsContent>
 
-          <TabsContent value="fluxo" className="mt-6">
-            <FluxoCaixaTab />
-          </TabsContent>
+        <TabsContent value="fluxo" className="mt-6">
+          <FluxoCaixaTab />
+        </TabsContent>
 
-          <TabsContent value="lucro" className="mt-6">
-            <LucroMargemTab />
-          </TabsContent>
-        </Tabs>
-      </motion.div>
-    </DashboardLayout>
+        <TabsContent value="lucro" className="mt-6">
+          <LucroMargemTab />
+        </TabsContent>
+      </Tabs>
+    </motion.div>
   );
 }
