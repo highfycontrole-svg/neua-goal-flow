@@ -10,9 +10,13 @@ import {
   Target, 
   AlertTriangle,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  CalendarIcon
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useState } from "react";
 import { 
   AreaChart, 
@@ -31,6 +35,7 @@ import {
 } from "recharts";
 import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 const CATEGORY_COLORS: Record<string, string> = {
   "Marketing": "#3b82f6",
@@ -50,35 +55,68 @@ const CATEGORY_COLORS: Record<string, string> = {
 export function FinanceiroDashboard() {
   const { user } = useAuth();
   const [periodo, setPeriodo] = useState("30");
+  const [customDateRange, setCustomDateRange] = useState<{
+    from: Date | undefined;
+    to: Date | undefined;
+  }>({ from: undefined, to: undefined });
 
-  const startDate = subDays(new Date(), parseInt(periodo));
+  const isCustomPeriod = periodo === "custom";
+  
+  const getStartDate = () => {
+    if (isCustomPeriod && customDateRange.from) {
+      return customDateRange.from;
+    }
+    return subDays(new Date(), parseInt(periodo));
+  };
+
+  const getEndDate = () => {
+    if (isCustomPeriod && customDateRange.to) {
+      return customDateRange.to;
+    }
+    return new Date();
+  };
+
+  const startDate = getStartDate();
+  const endDate = getEndDate();
 
   const { data: receitas = [] } = useQuery({
-    queryKey: ["receitas", user?.id, periodo],
+    queryKey: ["receitas", user?.id, periodo, customDateRange.from?.toISOString(), customDateRange.to?.toISOString()],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("receitas")
         .select("*")
         .gte("data", format(startDate, "yyyy-MM-dd"))
         .order("data", { ascending: true });
+      
+      if (isCustomPeriod && customDateRange.to) {
+        query = query.lte("data", format(endDate, "yyyy-MM-dd"));
+      }
+      
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && (!isCustomPeriod || (!!customDateRange.from && !!customDateRange.to)),
   });
 
   const { data: despesas = [] } = useQuery({
-    queryKey: ["despesas", user?.id, periodo],
+    queryKey: ["despesas", user?.id, periodo, customDateRange.from?.toISOString(), customDateRange.to?.toISOString()],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("despesas")
         .select("*")
         .gte("data", format(startDate, "yyyy-MM-dd"))
         .order("data", { ascending: true });
+      
+      if (isCustomPeriod && customDateRange.to) {
+        query = query.lte("data", format(endDate, "yyyy-MM-dd"));
+      }
+      
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && (!isCustomPeriod || (!!customDateRange.from && !!customDateRange.to)),
   });
 
   // Calculate KPIs
@@ -90,9 +128,13 @@ export function FinanceiroDashboard() {
   const margem = receitaLiquida > 0 ? (lucro / receitaLiquida) * 100 : 0;
 
   // Previous period for comparison
-  const prevStartDate = subDays(startDate, parseInt(periodo));
+  const daysDiff = isCustomPeriod && customDateRange.from && customDateRange.to
+    ? Math.ceil((customDateRange.to.getTime() - customDateRange.from.getTime()) / (1000 * 60 * 60 * 24))
+    : parseInt(periodo);
+  
+  const prevStartDate = subDays(startDate, daysDiff);
   const { data: receitasPrev = [] } = useQuery({
-    queryKey: ["receitas-prev", user?.id, periodo],
+    queryKey: ["receitas-prev", user?.id, periodo, customDateRange.from?.toISOString(), customDateRange.to?.toISOString()],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("receitas")
@@ -102,7 +144,7 @@ export function FinanceiroDashboard() {
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && (!isCustomPeriod || (!!customDateRange.from && !!customDateRange.to)),
   });
 
   const faturamentoPrev = receitasPrev.reduce((acc, r) => acc + Number(r.valor_bruto), 0);
@@ -194,11 +236,18 @@ export function FinanceiroDashboard() {
     }).format(value);
   };
 
+  const handlePeriodChange = (value: string) => {
+    setPeriodo(value);
+    if (value !== "custom") {
+      setCustomDateRange({ from: undefined, to: undefined });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Period Selector */}
-      <div className="flex justify-end">
-        <Select value={periodo} onValueChange={setPeriodo}>
+      <div className="flex flex-wrap items-center gap-3 justify-end">
+        <Select value={periodo} onValueChange={handlePeriodChange}>
           <SelectTrigger className="w-[180px]">
             <SelectValue />
           </SelectTrigger>
@@ -207,8 +256,62 @@ export function FinanceiroDashboard() {
             <SelectItem value="30">Últimos 30 dias</SelectItem>
             <SelectItem value="90">Últimos 90 dias</SelectItem>
             <SelectItem value="365">Último ano</SelectItem>
+            <SelectItem value="custom">Personalizado</SelectItem>
           </SelectContent>
         </Select>
+
+        {isCustomPeriod && (
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[140px] justify-start text-left font-normal",
+                    !customDateRange.from && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {customDateRange.from ? format(customDateRange.from, "dd/MM/yyyy") : "Início"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={customDateRange.from}
+                  onSelect={(date) => setCustomDateRange(prev => ({ ...prev, from: date }))}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+            <span className="text-muted-foreground">até</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[140px] justify-start text-left font-normal",
+                    !customDateRange.to && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {customDateRange.to ? format(customDateRange.to, "dd/MM/yyyy") : "Fim"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={customDateRange.to}
+                  onSelect={(date) => setCustomDateRange(prev => ({ ...prev, to: date }))}
+                  disabled={(date) => customDateRange.from ? date < customDateRange.from : false}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
       </div>
 
       {/* KPI Cards */}
