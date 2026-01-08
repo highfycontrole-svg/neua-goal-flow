@@ -166,6 +166,101 @@ export type Database = {
           },
         ]
       }
+      despesas: {
+        Row: {
+          canal: string | null
+          categoria: string
+          created_at: string
+          data: string
+          descricao: string | null
+          forma_pagamento: string | null
+          id: string
+          pedido_id: string | null
+          recorrente: boolean
+          subcategoria: string | null
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          canal?: string | null
+          categoria: string
+          created_at?: string
+          data?: string
+          descricao?: string | null
+          forma_pagamento?: string | null
+          id?: string
+          pedido_id?: string | null
+          recorrente?: boolean
+          subcategoria?: string | null
+          updated_at?: string
+          user_id: string
+          valor?: number
+        }
+        Update: {
+          canal?: string | null
+          categoria?: string
+          created_at?: string
+          data?: string
+          descricao?: string | null
+          forma_pagamento?: string | null
+          id?: string
+          pedido_id?: string | null
+          recorrente?: boolean
+          subcategoria?: string | null
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "despesas_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fluxo_caixa: {
+        Row: {
+          categoria: string | null
+          created_at: string
+          data: string
+          descricao: string | null
+          id: string
+          realizado: boolean
+          tipo: string
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          categoria?: string | null
+          created_at?: string
+          data: string
+          descricao?: string | null
+          id?: string
+          realizado?: boolean
+          tipo: string
+          updated_at?: string
+          user_id: string
+          valor?: number
+        }
+        Update: {
+          categoria?: string | null
+          created_at?: string
+          data?: string
+          descricao?: string | null
+          id?: string
+          realizado?: boolean
+          tipo?: string
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
       interacoes: {
         Row: {
           arquiteto_id: string
@@ -298,6 +393,111 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      marketing_campanhas: {
+        Row: {
+          cpa: number | null
+          created_at: string
+          data_fim: string | null
+          data_inicio: string
+          id: string
+          investimento: number
+          nome_campanha: string
+          pedidos_gerados: number
+          plataforma: string
+          receita_gerada: number
+          roas: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cpa?: number | null
+          created_at?: string
+          data_fim?: string | null
+          data_inicio: string
+          id?: string
+          investimento?: number
+          nome_campanha: string
+          pedidos_gerados?: number
+          plataforma: string
+          receita_gerada?: number
+          roas?: number | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cpa?: number | null
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          id?: string
+          investimento?: number
+          nome_campanha?: string
+          pedidos_gerados?: number
+          plataforma?: string
+          receita_gerada?: number
+          roas?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      marketing_influenciadores: {
+        Row: {
+          created_at: string
+          custo: number
+          custo_por_pedido: number | null
+          data_fim: string | null
+          data_inicio: string | null
+          id: string
+          nome: string
+          pedidos_gerados: number
+          plataforma: string
+          receita_gerada: number
+          roi: number | null
+          status: string
+          tipo_pagamento: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custo?: number
+          custo_por_pedido?: number | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          nome: string
+          pedidos_gerados?: number
+          plataforma: string
+          receita_gerada?: number
+          roi?: number | null
+          status?: string
+          tipo_pagamento?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custo?: number
+          custo_por_pedido?: number | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          nome?: string
+          pedidos_gerados?: number
+          plataforma?: string
+          receita_gerada?: number
+          roi?: number | null
+          status?: string
+          tipo_pagamento?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       metas: {
         Row: {
@@ -709,6 +909,121 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      produtos_financeiro: {
+        Row: {
+          created_at: string
+          custo_logistico_medio: number
+          custo_unitario: number
+          fornecedor: string | null
+          id: string
+          margem_produto: number | null
+          prazo_medio_dias: number | null
+          preco_venda: number
+          produto_id: string | null
+          sku: string | null
+          taxa_problema: number | null
+          tipo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custo_logistico_medio?: number
+          custo_unitario?: number
+          fornecedor?: string | null
+          id?: string
+          margem_produto?: number | null
+          prazo_medio_dias?: number | null
+          preco_venda?: number
+          produto_id?: string | null
+          sku?: string | null
+          taxa_problema?: number | null
+          tipo?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custo_logistico_medio?: number
+          custo_unitario?: number
+          fornecedor?: string | null
+          id?: string
+          margem_produto?: number | null
+          prazo_medio_dias?: number | null
+          preco_venda?: number
+          produto_id?: string | null
+          sku?: string | null
+          taxa_problema?: number | null
+          tipo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "produtos_financeiro_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      receitas: {
+        Row: {
+          created_at: string
+          data: string
+          descricao: string | null
+          forma_recebimento: string | null
+          id: string
+          origem: string
+          pedido_id: string | null
+          status: string
+          taxas: number
+          updated_at: string
+          user_id: string
+          valor_bruto: number
+          valor_liquido: number | null
+        }
+        Insert: {
+          created_at?: string
+          data?: string
+          descricao?: string | null
+          forma_recebimento?: string | null
+          id?: string
+          origem?: string
+          pedido_id?: string | null
+          status?: string
+          taxas?: number
+          updated_at?: string
+          user_id: string
+          valor_bruto?: number
+          valor_liquido?: number | null
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          descricao?: string | null
+          forma_recebimento?: string | null
+          id?: string
+          origem?: string
+          pedido_id?: string | null
+          status?: string
+          taxas?: number
+          updated_at?: string
+          user_id?: string
+          valor_bruto?: number
+          valor_liquido?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receitas_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       setores: {
         Row: {
