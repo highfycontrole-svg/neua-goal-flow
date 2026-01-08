@@ -1,7 +1,10 @@
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
+import { format, subDays, startOfMonth, endOfMonth, startOfYear, isWithinInterval, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { 
   Package, 
   Trophy, 
@@ -15,9 +18,14 @@ import {
   Target, 
   Megaphone, 
   ListChecks, 
-  AlertTriangle 
+  AlertTriangle,
+  CalendarIcon
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 interface KPICardProps {
   title: string;
@@ -59,8 +67,49 @@ function KPICard({ title, value, icon, color, subtitle }: KPICardProps) {
   );
 }
 
+type PeriodType = '7d' | '30d' | 'mes' | 'ano' | 'todos' | 'custom';
+
 export default function GeralPage() {
   const { user } = useAuth();
+  const [period, setPeriod] = useState<PeriodType>('30d');
+  const [customStartDate, setCustomStartDate] = useState<Date>();
+  const [customEndDate, setCustomEndDate] = useState<Date>();
+
+  const getDateRange = useMemo(() => {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    
+    switch (period) {
+      case '7d':
+        return { start: subDays(today, 7), end: today };
+      case '30d':
+        return { start: subDays(today, 30), end: today };
+      case 'mes':
+        return { start: startOfMonth(today), end: endOfMonth(today) };
+      case 'ano':
+        return { start: startOfYear(today), end: today };
+      case 'custom':
+        if (customStartDate && customEndDate) {
+          return { start: customStartDate, end: customEndDate };
+        }
+        return null;
+      case 'todos':
+      default:
+        return null;
+    }
+  }, [period, customStartDate, customEndDate]);
+
+  const isInDateRange = (dateStr: string | null | undefined) => {
+    if (!dateStr) return period === 'todos';
+    if (!getDateRange) return true;
+    
+    try {
+      const date = parseISO(dateStr);
+      return isWithinInterval(date, { start: getDateRange.start, end: getDateRange.end });
+    } catch {
+      return false;
+    }
+  };
 
   // Produtos catalogados
   const { data: produtos = [] } = useQuery({
@@ -175,32 +224,58 @@ export default function GeralPage() {
     enabled: !!user?.id && workspaces.length > 0,
   });
 
-  // Cálculos
+  // Filtered data
+  const filteredReceitas = useMemo(() => 
+    receitas.filter(r => isInDateRange(r.data)), 
+    [receitas, getDateRange, period]
+  );
+  
+  const filteredDespesas = useMemo(() => 
+    despesas.filter(d => isInDateRange(d.data)), 
+    [despesas, getDateRange, period]
+  );
+  
+  const filteredPedidos = useMemo(() => 
+    pedidos.filter(p => isInDateRange(p.created_at)), 
+    [pedidos, getDateRange, period]
+  );
+  
+  const filteredCampanhas = useMemo(() => 
+    campanhas.filter(c => isInDateRange(c.data_inicio)), 
+    [campanhas, getDateRange, period]
+  );
+  
+  const filteredTasks = useMemo(() => 
+    tasks.filter(t => isInDateRange(t.created_at)), 
+    [tasks, getDateRange, period]
+  );
+
+  // Cálculos com dados filtrados
   const produtosCatalogados = produtos.length;
   const produtosCampeoes = produtos.filter(p => p.ranking === 'campeao').length;
   
-  const faturamento = receitas.reduce((acc, r) => acc + (r.valor_bruto || 0), 0);
-  const custos = despesas.reduce((acc, d) => acc + (d.valor || 0), 0);
+  const faturamento = filteredReceitas.reduce((acc, r) => acc + (r.valor_bruto || 0), 0);
+  const custos = filteredDespesas.reduce((acc, d) => acc + (d.valor || 0), 0);
   const lucro = faturamento - custos;
   const margem = faturamento > 0 ? ((lucro / faturamento) * 100).toFixed(1) : '0';
 
-  const pedidosEntregues = pedidos.filter(p => p.status_entrega === 'Entregue').length;
-  const pedidosEmTransito = pedidos.filter(p => p.status_entrega === 'Em Trânsito').length;
-  const taxaEntrega = pedidos.length > 0 
-    ? ((pedidosEntregues / pedidos.length) * 100).toFixed(1) 
+  const pedidosEntregues = filteredPedidos.filter(p => p.status_entrega === 'Entregue').length;
+  const pedidosEmTransito = filteredPedidos.filter(p => p.status_entrega === 'Em Trânsito').length;
+  const taxaEntrega = filteredPedidos.length > 0 
+    ? ((pedidosEntregues / filteredPedidos.length) * 100).toFixed(1) 
     : '0';
 
   const metasConcluidas = metas.filter(m => m.status === true).length;
 
-  const investimentoAnuncios = campanhas.reduce((acc, c) => acc + (c.investimento || 0), 0);
+  const investimentoAnuncios = filteredCampanhas.reduce((acc, c) => acc + (c.investimento || 0), 0);
 
-  const tarefasConcluidas = tasks.filter(t => {
+  const tarefasConcluidas = filteredTasks.filter(t => {
     const statusName = (t.workspace_statuses as any)?.name?.toLowerCase();
     return statusName === 'concluído' || statusName === 'concluida' || statusName === 'done';
   }).length;
 
   const hoje = new Date();
-  const tarefasAtrasadas = tasks.filter(t => {
+  const tarefasAtrasadas = filteredTasks.filter(t => {
     if (!t.date) return false;
     const taskDate = new Date(t.date);
     const statusName = (t.workspace_statuses as any)?.name?.toLowerCase();
@@ -214,6 +289,15 @@ export default function GeralPage() {
       currency: 'BRL',
     }).format(value);
   };
+
+  const periodOptions = [
+    { value: '7d', label: '7 dias' },
+    { value: '30d', label: '30 dias' },
+    { value: 'mes', label: 'Este mês' },
+    { value: 'ano', label: 'Este ano' },
+    { value: 'todos', label: 'Todos' },
+    { value: 'custom', label: 'Personalizado' },
+  ];
 
   const kpis = [
     {
@@ -317,12 +401,86 @@ export default function GeralPage() {
       className="p-6 space-y-6"
     >
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Visão Geral</h1>
-        <p className="text-muted-foreground mt-1">
-          Resumo consolidado de todas as áreas do sistema
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Visão Geral</h1>
+          <p className="text-muted-foreground mt-1">
+            Resumo consolidado de todas as áreas do sistema
+          </p>
+        </div>
+
+        {/* Period Filter */}
+        <div className="flex flex-wrap items-center gap-2">
+          {periodOptions.map((option) => (
+            <Button
+              key={option.value}
+              variant={period === option.value ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setPeriod(option.value as PeriodType)}
+              className="text-xs"
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
       </div>
+
+      {/* Custom Date Range */}
+      {period === 'custom' && (
+        <div className="flex flex-wrap items-center gap-3 p-4 bg-card rounded-lg border border-border">
+          <span className="text-sm text-muted-foreground">De:</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className={cn(
+                  "justify-start text-left font-normal",
+                  !customStartDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {customStartDate ? format(customStartDate, "dd/MM/yyyy", { locale: ptBR }) : "Data início"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={customStartDate}
+                onSelect={setCustomStartDate}
+                initialFocus
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+
+          <span className="text-sm text-muted-foreground">Até:</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className={cn(
+                  "justify-start text-left font-normal",
+                  !customEndDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {customEndDate ? format(customEndDate, "dd/MM/yyyy", { locale: ptBR }) : "Data fim"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={customEndDate}
+                onSelect={setCustomEndDate}
+                initialFocus
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
 
       {/* KPIs Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
