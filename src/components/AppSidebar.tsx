@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package } from 'lucide-react';
+import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
@@ -55,6 +55,12 @@ const menuItems: MenuItem[] = [
     url: '/pedidos',
     icon: Package,
     basePath: '/pedidos',
+  },
+  {
+    title: 'Financeiro',
+    url: '/financeiro',
+    icon: DollarSign,
+    basePath: '/financeiro',
   },
 ];
 
