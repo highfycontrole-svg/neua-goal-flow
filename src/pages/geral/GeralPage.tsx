@@ -5,9 +5,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { format, subDays, startOfMonth, endOfMonth, startOfYear, isWithinInterval, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { 
   Package, 
-  Trophy, 
+  Trophy,
   DollarSign, 
   TrendingDown, 
   TrendingUp, 
@@ -394,107 +395,109 @@ export default function GeralPage() {
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="p-6 space-y-6"
-    >
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Visão Geral</h1>
-          <p className="text-muted-foreground mt-1">
-            Resumo consolidado de todas as áreas do sistema
-          </p>
+    <AnimatedGradientBackground>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="p-6 space-y-6"
+      >
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Visão Geral</h1>
+            <p className="text-muted-foreground mt-1">
+              Resumo consolidado de todas as áreas do sistema
+            </p>
+          </div>
+
+          {/* Period Filter */}
+          <div className="flex flex-wrap items-center gap-2">
+            {periodOptions.map((option) => (
+              <Button
+                key={option.value}
+                variant={period === option.value ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setPeriod(option.value as PeriodType)}
+                className="text-xs"
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
         </div>
 
-        {/* Period Filter */}
-        <div className="flex flex-wrap items-center gap-2">
-          {periodOptions.map((option) => (
-            <Button
-              key={option.value}
-              variant={period === option.value ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setPeriod(option.value as PeriodType)}
-              className="text-xs"
+        {/* Custom Date Range */}
+        {period === 'custom' && (
+          <div className="flex flex-wrap items-center gap-3 p-4 bg-card rounded-lg border border-border">
+            <span className="text-sm text-muted-foreground">De:</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "justify-start text-left font-normal",
+                    !customStartDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {customStartDate ? format(customStartDate, "dd/MM/yyyy", { locale: ptBR }) : "Data início"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={customStartDate}
+                  onSelect={setCustomStartDate}
+                  initialFocus
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+
+            <span className="text-sm text-muted-foreground">Até:</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "justify-start text-left font-normal",
+                    !customEndDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {customEndDate ? format(customEndDate, "dd/MM/yyyy", { locale: ptBR }) : "Data fim"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={customEndDate}
+                  onSelect={setCustomEndDate}
+                  initialFocus
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
+
+        {/* KPIs Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {kpis.map((kpi, index) => (
+            <motion.div
+              key={kpi.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
             >
-              {option.label}
-            </Button>
+              <KPICard {...kpi} />
+            </motion.div>
           ))}
         </div>
-      </div>
-
-      {/* Custom Date Range */}
-      {period === 'custom' && (
-        <div className="flex flex-wrap items-center gap-3 p-4 bg-card rounded-lg border border-border">
-          <span className="text-sm text-muted-foreground">De:</span>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className={cn(
-                  "justify-start text-left font-normal",
-                  !customStartDate && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {customStartDate ? format(customStartDate, "dd/MM/yyyy", { locale: ptBR }) : "Data início"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={customStartDate}
-                onSelect={setCustomStartDate}
-                initialFocus
-                className="pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
-
-          <span className="text-sm text-muted-foreground">Até:</span>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className={cn(
-                  "justify-start text-left font-normal",
-                  !customEndDate && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {customEndDate ? format(customEndDate, "dd/MM/yyyy", { locale: ptBR }) : "Data fim"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={customEndDate}
-                onSelect={setCustomEndDate}
-                initialFocus
-                className="pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      )}
-
-      {/* KPIs Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {kpis.map((kpi, index) => (
-          <motion.div
-            key={kpi.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.05 }}
-          >
-            <KPICard {...kpi} />
-          </motion.div>
-        ))}
-      </div>
-    </motion.div>
+      </motion.div>
+    </AnimatedGradientBackground>
   );
 }
