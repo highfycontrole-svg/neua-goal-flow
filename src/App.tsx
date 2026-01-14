@@ -27,6 +27,9 @@ import PlannerIAPage from "./pages/planner/PlannerIAPage";
 import PedidosPage from "./pages/pedidos/PedidosPage";
 import FinanceiroPage from "./pages/financeiro/FinanceiroPage";
 import GeralPage from "./pages/geral/GeralPage";
+import AdLabPage from "./pages/adlab/AdLabPage";
+import AdLabPacksPage from "./pages/adlab/AdLabPacksPage";
+import AdLabAnunciosPage from "./pages/adlab/AdLabAnunciosPage";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "@/components/AppLayout";
 
@@ -194,6 +197,36 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <PedidosPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/adlab"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <AdLabPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/adlab/:produtoId"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <AdLabPacksPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/adlab/:produtoId/pack/:packId"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <AdLabAnunciosPage />
                   </AppLayout>
                 </ProtectedRoute>
               }
