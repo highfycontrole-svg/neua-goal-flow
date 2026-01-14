@@ -776,6 +776,90 @@ export type Database = {
           },
         ]
       }
+      planner_eventos: {
+        Row: {
+          created_at: string
+          data_fim: string | null
+          data_inicio: string
+          descricao: string | null
+          id: string
+          observacoes: string | null
+          status: string
+          tipo: string
+          titulo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio: string
+          descricao?: string | null
+          id?: string
+          observacoes?: string | null
+          status?: string
+          tipo: string
+          titulo: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          descricao?: string | null
+          id?: string
+          observacoes?: string | null
+          status?: string
+          tipo?: string
+          titulo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      planner_ideias: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          id: string
+          qualidade: string
+          resultado: string | null
+          status: string
+          tipo: string
+          tipo_customizado: string | null
+          titulo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          qualidade?: string
+          resultado?: string | null
+          status?: string
+          tipo: string
+          tipo_customizado?: string | null
+          titulo: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          qualidade?: string
+          resultado?: string | null
+          status?: string
+          tipo?: string
+          tipo_customizado?: string | null
+          titulo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       planners_manuais: {
         Row: {
           conteudo: Json
