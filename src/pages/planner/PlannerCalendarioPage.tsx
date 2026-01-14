@@ -20,6 +20,8 @@ export interface PlannerEvento {
   data_fim: string | null;
   status: string;
   observacoes: string | null;
+  hora_inicio: string | null;
+  duracao_minutos: number | null;
   created_at: string;
   updated_at: string;
 }
