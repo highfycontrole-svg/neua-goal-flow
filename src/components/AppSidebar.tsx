@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign, Home } from 'lucide-react';
+import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign, Home, PlayCircle } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
@@ -49,6 +49,12 @@ const menuItems: MenuItem[] = [
     url: '/pricing',
     icon: Calculator,
     basePath: '/pricing',
+  },
+  {
+    title: 'AD Lab',
+    url: '/adlab',
+    icon: PlayCircle,
+    basePath: '/adlab',
   },
   {
     title: 'Metas',

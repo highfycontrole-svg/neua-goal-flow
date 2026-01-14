@@ -14,6 +14,121 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_anuncios: {
+        Row: {
+          aprendizado_funcionou: string | null
+          aprendizado_nao_funcionou: string | null
+          aprendizado_recomendacoes: string | null
+          copy_anuncio: string | null
+          created_at: string
+          formato: string
+          gancho_principal: string | null
+          id: string
+          insight_especifico: string | null
+          link_referencia: string | null
+          observacoes: string | null
+          pack_id: string
+          roteiro_visual: Json | null
+          status_performance: string | null
+          status_producao: string
+          titulo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aprendizado_funcionou?: string | null
+          aprendizado_nao_funcionou?: string | null
+          aprendizado_recomendacoes?: string | null
+          copy_anuncio?: string | null
+          created_at?: string
+          formato?: string
+          gancho_principal?: string | null
+          id?: string
+          insight_especifico?: string | null
+          link_referencia?: string | null
+          observacoes?: string | null
+          pack_id: string
+          roteiro_visual?: Json | null
+          status_performance?: string | null
+          status_producao?: string
+          titulo: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aprendizado_funcionou?: string | null
+          aprendizado_nao_funcionou?: string | null
+          aprendizado_recomendacoes?: string | null
+          copy_anuncio?: string | null
+          created_at?: string
+          formato?: string
+          gancho_principal?: string | null
+          id?: string
+          insight_especifico?: string | null
+          link_referencia?: string | null
+          observacoes?: string | null
+          pack_id?: string
+          roteiro_visual?: Json | null
+          status_performance?: string | null
+          status_producao?: string
+          titulo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_anuncios_pack_id_fkey"
+            columns: ["pack_id"]
+            isOneToOne: false
+            referencedRelation: "ad_packs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_packs: {
+        Row: {
+          created_at: string
+          id: string
+          insight_central: string | null
+          nome: string
+          produto_id: string
+          promessa_principal: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          insight_central?: string | null
+          nome: string
+          produto_id: string
+          promessa_principal?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          insight_central?: string | null
+          nome?: string
+          produto_id?: string
+          promessa_principal?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_packs_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       arquitetos: {
         Row: {
           arroba_principal: string | null
