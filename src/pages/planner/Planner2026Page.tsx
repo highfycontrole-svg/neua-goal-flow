@@ -35,7 +35,7 @@ export default function Planner2026Page() {
   }, [location.pathname, navigate]);
 
   return (
-    <div className="h-[calc(100vh-180px)] flex flex-col">
+    <div className="h-full flex flex-col">
       {/* Sub-page Navigation */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -67,7 +67,7 @@ export default function Planner2026Page() {
       </motion.div>
 
       {/* Sub-page Content */}
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 overflow-hidden">
         <Outlet />
       </div>
     </div>
