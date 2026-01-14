@@ -8,11 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, Clock, Loader2, Trash2 } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PlannerEvento } from '@/pages/planner/PlannerCalendarioPage';
+import { parseDateStringToLocal, formatDateToString } from '@/lib/utils';
 
 const DURACAO_OPTIONS = [
   { value: '15', label: '15 minutos' },
@@ -53,8 +54,8 @@ export function EditEventoDialog({ open, onOpenChange, evento, onSuccess }: Edit
   const [tipo, setTipo] = useState(evento.tipo);
   const [titulo, setTitulo] = useState(evento.titulo);
   const [descricao, setDescricao] = useState(evento.descricao || '');
-  const [dataInicio, setDataInicio] = useState<Date | undefined>(parseISO(evento.data_inicio));
-  const [dataFim, setDataFim] = useState<Date | undefined>(evento.data_fim ? parseISO(evento.data_fim) : undefined);
+  const [dataInicio, setDataInicio] = useState<Date | undefined>(parseDateStringToLocal(evento.data_inicio));
+  const [dataFim, setDataFim] = useState<Date | undefined>(parseDateStringToLocal(evento.data_fim));
   const [status, setStatus] = useState(evento.status);
   const [observacoes, setObservacoes] = useState(evento.observacoes || '');
   const [horaInicio, setHoraInicio] = useState(evento.hora_inicio || '');
@@ -64,8 +65,8 @@ export function EditEventoDialog({ open, onOpenChange, evento, onSuccess }: Edit
     setTipo(evento.tipo);
     setTitulo(evento.titulo);
     setDescricao(evento.descricao || '');
-    setDataInicio(parseISO(evento.data_inicio));
-    setDataFim(evento.data_fim ? parseISO(evento.data_fim) : undefined);
+    setDataInicio(parseDateStringToLocal(evento.data_inicio));
+    setDataFim(parseDateStringToLocal(evento.data_fim));
     setStatus(evento.status);
     setObservacoes(evento.observacoes || '');
     setHoraInicio(evento.hora_inicio || '');
@@ -84,8 +85,8 @@ export function EditEventoDialog({ open, onOpenChange, evento, onSuccess }: Edit
         tipo,
         titulo: titulo.trim(),
         descricao: descricao.trim() || null,
-        data_inicio: format(dataInicio, 'yyyy-MM-dd'),
-        data_fim: dataFim ? format(dataFim, 'yyyy-MM-dd') : null,
+        data_inicio: formatDateToString(dataInicio),
+        data_fim: formatDateToString(dataFim),
         status,
         observacoes: observacoes.trim() || null,
         hora_inicio: horaInicio || null,

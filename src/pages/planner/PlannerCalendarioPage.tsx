@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format, startOfYear, endOfYear, eachMonthOfInterval, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { parseDateStringToLocal } from '@/lib/utils';
 import { CreateEventoDialog } from '@/components/planner/calendario/CreateEventoDialog';
 import { EditEventoDialog } from '@/components/planner/calendario/EditEventoDialog';
 
@@ -77,8 +78,8 @@ export default function PlannerCalendarioPage() {
 
   const getEventosForDate = (date: Date) => {
     return eventos.filter(evento => {
-      const eventoDate = new Date(evento.data_inicio);
-      return isSameDay(eventoDate, date);
+      const eventoDate = parseDateStringToLocal(evento.data_inicio);
+      return eventoDate && isSameDay(eventoDate, date);
     });
   };
 
@@ -86,8 +87,8 @@ export default function PlannerCalendarioPage() {
     const monthStart = startOfMonth(new Date(currentYear, monthIndex));
     const monthEnd = endOfMonth(new Date(currentYear, monthIndex));
     return eventos.filter(evento => {
-      const eventoDate = new Date(evento.data_inicio);
-      return eventoDate >= monthStart && eventoDate <= monthEnd;
+      const eventoDate = parseDateStringToLocal(evento.data_inicio);
+      return eventoDate && eventoDate >= monthStart && eventoDate <= monthEnd;
     });
   };
 

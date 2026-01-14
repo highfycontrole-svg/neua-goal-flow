@@ -13,6 +13,7 @@ import { ptBR } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { formatDateToString } from '@/lib/utils';
 
 const DURACAO_OPTIONS = [
   { value: '15', label: '15 minutos' },
@@ -85,8 +86,8 @@ export function CreateEventoDialog({ open, onOpenChange, selectedDate, onSuccess
         tipo,
         titulo: titulo.trim(),
         descricao: descricao.trim() || null,
-        data_inicio: format(dataInicio, 'yyyy-MM-dd'),
-        data_fim: dataFim ? format(dataFim, 'yyyy-MM-dd') : null,
+        data_inicio: formatDateToString(dataInicio),
+        data_fim: formatDateToString(dataFim),
         status,
         observacoes: observacoes.trim() || null,
         hora_inicio: horaInicio || null,

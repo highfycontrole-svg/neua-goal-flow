@@ -11,18 +11,12 @@ import { ptBR } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 import { DndContext, DragEndEvent, DragOverlay, PointerSensor, useSensor, useSensors, useDroppable, useDraggable } from '@dnd-kit/core';
 import { toast } from '@/hooks/use-toast';
+import { parseDateStringToLocal, formatDateToString } from '@/lib/utils';
 
 interface WorkspaceCalendarProps {
   workspaceId: string;
   filterFn?: (task: any) => boolean;
 }
-
-// Helper function to parse date string without timezone issues
-const parseDateString = (dateStr: string | null): Date | undefined => {
-  if (!dateStr) return undefined;
-  const [year, month, day] = dateStr.split('-').map(Number);
-  return new Date(year, month - 1, day);
-};
 
 // Draggable task component
 function DraggableCalendarTask({ task, status, onClick }: { task: any; status: any; onClick: () => void }) {
@@ -176,7 +170,7 @@ export function WorkspaceCalendar({ workspaceId, filterFn }: WorkspaceCalendarPr
   const getTasksForDay = (day: Date) => {
     return filteredTasks.filter(task => {
       if (!task.date) return false;
-      const taskDate = parseDateString(task.date);
+      const taskDate = parseDateStringToLocal(task.date);
       return taskDate && isSameDay(taskDate, day);
     });
   };

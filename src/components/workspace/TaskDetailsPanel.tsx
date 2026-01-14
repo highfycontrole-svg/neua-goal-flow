@@ -12,18 +12,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Calendar as CalendarIcon, Plus, Trash2, Copy } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
-
-// Helper function to parse date string without timezone issues
-const parseDateString = (dateStr: string | null): Date | undefined => {
-  if (!dateStr) return undefined;
-  // Add time component to ensure local timezone interpretation
-  const [year, month, day] = dateStr.split('-').map(Number);
-  return new Date(year, month - 1, day);
-};
+import { cn, parseDateStringToLocal, formatDateToString } from '@/lib/utils';
 
 interface TaskDetailsPanelProps {
   taskId: string | null;
@@ -78,7 +70,7 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
       setTitle(task.title);
       setDescription(task.description || '');
       setStatusId(task.status_id || '');
-      setDate(parseDateString(task.date));
+      setDate(parseDateStringToLocal(task.date));
       setResponsible(task.responsible || '');
       setTags(task.tags?.join(', ') || '');
       setNotes(task.notes || '');
@@ -97,7 +89,7 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
           title: title.trim(),
           description: description.trim() || null,
           status_id: statusId || null,
-          date: date ? format(date, 'yyyy-MM-dd') : null,
+          date: formatDateToString(date),
           responsible: responsible.trim() || null,
           tags: tagsArray.length > 0 ? tagsArray : null,
           notes: notes.trim() || null,
@@ -390,7 +382,7 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
                   </PopoverContent>
                 </Popover>
               ) : (
-                <p>{task.date ? format(parseDateString(task.date)!, 'dd/MM/yyyy', { locale: ptBR }) : 'Sem data'}</p>
+                <p>{task.date ? format(parseDateStringToLocal(task.date)!, 'dd/MM/yyyy', { locale: ptBR }) : 'Sem data'}</p>
               )}
             </div>
           </div>

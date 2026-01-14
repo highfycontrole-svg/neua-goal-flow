@@ -13,6 +13,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { formatDateToString } from '@/lib/utils';
 
 interface CreateTaskDialogProps {
   open: boolean;
@@ -60,7 +61,7 @@ export function CreateTaskDialog({ open, onOpenChange, workspaceId, defaultStatu
           title: title.trim(),
           description: description.trim() || null,
           status_id: statusId || null,
-          date: date ? format(date, 'yyyy-MM-dd') : null,
+          date: formatDateToString(date),
           responsible: responsible.trim() || null,
           tags: tagsArray.length > 0 ? tagsArray : null,
         }]);
