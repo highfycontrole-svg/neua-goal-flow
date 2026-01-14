@@ -7,12 +7,24 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Loader2, Trash2 } from 'lucide-react';
+import { CalendarIcon, Clock, Loader2, Trash2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PlannerEvento } from '@/pages/planner/PlannerCalendarioPage';
+
+const DURACAO_OPTIONS = [
+  { value: '15', label: '15 minutos' },
+  { value: '30', label: '30 minutos' },
+  { value: '45', label: '45 minutos' },
+  { value: '60', label: '1 hora' },
+  { value: '90', label: '1h 30min' },
+  { value: '120', label: '2 horas' },
+  { value: '180', label: '3 horas' },
+  { value: '240', label: '4 horas' },
+  { value: '480', label: '8 horas (dia inteiro)' },
+];
 
 interface EditEventoDialogProps {
   open: boolean;
@@ -45,6 +57,8 @@ export function EditEventoDialog({ open, onOpenChange, evento, onSuccess }: Edit
   const [dataFim, setDataFim] = useState<Date | undefined>(evento.data_fim ? parseISO(evento.data_fim) : undefined);
   const [status, setStatus] = useState(evento.status);
   const [observacoes, setObservacoes] = useState(evento.observacoes || '');
+  const [horaInicio, setHoraInicio] = useState(evento.hora_inicio || '');
+  const [duracaoMinutos, setDuracaoMinutos] = useState(evento.duracao_minutos?.toString() || '');
 
   useEffect(() => {
     setTipo(evento.tipo);
@@ -54,6 +68,8 @@ export function EditEventoDialog({ open, onOpenChange, evento, onSuccess }: Edit
     setDataFim(evento.data_fim ? parseISO(evento.data_fim) : undefined);
     setStatus(evento.status);
     setObservacoes(evento.observacoes || '');
+    setHoraInicio(evento.hora_inicio || '');
+    setDuracaoMinutos(evento.duracao_minutos?.toString() || '');
   }, [evento]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,6 +88,8 @@ export function EditEventoDialog({ open, onOpenChange, evento, onSuccess }: Edit
         data_fim: dataFim ? format(dataFim, 'yyyy-MM-dd') : null,
         status,
         observacoes: observacoes.trim() || null,
+        hora_inicio: horaInicio || null,
+        duracao_minutos: duracaoMinutos ? parseInt(duracaoMinutos) : null,
       })
       .eq('id', evento.id);
 
@@ -190,6 +208,36 @@ export function EditEventoDialog({ open, onOpenChange, evento, onSuccess }: Edit
                   />
                 </PopoverContent>
               </Popover>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="hora_inicio">Horário de Início</Label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="hora_inicio"
+                  type="time"
+                  value={horaInicio}
+                  onChange={(e) => setHoraInicio(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Duração</Label>
+              <Select value={duracaoMinutos} onValueChange={setDuracaoMinutos}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecionar duração" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DURACAO_OPTIONS.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

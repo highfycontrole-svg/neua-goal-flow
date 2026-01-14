@@ -782,6 +782,8 @@ export type Database = {
           data_fim: string | null
           data_inicio: string
           descricao: string | null
+          duracao_minutos: number | null
+          hora_inicio: string | null
           id: string
           observacoes: string | null
           status: string
@@ -795,6 +797,8 @@ export type Database = {
           data_fim?: string | null
           data_inicio: string
           descricao?: string | null
+          duracao_minutos?: number | null
+          hora_inicio?: string | null
           id?: string
           observacoes?: string | null
           status?: string
@@ -808,6 +812,8 @@ export type Database = {
           data_fim?: string | null
           data_inicio?: string
           descricao?: string | null
+          duracao_minutos?: number | null
+          hora_inicio?: string | null
           id?: string
           observacoes?: string | null
           status?: string
