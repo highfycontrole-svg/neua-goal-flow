@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { FinanceiroExportButton } from "./FinanceiroExportButton";
 
 const PLATAFORMAS = ["Meta Ads", "Google Ads", "TikTok Ads", "Pinterest Ads", "LinkedIn Ads", "Outros"];
 const PLATAFORMAS_INFLUENCER = ["Instagram", "TikTok", "YouTube", "Twitter/X", "Pinterest", "Outros"];
@@ -51,6 +52,7 @@ interface Influenciador {
 export function MarketingTab() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState("campanhas");
 
   // Campanhas state
@@ -268,8 +270,68 @@ export function MarketingTab() {
   const totalCustoInfluenciadores = influenciadores.reduce((acc, i) => acc + Number(i.custo), 0);
   const totalReceitaInfluenciadores = influenciadores.reduce((acc, i) => acc + Number(i.receita_gerada), 0);
 
+  const generateTextReport = () => {
+    const dateStr = new Date().toLocaleDateString('pt-BR');
+    return `📣 RELATÓRIO DE MARKETING
+📅 Data: ${dateStr}
+
+🎯 TRÁFEGO PAGO
+━━━━━━━━━━━━━━━━━━━━
+• Total Investido: ${formatCurrency(totalInvestido)}
+• Receita Gerada: ${formatCurrency(totalReceitaCampanhas)}
+• ROAS Médio: ${roasMedio.toFixed(2)}x
+• Campanhas Ativas: ${campanhas.filter(c => c.status === 'ativa').length}
+
+👥 INFLUENCIADORES
+━━━━━━━━━━━━━━━━━━━━
+• Custo Total: ${formatCurrency(totalCustoInfluenciadores)}
+• Receita Gerada: ${formatCurrency(totalReceitaInfluenciadores)}
+• Influenciadores Ativos: ${influenciadores.filter(i => i.status === 'ativo').length}
+
+📋 TOP CAMPANHAS
+━━━━━━━━━━━━━━━━━━━━
+${campanhas.slice(0, 3).map(c => `• ${c.nome_campanha}: ROAS ${Number(c.roas).toFixed(2)}x`).join('\n')}
+
+💡 Relatório gerado automaticamente pela Neua`;
+  };
+
+  const xlsData = {
+    headers: ['Tipo', 'Nome', 'Investimento/Custo', 'Receita', 'ROAS/ROI', 'Pedidos', 'Status'],
+    rows: [
+      ...campanhas.map((c) => [
+        'Campanha',
+        c.nome_campanha,
+        c.investimento,
+        c.receita_gerada,
+        Number(c.roas).toFixed(2),
+        c.pedidos_gerados,
+        c.status,
+      ]),
+      ...influenciadores.map((i) => [
+        'Influenciador',
+        i.nome,
+        i.custo,
+        i.receita_gerada,
+        Number(i.roi).toFixed(2),
+        i.pedidos_gerados,
+        i.status,
+      ]),
+    ] as (string | number)[][],
+    sheetName: 'Marketing'
+  };
+
   return (
-    <div className="space-y-6">
+    <div ref={containerRef} className="space-y-6">
+      {/* Header with Export */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Marketing & Aquisição</h2>
+        <FinanceiroExportButton
+          containerRef={containerRef}
+          sectionName="marketing"
+          textReport={generateTextReport()}
+          xlsData={xlsData}
+        />
+      </div>
       {/* Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 rounded-xl bg-card border border-border">

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { 
   PieChart as PieChartIcon, 
   TrendingUp, 
@@ -29,11 +29,13 @@ import {
   Line
 } from "recharts";
 import { format, subDays } from "date-fns";
+import { FinanceiroExportButton } from "./FinanceiroExportButton";
 
 const COLORS = ["#3b82f6", "#8b5cf6", "#ec4899", "#f97316", "#22c55e", "#06b6d4", "#eab308", "#ef4444"];
 
 export function LucroMargemTab() {
   const { user } = useAuth();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [periodo, setPeriodo] = useState("30");
 
   const startDate = subDays(new Date(), parseInt(periodo));
@@ -175,22 +177,67 @@ export function LucroMargemTab() {
     }).format(value);
   };
 
+  const generateTextReport = () => {
+    const dateStr = new Date().toLocaleDateString('pt-BR');
+    return `📈 RELATÓRIO LUCRO & MARGEM
+📅 Data: ${dateStr}
+📆 Período: Últimos ${periodo} dias
+
+💰 DRE SIMPLIFICADA
+━━━━━━━━━━━━━━━━━━━━
+• Receita Bruta: ${formatCurrency(receitaBruta)}
+• Taxas/Deduções: -${formatCurrency(taxas)}
+• Receita Líquida: ${formatCurrency(receitaLiquida)}
+• Marketing: -${formatCurrency(custoMarketing)}
+• Influenciadores: -${formatCurrency(custoInfluenciadores)}
+• Produto/Fornecedor: -${formatCurrency(custoProduto)}
+• Logística: -${formatCurrency(custoLogistica)}
+• Operacional: -${formatCurrency(custoOperacional)}
+• Impostos: -${formatCurrency(impostos)}
+
+📊 RESULTADO
+━━━━━━━━━━━━━━━━━━━━
+• ${lucroReal >= 0 ? 'LUCRO REAL' : 'PREJUÍZO'}: ${formatCurrency(Math.abs(lucroReal))}
+• MARGEM REAL: ${margemReal.toFixed(1)}%
+
+${margemReal < 15 ? '⚠️ ALERTA: Margem abaixo do ideal (15-20%)' : '✅ Margem saudável'}
+
+💡 Relatório gerado automaticamente pela Neua`;
+  };
+
+  const xlsData = {
+    headers: ['Item', 'Valor'],
+    rows: dreItems.map((item) => [
+      item.label,
+      item.value,
+    ]) as (string | number)[][],
+    sheetName: 'Lucro e Margem'
+  };
+
   return (
-    <div className="space-y-6">
+    <div ref={containerRef} className="space-y-6">
       {/* Period Selector */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Lucro Real & Margem Verdadeira</h2>
-        <Select value={periodo} onValueChange={setPeriodo}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="7">Últimos 7 dias</SelectItem>
-            <SelectItem value="30">Últimos 30 dias</SelectItem>
-            <SelectItem value="90">Últimos 90 dias</SelectItem>
-            <SelectItem value="365">Último ano</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <FinanceiroExportButton
+            containerRef={containerRef}
+            sectionName="lucro-margem"
+            textReport={generateTextReport()}
+            xlsData={xlsData}
+          />
+          <Select value={periodo} onValueChange={setPeriodo}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">Últimos 7 dias</SelectItem>
+              <SelectItem value="30">Últimos 30 dias</SelectItem>
+              <SelectItem value="90">Últimos 90 dias</SelectItem>
+              <SelectItem value="365">Último ano</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Main Result Cards */}

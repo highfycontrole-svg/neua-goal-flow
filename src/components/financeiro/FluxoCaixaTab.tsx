@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Wallet, TrendingUp, TrendingDown, AlertTriangle, ArrowRight } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
@@ -18,9 +18,11 @@ import {
 } from "recharts";
 import { format, addDays, subDays, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { FinanceiroExportButton } from "./FinanceiroExportButton";
 
 export function FluxoCaixaTab() {
   const { user } = useAuth();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [periodo, setPeriodo] = useState("30");
 
   const startDate = subDays(new Date(), 30); // Last 30 days for realized
@@ -142,21 +144,68 @@ export function FluxoCaixaTab() {
     },
   ];
 
+  const generateTextReport = () => {
+    const dateStr = new Date().toLocaleDateString('pt-BR');
+    return `💵 RELATÓRIO FLUXO DE CAIXA
+📅 Data: ${dateStr}
+📆 Projeção: Próximos ${periodo} dias
+
+📊 ENTRADAS
+━━━━━━━━━━━━━━━━━━━━
+• Realizadas: ${formatCurrency(receitasRealizadas)}
+• Previstas: ${formatCurrency(receitasPrevistas)}
+
+📊 SAÍDAS
+━━━━━━━━━━━━━━━━━━━━
+• Realizadas: ${formatCurrency(despesasRealizadas)}
+• Previstas: ${formatCurrency(despesasPrevistas)}
+
+💰 SALDOS
+━━━━━━━━━━━━━━━━━━━━
+• Saldo Atual: ${formatCurrency(saldoAtual)}
+• Saldo Projetado: ${formatCurrency(saldoProjetado)}
+
+${saldoProjetado < 0 ? '⚠️ ALERTA: Projeção de caixa negativo!' : '✅ Projeção de caixa positivo'}
+
+💡 Relatório gerado automaticamente pela Neua`;
+  };
+
+  const xlsData = {
+    headers: ['Métrica', 'Valor'],
+    rows: [
+      ['Entradas Realizadas', receitasRealizadas],
+      ['Entradas Previstas', receitasPrevistas],
+      ['Saídas Realizadas', despesasRealizadas],
+      ['Saídas Previstas', despesasPrevistas],
+      ['Saldo Atual', saldoAtual],
+      ['Saldo Projetado', saldoProjetado],
+    ] as (string | number)[][],
+    sheetName: 'Fluxo de Caixa'
+  };
+
   return (
-    <div className="space-y-6">
+    <div ref={containerRef} className="space-y-6">
       {/* Period Selector */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Fluxo de Caixa</h2>
-        <Select value={periodo} onValueChange={setPeriodo}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="7">Próximos 7 dias</SelectItem>
-            <SelectItem value="30">Próximos 30 dias</SelectItem>
-            <SelectItem value="90">Próximos 90 dias</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <FinanceiroExportButton
+            containerRef={containerRef}
+            sectionName="fluxo-caixa"
+            textReport={generateTextReport()}
+            xlsData={xlsData}
+          />
+          <Select value={periodo} onValueChange={setPeriodo}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">Próximos 7 dias</SelectItem>
+              <SelectItem value="30">Próximos 30 dias</SelectItem>
+              <SelectItem value="90">Próximos 90 dias</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* KPI Cards */}

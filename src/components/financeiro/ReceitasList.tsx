@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,12 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Search, TrendingUp, Download } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import * as XLSX from "xlsx";
+import { FinanceiroExportButton } from "./FinanceiroExportButton";
 
 const ORIGENS = ["E-commerce Neua", "Marketplace", "Venda Direta", "Outros"];
 const FORMAS_RECEBIMENTO = ["PIX", "Cartão de Crédito", "Cartão de Débito", "Boleto", "Transferência"];
@@ -36,6 +37,7 @@ interface Receita {
 export function ReceitasList() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingReceita, setEditingReceita] = useState<Receita | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -152,27 +154,41 @@ export function ReceitasList() {
     return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
   };
 
-  const handleExport = () => {
-    const exportData = filteredReceitas.map((r) => ({
-      Data: format(new Date(r.data), "dd/MM/yyyy"),
-      Origem: r.origem,
-      "Valor Bruto": r.valor_bruto,
-      Taxas: r.taxas,
-      "Valor Líquido": r.valor_liquido,
-      "Forma Recebimento": r.forma_recebimento || "-",
-      Status: r.status === "recebido" ? "Recebido" : "A Receber",
-      Descrição: r.descricao || "-",
-    }));
+  const generateTextReport = () => {
+    const dateStr = new Date().toLocaleDateString('pt-BR');
+    return `💰 RELATÓRIO DE RECEITAS
+📅 Data: ${dateStr}
 
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Receitas");
-    XLSX.writeFile(wb, "receitas.xlsx");
-    toast.success("Relatório exportado");
+📊 RESUMO
+━━━━━━━━━━━━━━━━━━━━
+• Total Bruto: ${formatCurrency(totalBruto)}
+• Total Líquido: ${formatCurrency(totalLiquido)}
+• Registros: ${filteredReceitas.length}
+
+📋 ÚLTIMAS RECEITAS
+━━━━━━━━━━━━━━━━━━━━
+${filteredReceitas.slice(0, 5).map(r => `• ${format(new Date(r.data), "dd/MM/yyyy")} - ${r.origem}: ${formatCurrency(r.valor_bruto)}`).join('\n')}
+
+💡 Relatório gerado automaticamente pela Neua`;
+  };
+
+  const xlsData = {
+    headers: ['Data', 'Origem', 'Valor Bruto', 'Taxas', 'Valor Líquido', 'Forma Recebimento', 'Status', 'Descrição'],
+    rows: filteredReceitas.map((r) => [
+      format(new Date(r.data), "dd/MM/yyyy"),
+      r.origem,
+      r.valor_bruto,
+      r.taxas,
+      r.valor_liquido,
+      r.forma_recebimento || "-",
+      r.status === "recebido" ? "Recebido" : "A Receber",
+      r.descricao || "-",
+    ]) as (string | number)[][],
+    sheetName: 'Receitas'
   };
 
   return (
-    <div className="space-y-6">
+    <div ref={containerRef} className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="p-4 rounded-xl bg-card border border-border">
@@ -202,10 +218,12 @@ export function ReceitasList() {
           />
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExport} className="gap-2">
-            <Download className="h-4 w-4" />
-            Exportar
-          </Button>
+          <FinanceiroExportButton
+            containerRef={containerRef}
+            sectionName="receitas"
+            textReport={generateTextReport()}
+            xlsData={xlsData}
+          />
           <Button onClick={() => setDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
             Adicionar Receita
