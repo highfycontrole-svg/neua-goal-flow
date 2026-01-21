@@ -87,7 +87,7 @@ export function EditAnuncioDialog({
   const [linkReferencia, setLinkReferencia] = useState(anuncio.link_referencia || '');
   const [observacoes, setObservacoes] = useState(anuncio.observacoes || '');
   const [statusProducao, setStatusProducao] = useState(anuncio.status_producao);
-  const [statusPerformance, setStatusPerformance] = useState(anuncio.status_performance || '');
+  const [statusPerformance, setStatusPerformance] = useState(anuncio.status_performance || 'nao_avaliado');
   const [aprendizadoFuncionou, setAprendizadoFuncionou] = useState(anuncio.aprendizado_funcionou || '');
   const [aprendizadoNaoFuncionou, setAprendizadoNaoFuncionou] = useState(anuncio.aprendizado_nao_funcionou || '');
   const [aprendizadoRecomendacoes, setAprendizadoRecomendacoes] = useState(anuncio.aprendizado_recomendacoes || '');
@@ -104,7 +104,7 @@ export function EditAnuncioDialog({
     setLinkReferencia(anuncio.link_referencia || '');
     setObservacoes(anuncio.observacoes || '');
     setStatusProducao(anuncio.status_producao);
-    setStatusPerformance(anuncio.status_performance || '');
+    setStatusPerformance(anuncio.status_performance || 'nao_avaliado');
     setAprendizadoFuncionou(anuncio.aprendizado_funcionou || '');
     setAprendizadoNaoFuncionou(anuncio.aprendizado_nao_funcionou || '');
     setAprendizadoRecomendacoes(anuncio.aprendizado_recomendacoes || '');
@@ -129,7 +129,7 @@ export function EditAnuncioDialog({
           link_referencia: linkReferencia || null,
           observacoes: observacoes || null,
           status_producao: statusProducao,
-          status_performance: statusPerformance || null,
+          status_performance: statusPerformance === 'nao_avaliado' ? null : statusPerformance,
           aprendizado_funcionou: aprendizadoFuncionou || null,
           aprendizado_nao_funcionou: aprendizadoNaoFuncionou || null,
           aprendizado_recomendacoes: aprendizadoRecomendacoes || null,
@@ -363,7 +363,7 @@ export function EditAnuncioDialog({
                         <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Não avaliado</SelectItem>
+                        <SelectItem value="nao_avaliado">Não avaliado</SelectItem>
                         <SelectItem value="otima">🏆 Ótima Performance</SelectItem>
                         <SelectItem value="boa">👍 Boa Performance</SelectItem>
                         <SelectItem value="media">😐 Média Performance</SelectItem>
