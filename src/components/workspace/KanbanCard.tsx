@@ -5,6 +5,7 @@ import { Calendar, CheckCircle2, Circle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { motion } from 'framer-motion';
+import { parseDateStringToLocal } from '@/lib/utils';
 
 interface KanbanCardProps {
   task: any;
@@ -53,7 +54,7 @@ export function KanbanCard({ task, onClick, isDragging }: KanbanCardProps) {
           {task.date && (
             <div className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />
-              <span>{format(new Date(task.date), 'dd MMM', { locale: ptBR })}</span>
+              <span>{format(parseDateStringToLocal(task.date)!, 'dd MMM', { locale: ptBR })}</span>
             </div>
           )}
 
