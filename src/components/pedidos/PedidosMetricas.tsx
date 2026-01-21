@@ -1,9 +1,11 @@
+import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { Package, Truck, CheckCircle, Clock, TrendingUp, AlertCircle, Timer, Star } from "lucide-react";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from "recharts";
+import { PedidosMetricasExport } from "./PedidosMetricasExport";
 
 interface Pedido {
   id: string;
@@ -34,6 +36,7 @@ const STATUS_ENTREGA_COLORS: Record<string, string> = {
 
 export function PedidosMetricas() {
   const { user } = useAuth();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const { data: pedidos = [], isLoading } = useQuery({
     queryKey: ["pedidos", user?.id],
@@ -151,8 +154,24 @@ export function PedidosMetricas() {
     );
   }
 
+  const exportData = {
+    totalPedidos,
+    entregues,
+    emTransito,
+    taxaEntrega,
+    tempoMedioEntrega,
+    qualidadeData,
+    statusData,
+    transportadoraData,
+  };
+
   return (
-    <div className="space-y-8">
+    <div ref={containerRef} className="space-y-8">
+      {/* Export Button */}
+      <div className="flex justify-end">
+        <PedidosMetricasExport containerRef={containerRef} data={exportData} />
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {kpis.map((kpi, index) => (

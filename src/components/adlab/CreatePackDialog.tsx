@@ -25,10 +25,11 @@ import { Layers } from 'lucide-react';
 interface CreatePackDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  produtoId: string;
+  produtoId: string | null;
+  isCatalog?: boolean;
 }
 
-export function CreatePackDialog({ open, onOpenChange, produtoId }: CreatePackDialogProps) {
+export function CreatePackDialog({ open, onOpenChange, produtoId, isCatalog }: CreatePackDialogProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [nome, setNome] = useState('');
@@ -39,8 +40,8 @@ export function CreatePackDialog({ open, onOpenChange, produtoId }: CreatePackDi
   const createMutation = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from('ad_packs').insert({
-        user_id: user?.id,
-        produto_id: produtoId,
+        user_id: user?.id!,
+        produto_id: isCatalog ? null : produtoId,
         nome,
         insight_central: insightCentral || null,
         promessa_principal: promessaPrincipal || null,
@@ -50,7 +51,7 @@ export function CreatePackDialog({ open, onOpenChange, produtoId }: CreatePackDi
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['packs', produtoId] });
+      queryClient.invalidateQueries({ queryKey: ['packs', isCatalog ? 'catalogo' : produtoId] });
       queryClient.invalidateQueries({ queryKey: ['pack-counts'] });
       toast.success('Pack criado com sucesso!');
       resetForm();
