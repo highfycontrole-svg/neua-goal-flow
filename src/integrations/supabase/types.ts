@@ -25,6 +25,7 @@ export type Database = {
           gancho_principal: string | null
           id: string
           insight_especifico: string | null
+          link_anuncio_pronto: string | null
           link_referencia: string | null
           observacoes: string | null
           pack_id: string
@@ -45,6 +46,7 @@ export type Database = {
           gancho_principal?: string | null
           id?: string
           insight_especifico?: string | null
+          link_anuncio_pronto?: string | null
           link_referencia?: string | null
           observacoes?: string | null
           pack_id: string
@@ -65,6 +67,7 @@ export type Database = {
           gancho_principal?: string | null
           id?: string
           insight_especifico?: string | null
+          link_anuncio_pronto?: string | null
           link_referencia?: string | null
           observacoes?: string | null
           pack_id?: string
@@ -1393,6 +1396,7 @@ export type Database = {
           date: string | null
           description: string | null
           id: string
+          links: string[] | null
           notes: string | null
           order_index: number | null
           responsible: string | null
@@ -1407,6 +1411,7 @@ export type Database = {
           date?: string | null
           description?: string | null
           id?: string
+          links?: string[] | null
           notes?: string | null
           order_index?: number | null
           responsible?: string | null
@@ -1421,6 +1426,7 @@ export type Database = {
           date?: string | null
           description?: string | null
           id?: string
+          links?: string[] | null
           notes?: string | null
           order_index?: number | null
           responsible?: string | null

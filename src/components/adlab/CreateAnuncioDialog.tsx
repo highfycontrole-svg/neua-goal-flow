@@ -62,6 +62,7 @@ export function CreateAnuncioDialog({
   const [linkReferencia, setLinkReferencia] = useState('');
   const [observacoes, setObservacoes] = useState('');
   const [statusProducao, setStatusProducao] = useState('ideia');
+  const [linkAnuncioPronto, setLinkAnuncioPronto] = useState('');
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -80,6 +81,7 @@ export function CreateAnuncioDialog({
         roteiro_visual: roteiroVisual as any,
         copy_anuncio: copyAnuncio || null,
         link_referencia: linkReferencia || null,
+        link_anuncio_pronto: linkAnuncioPronto || null,
         observacoes: observacoes || null,
         status_producao: statusProducao,
       });
@@ -111,6 +113,7 @@ export function CreateAnuncioDialog({
     setCtaFinal('');
     setCopyAnuncio('');
     setLinkReferencia('');
+    setLinkAnuncioPronto('');
     setObservacoes('');
     setStatusProducao('ideia');
   };
@@ -297,6 +300,19 @@ Use quebras de linha, emojis, formatação...
               </TabsContent>
 
               <TabsContent value="config" className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="linkPronto">Link do Anúncio Pronto</Label>
+                  <Input
+                    id="linkPronto"
+                    placeholder="https://meta.ads/... ou https://drive.google.com/..."
+                    value={linkAnuncioPronto}
+                    onChange={(e) => setLinkAnuncioPronto(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Cole o link do anúncio publicado (Meta Ads, TikTok, Drive, etc)
+                  </p>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="referencia">Link de Referência</Label>
                   <Input

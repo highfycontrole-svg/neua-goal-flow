@@ -16,6 +16,8 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Separator } from '@/components/ui/separator';
 import { cn, parseDateStringToLocal, formatDateToString } from '@/lib/utils';
+import { TaskLinksField } from './TaskLinksField';
+import { renderTextWithLinksAndBreaks } from '@/lib/linkify';
 
 interface TaskDetailsPanelProps {
   taskId: string | null;
@@ -33,6 +35,7 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
   const [responsible, setResponsible] = useState('');
   const [tags, setTags] = useState('');
   const [notes, setNotes] = useState('');
+  const [links, setLinks] = useState<string[]>([]);
   const [newSubtask, setNewSubtask] = useState('');
 
   const { data: task, isLoading } = useQuery({
@@ -74,6 +77,7 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
       setResponsible(task.responsible || '');
       setTags(task.tags?.join(', ') || '');
       setNotes(task.notes || '');
+      setLinks(task.links || []);
     }
   }, [task]);
 
@@ -93,6 +97,7 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
           responsible: responsible.trim() || null,
           tags: tagsArray.length > 0 ? tagsArray : null,
           notes: notes.trim() || null,
+          links: links.length > 0 ? links : null,
         })
         .eq('id', taskId);
 
@@ -320,7 +325,9 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
                 rows={4}
               />
             ) : (
-              <p className="text-muted-foreground">{task.description || 'Sem descrição'}</p>
+              <div className="text-muted-foreground whitespace-pre-wrap">
+                {renderTextWithLinksAndBreaks(task.description) || 'Sem descrição'}
+              </div>
             )}
           </div>
 
@@ -423,6 +430,11 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
 
           <Separator />
 
+          {/* Links */}
+          <TaskLinksField links={links} onChange={setLinks} isEditing={isEditing} />
+
+          <Separator />
+
           {/* Subtasks */}
           <div className="space-y-4">
             <Label>Subtarefas</Label>
@@ -476,7 +488,7 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
               />
             ) : (
               <div className="p-3 bg-muted rounded-lg min-h-[100px]">
-                <p className="whitespace-pre-wrap">{task.notes || 'Sem notas'}</p>
+                <div className="whitespace-pre-wrap">{renderTextWithLinksAndBreaks(task.notes) || 'Sem notas'}</div>
               </div>
             )}
           </div>
