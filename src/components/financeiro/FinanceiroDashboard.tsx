@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
+import { useRef } from "react";
 import { 
   DollarSign, 
   TrendingUp, 
@@ -36,6 +37,7 @@ import {
 import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { FinanceiroExportButton } from "./FinanceiroExportButton";
 
 const CATEGORY_COLORS: Record<string, string> = {
   "Marketing": "#3b82f6",
@@ -54,6 +56,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export function FinanceiroDashboard() {
   const { user } = useAuth();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [periodo, setPeriodo] = useState("30");
   const [customDateRange, setCustomDateRange] = useState<{
     from: Date | undefined;
@@ -243,22 +246,63 @@ export function FinanceiroDashboard() {
     }
   };
 
+  const generateTextReport = () => {
+    const dateStr = new Date().toLocaleDateString('pt-BR');
+    return `📊 RELATÓRIO FINANCEIRO - DASHBOARD
+📅 Data: ${dateStr}
+📆 Período: ${isCustomPeriod ? 'Personalizado' : `Últimos ${periodo} dias`}
+
+💰 RESUMO FINANCEIRO
+━━━━━━━━━━━━━━━━━━━━
+• Faturamento Bruto: ${formatCurrency(faturamentoBruto)}
+• Receita Líquida: ${formatCurrency(receitaLiquida)}
+• Custos Totais: ${formatCurrency(custosTotal)}
+• ${lucro >= 0 ? 'Lucro' : 'Prejuízo'}: ${formatCurrency(Math.abs(lucro))}
+• Margem: ${margem.toFixed(1)}%
+
+📈 VARIAÇÃO
+━━━━━━━━━━━━━━━━━━━━
+• Variação Faturamento: ${variacaoFaturamento >= 0 ? '+' : ''}${variacaoFaturamento.toFixed(1)}%
+
+💡 Relatório gerado automaticamente pela Neua`;
+  };
+
+  const xlsData = {
+    headers: ['Métrica', 'Valor'],
+    rows: [
+      ['Faturamento Bruto', faturamentoBruto],
+      ['Taxas', taxasTotal],
+      ['Receita Líquida', receitaLiquida],
+      ['Custos Totais', custosTotal],
+      [lucro >= 0 ? 'Lucro' : 'Prejuízo', Math.abs(lucro)],
+      ['Margem (%)', parseFloat(margem.toFixed(1))],
+    ] as (string | number)[][],
+    sheetName: 'Dashboard'
+  };
+
   return (
-    <div className="space-y-6">
+    <div ref={containerRef} className="space-y-6">
       {/* Period Selector */}
-      <div className="flex flex-wrap items-center gap-3 justify-end">
-        <Select value={periodo} onValueChange={handlePeriodChange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="7">Últimos 7 dias</SelectItem>
-            <SelectItem value="30">Últimos 30 dias</SelectItem>
-            <SelectItem value="90">Últimos 90 dias</SelectItem>
-            <SelectItem value="365">Último ano</SelectItem>
-            <SelectItem value="custom">Personalizado</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="flex flex-wrap items-center gap-3 justify-between">
+        <FinanceiroExportButton
+          containerRef={containerRef}
+          sectionName="dashboard"
+          textReport={generateTextReport()}
+          xlsData={xlsData}
+        />
+        <div className="flex flex-wrap items-center gap-3">
+          <Select value={periodo} onValueChange={handlePeriodChange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">Últimos 7 dias</SelectItem>
+              <SelectItem value="30">Últimos 30 dias</SelectItem>
+              <SelectItem value="90">Últimos 90 dias</SelectItem>
+              <SelectItem value="365">Último ano</SelectItem>
+              <SelectItem value="custom">Personalizado</SelectItem>
+            </SelectContent>
+          </Select>
 
         {isCustomPeriod && (
           <div className="flex items-center gap-2">
@@ -312,6 +356,7 @@ export function FinanceiroDashboard() {
             </Popover>
           </div>
         )}
+        </div>
       </div>
 
       {/* KPI Cards */}

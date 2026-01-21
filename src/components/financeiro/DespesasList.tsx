@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,12 +10,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Pencil, Trash2, Search, TrendingDown, Download, Filter } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, TrendingDown, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import * as XLSX from "xlsx";
+import { FinanceiroExportButton } from "./FinanceiroExportButton";
 
 const CATEGORIAS = [
   "Marketing",
@@ -49,6 +50,7 @@ interface Despesa {
 export function DespesasList() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingDespesa, setEditingDespesa] = useState<Despesa | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -173,22 +175,36 @@ export function DespesasList() {
     return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
   };
 
-  const handleExport = () => {
-    const exportData = filteredDespesas.map((d) => ({
-      Data: format(new Date(d.data), "dd/MM/yyyy"),
-      Categoria: d.categoria,
-      Subcategoria: d.subcategoria || "-",
-      Descrição: d.descricao || "-",
-      Valor: d.valor,
-      Recorrente: d.recorrente ? "Sim" : "Não",
-      "Forma Pagamento": d.forma_pagamento || "-",
-    }));
+  const generateTextReport = () => {
+    const dateStr = new Date().toLocaleDateString('pt-BR');
+    return `💸 RELATÓRIO DE DESPESAS
+📅 Data: ${dateStr}
 
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Despesas");
-    XLSX.writeFile(wb, "despesas.xlsx");
-    toast.success("Relatório exportado");
+📊 RESUMO
+━━━━━━━━━━━━━━━━━━━━
+• Total Despesas: ${formatCurrency(totalDespesas)}
+• Custos Fixos (Recorrentes): ${formatCurrency(despesasRecorrentes)}
+• Registros: ${filteredDespesas.length}
+
+📋 ÚLTIMAS DESPESAS
+━━━━━━━━━━━━━━━━━━━━
+${filteredDespesas.slice(0, 5).map(d => `• ${format(new Date(d.data), "dd/MM/yyyy")} - ${d.categoria}: ${formatCurrency(d.valor)}`).join('\n')}
+
+💡 Relatório gerado automaticamente pela Neua`;
+  };
+
+  const xlsData = {
+    headers: ['Data', 'Categoria', 'Subcategoria', 'Descrição', 'Valor', 'Recorrente', 'Forma Pagamento'],
+    rows: filteredDespesas.map((d) => [
+      format(new Date(d.data), "dd/MM/yyyy"),
+      d.categoria,
+      d.subcategoria || "-",
+      d.descricao || "-",
+      d.valor,
+      d.recorrente ? "Sim" : "Não",
+      d.forma_pagamento || "-",
+    ]) as (string | number)[][],
+    sheetName: 'Despesas'
   };
 
   const getCategoriaColor = (categoria: string) => {
@@ -205,7 +221,7 @@ export function DespesasList() {
   };
 
   return (
-    <div className="space-y-6">
+    <div ref={containerRef} className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="p-4 rounded-xl bg-card border border-border">
@@ -250,10 +266,12 @@ export function DespesasList() {
           </Select>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExport} className="gap-2">
-            <Download className="h-4 w-4" />
-            Exportar
-          </Button>
+          <FinanceiroExportButton
+            containerRef={containerRef}
+            sectionName="despesas"
+            textReport={generateTextReport()}
+            xlsData={xlsData}
+          />
           <Button onClick={() => setDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
             Adicionar Despesa
