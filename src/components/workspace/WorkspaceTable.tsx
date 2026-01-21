@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import React from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
@@ -15,6 +16,7 @@ import { ptBR } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import { parseDateStringToLocal } from '@/lib/utils';
 
 interface WorkspaceTableProps {
   workspaceId: string;
@@ -263,7 +265,7 @@ export function WorkspaceTable({ workspaceId, filterFn }: WorkspaceTableProps) {
                             )}
                           </TableCell>
                           <TableCell className="hidden md:table-cell">
-                            {task.date ? format(new Date(task.date), 'dd/MM/yyyy', { locale: ptBR }) : '-'}
+                            {task.date ? format(parseDateStringToLocal(task.date)!, 'dd/MM/yyyy', { locale: ptBR }) : '-'}
                           </TableCell>
                           <TableCell className="hidden lg:table-cell">
                             <div className="flex flex-wrap gap-1">
@@ -402,5 +404,3 @@ export function WorkspaceTable({ workspaceId, filterFn }: WorkspaceTableProps) {
     </>
   );
 }
-
-import React from 'react';
