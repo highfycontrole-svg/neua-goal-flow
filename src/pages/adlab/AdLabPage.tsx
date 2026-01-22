@@ -31,7 +31,7 @@ interface AnuncioCount {
 }
 
 // Virtual catalog ID for institutional ads
-const CATALOG_ID = 'catalogo-institucional';
+const CATALOG_ID = 'catalogo';
 
 export default function AdLabPage() {
   const { user } = useAuth();

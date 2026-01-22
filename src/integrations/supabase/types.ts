@@ -94,7 +94,7 @@ export type Database = {
           id: string
           insight_central: string | null
           nome: string
-          produto_id: string
+          produto_id: string | null
           promessa_principal: string | null
           status: string
           updated_at: string
@@ -105,7 +105,7 @@ export type Database = {
           id?: string
           insight_central?: string | null
           nome: string
-          produto_id: string
+          produto_id?: string | null
           promessa_principal?: string | null
           status?: string
           updated_at?: string
@@ -116,7 +116,7 @@ export type Database = {
           id?: string
           insight_central?: string | null
           nome?: string
-          produto_id?: string
+          produto_id?: string | null
           promessa_principal?: string | null
           status?: string
           updated_at?: string

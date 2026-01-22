@@ -93,6 +93,8 @@ const formatoConfig: Record<string, { label: string; icon: any }> = {
   outro: { label: 'Outro', icon: FileText },
 };
 
+const CATALOG_ID = 'catalogo';
+
 export default function AdLabAnunciosPage() {
   const { produtoId, packId } = useParams<{ produtoId: string; packId: string }>();
   const { user } = useAuth();
@@ -101,6 +103,8 @@ export default function AdLabAnunciosPage() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingAnuncio, setEditingAnuncio] = useState<Anuncio | null>(null);
   const [viewingAnuncio, setViewingAnuncio] = useState<Anuncio | null>(null);
+
+  const isCatalog = produtoId === CATALOG_ID;
 
   // Fetch pack details
   const { data: pack } = useQuery({
@@ -118,7 +122,7 @@ export default function AdLabAnunciosPage() {
     enabled: !!packId,
   });
 
-  // Fetch product details
+  // Fetch product details (only for real products, not catalog)
   const { data: produto } = useQuery({
     queryKey: ['produto', produtoId],
     queryFn: async () => {
@@ -131,7 +135,7 @@ export default function AdLabAnunciosPage() {
       if (error) throw error;
       return data as Produto;
     },
-    enabled: !!produtoId,
+    enabled: !!produtoId && !isCatalog,
   });
 
   // Fetch anuncios for this pack
@@ -187,7 +191,7 @@ export default function AdLabAnunciosPage() {
               href={`/adlab/${produtoId}`} 
               onClick={(e) => { e.preventDefault(); navigate(`/adlab/${produtoId}`); }}
             >
-              {produto?.nome || 'Produto'}
+              {isCatalog ? 'Catálogo Institucional' : (produto?.nome || 'Produto')}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -208,7 +212,9 @@ export default function AdLabAnunciosPage() {
               <PlayCircle className="h-6 w-6 text-primary" />
               {pack?.nome}
             </h1>
-            <p className="text-sm text-muted-foreground">{produto?.nome}</p>
+            <p className="text-sm text-muted-foreground">
+              {isCatalog ? 'Catálogo Institucional' : produto?.nome}
+            </p>
           </div>
         </div>
 
@@ -327,7 +333,7 @@ export default function AdLabAnunciosPage() {
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         packId={packId!}
-        produtoNome={produto?.nome || ''}
+        produtoNome={isCatalog ? 'Catálogo Institucional' : (produto?.nome || '')}
         packNome={pack?.nome || ''}
       />
 
@@ -336,7 +342,7 @@ export default function AdLabAnunciosPage() {
           open={!!editingAnuncio}
           onOpenChange={(open) => !open && setEditingAnuncio(null)}
           anuncio={editingAnuncio}
-          produtoNome={produto?.nome || ''}
+          produtoNome={isCatalog ? 'Catálogo Institucional' : (produto?.nome || '')}
           packNome={pack?.nome || ''}
         />
       )}
@@ -346,7 +352,7 @@ export default function AdLabAnunciosPage() {
           open={!!viewingAnuncio}
           onOpenChange={(open) => !open && setViewingAnuncio(null)}
           anuncio={viewingAnuncio}
-          produtoNome={produto?.nome || ''}
+          produtoNome={isCatalog ? 'Catálogo Institucional' : (produto?.nome || '')}
           packNome={pack?.nome || ''}
           onEdit={() => {
             setEditingAnuncio(viewingAnuncio);
