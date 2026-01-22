@@ -61,6 +61,8 @@ const statusConfig: Record<string, { label: string; color: string; icon: any }> 
   arquivado: { label: 'Arquivado', color: 'bg-muted text-muted-foreground', icon: Archive },
 };
 
+const CATALOG_ID = 'catalogo';
+
 export default function AdLabPacksPage() {
   const { produtoId } = useParams<{ produtoId: string }>();
   const { user } = useAuth();
@@ -69,7 +71,9 @@ export default function AdLabPacksPage() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingPack, setEditingPack] = useState<Pack | null>(null);
 
-  // Fetch product details
+  const isCatalog = produtoId === CATALOG_ID;
+
+  // Fetch product details (only for real products, not catalog)
   const { data: produto } = useQuery({
     queryKey: ['produto', produtoId],
     queryFn: async () => {
@@ -82,18 +86,25 @@ export default function AdLabPacksPage() {
       if (error) throw error;
       return data as Produto;
     },
-    enabled: !!produtoId,
+    enabled: !!produtoId && !isCatalog,
   });
 
-  // Fetch packs for this product
+  // Fetch packs for this product OR catalog (produto_id IS NULL)
   const { data: packs = [], isLoading } = useQuery({
-    queryKey: ['packs', produtoId],
+    queryKey: ['packs', isCatalog ? 'catalogo' : produtoId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('ad_packs')
         .select('*')
-        .eq('produto_id', produtoId)
         .order('created_at', { ascending: false });
+
+      if (isCatalog) {
+        query = query.is('produto_id', null);
+      } else {
+        query = query.eq('produto_id', produtoId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       return data as Pack[];
@@ -128,7 +139,8 @@ export default function AdLabPacksPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['packs', produtoId] });
+      queryClient.invalidateQueries({ queryKey: ['packs', isCatalog ? 'catalogo' : produtoId] });
+      queryClient.invalidateQueries({ queryKey: ['pack-counts'] });
       toast.success('Pack deletado com sucesso!');
     },
     onError: () => {
@@ -166,18 +178,26 @@ export default function AdLabPacksPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-3">
-            {produto?.foto_url && (
+            {isCatalog ? (
+              <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                <Layers className="h-6 w-6 text-primary" />
+              </div>
+            ) : produto?.foto_url ? (
               <img
                 src={produto.foto_url}
                 alt={produto.nome}
                 className="w-12 h-12 rounded-lg object-cover"
               />
-            )}
+            ) : null}
             <div>
-              <h1 className="text-2xl font-bold text-foreground">{produto?.nome}</h1>
-              {produto?.categoria && (
+              <h1 className="text-2xl font-bold text-foreground">
+                {isCatalog ? 'Catálogo Institucional' : produto?.nome}
+              </h1>
+              {isCatalog ? (
+                <p className="text-sm text-muted-foreground">Anúncios de branding, coleção e institucionais</p>
+              ) : produto?.categoria ? (
                 <p className="text-sm text-muted-foreground">{produto.categoria}</p>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
@@ -251,7 +271,7 @@ export default function AdLabPacksPage() {
                 {/* Content - Clickable */}
                 <div 
                   className="cursor-pointer"
-                  onClick={() => navigate(`/adlab/${produtoId}/pack/${pack.id}`)}
+                  onClick={() => navigate(`/adlab/${isCatalog ? 'catalogo' : produtoId}/pack/${pack.id}`)}
                 >
                   <h3 className="font-semibold text-foreground text-lg mb-2 group-hover:text-primary transition-colors">
                     {pack.nome}
@@ -290,7 +310,8 @@ export default function AdLabPacksPage() {
       <CreatePackDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
-        produtoId={produtoId!}
+        produtoId={isCatalog ? null : produtoId!}
+        isCatalog={isCatalog}
       />
 
       {editingPack && (
