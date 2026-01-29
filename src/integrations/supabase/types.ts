@@ -676,6 +676,165 @@ export type Database = {
           },
         ]
       }
+      mindos_edges: {
+        Row: {
+          animated: boolean | null
+          created_at: string
+          edge_type: string | null
+          id: string
+          label: string | null
+          project_id: string
+          source_node_id: string
+          style: Json | null
+          target_node_id: string
+        }
+        Insert: {
+          animated?: boolean | null
+          created_at?: string
+          edge_type?: string | null
+          id?: string
+          label?: string | null
+          project_id: string
+          source_node_id: string
+          style?: Json | null
+          target_node_id: string
+        }
+        Update: {
+          animated?: boolean | null
+          created_at?: string
+          edge_type?: string | null
+          id?: string
+          label?: string | null
+          project_id?: string
+          source_node_id?: string
+          style?: Json | null
+          target_node_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mindos_edges_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "mindos_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mindos_edges_source_node_id_fkey"
+            columns: ["source_node_id"]
+            isOneToOne: false
+            referencedRelation: "mindos_nodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mindos_edges_target_node_id_fkey"
+            columns: ["target_node_id"]
+            isOneToOne: false
+            referencedRelation: "mindos_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mindos_nodes: {
+        Row: {
+          attachments: Json | null
+          content: Json | null
+          created_at: string
+          height: number | null
+          icon_category: string | null
+          icon_name: string | null
+          id: string
+          node_type: Database["public"]["Enums"]["mindos_node_type"]
+          position_x: number
+          position_y: number
+          project_id: string
+          status: string | null
+          style: Json | null
+          tags: string[] | null
+          updated_at: string
+          width: number | null
+        }
+        Insert: {
+          attachments?: Json | null
+          content?: Json | null
+          created_at?: string
+          height?: number | null
+          icon_category?: string | null
+          icon_name?: string | null
+          id?: string
+          node_type?: Database["public"]["Enums"]["mindos_node_type"]
+          position_x?: number
+          position_y?: number
+          project_id: string
+          status?: string | null
+          style?: Json | null
+          tags?: string[] | null
+          updated_at?: string
+          width?: number | null
+        }
+        Update: {
+          attachments?: Json | null
+          content?: Json | null
+          created_at?: string
+          height?: number | null
+          icon_category?: string | null
+          icon_name?: string | null
+          id?: string
+          node_type?: Database["public"]["Enums"]["mindos_node_type"]
+          position_x?: number
+          position_y?: number
+          project_id?: string
+          status?: string | null
+          style?: Json | null
+          tags?: string[] | null
+          updated_at?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mindos_nodes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "mindos_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mindos_projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          thumbnail_url: string | null
+          type: Database["public"]["Enums"]["mindos_project_type"]
+          updated_at: string
+          user_id: string
+          viewport: Json | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          thumbnail_url?: string | null
+          type: Database["public"]["Enums"]["mindos_project_type"]
+          updated_at?: string
+          user_id: string
+          viewport?: Json | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          thumbnail_url?: string | null
+          type?: Database["public"]["Enums"]["mindos_project_type"]
+          updated_at?: string
+          user_id?: string
+          viewport?: Json | null
+        }
+        Relationships: []
+      }
       pedidos: {
         Row: {
           codigos_rastreio: string[] | null
@@ -1485,6 +1644,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      mindos_node_type: "idea" | "task" | "text" | "icon"
+      mindos_project_type: "mindmap" | "flowchart"
       status_arquiteto: "Ativo" | "Em Análise" | "Pausado" | "Desligado"
       status_conteudo: "Entregue" | "Pendente" | "Atrasado" | "Não Aplicável"
       status_envio: "Enviado" | "Em Trânsito" | "Entregue" | "Problema"
@@ -1623,6 +1784,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      mindos_node_type: ["idea", "task", "text", "icon"],
+      mindos_project_type: ["mindmap", "flowchart"],
       status_arquiteto: ["Ativo", "Em Análise", "Pausado", "Desligado"],
       status_conteudo: ["Entregue", "Pendente", "Atrasado", "Não Aplicável"],
       status_envio: ["Enviado", "Em Trânsito", "Entregue", "Problema"],
