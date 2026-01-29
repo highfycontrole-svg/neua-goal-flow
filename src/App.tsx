@@ -30,6 +30,11 @@ import GeralPage from "./pages/geral/GeralPage";
 import AdLabPage from "./pages/adlab/AdLabPage";
 import AdLabPacksPage from "./pages/adlab/AdLabPacksPage";
 import AdLabAnunciosPage from "./pages/adlab/AdLabAnunciosPage";
+import MindOsPage from "./pages/mindos/MindOsPage";
+import MindMapProjectsPage from "./pages/mindos/MindMapProjectsPage";
+import FlowchartProjectsPage from "./pages/mindos/FlowchartProjectsPage";
+import MindMapEditor from "./components/mindos/MindMapEditor";
+import FlowchartEditor from "./components/mindos/FlowchartEditor";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "@/components/AppLayout";
 
@@ -227,6 +232,41 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <AdLabAnunciosPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            {/* MindOs Routes */}
+            <Route
+              path="/mindos"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <MindOsPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<MindMapProjectsPage />} />
+              <Route path="mindmap" element={<MindMapProjectsPage />} />
+              <Route path="flowchart" element={<FlowchartProjectsPage />} />
+            </Route>
+            <Route
+              path="/mindos/mindmap/:projectId"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <MindMapEditor />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mindos/flowchart/:projectId"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <FlowchartEditor />
                   </AppLayout>
                 </ProtectedRoute>
               }
