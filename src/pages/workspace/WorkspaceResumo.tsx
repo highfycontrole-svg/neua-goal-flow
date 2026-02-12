@@ -11,7 +11,8 @@ import { motion } from 'framer-motion';
 import { CreateWorkspaceDialog } from '@/components/workspace/CreateWorkspaceDialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { registerContextActions } from '@/hooks/useGlobalContextMenu';
 
 const STATUS_COLORS: Record<string, string> = {
   'default': '#3B82F6',
@@ -121,6 +122,18 @@ export default function WorkspaceResumo() {
   });
 
   const isLoading = loadingWorkspaces || loadingTasks;
+
+  // Register context menu actions for right-click on workspace cards
+  useEffect(() => {
+    return registerContextActions({
+      'workspace:open': (id) => navigate(`/workspace/${id}`),
+      'workspace:delete': (id) => {
+        if (confirm('Tem certeza que deseja excluir este workspace?')) {
+          deleteWorkspaceMutation.mutate(id);
+        }
+      },
+    });
+  }, [navigate, deleteWorkspaceMutation]);
 
   if (isLoading) {
     return (
@@ -285,6 +298,10 @@ export default function WorkspaceResumo() {
                     className="cursor-pointer border-border/50 hover:border-primary/50 transition-all duration-300"
                     style={{ backgroundColor: '#161616' }}
                     onClick={() => navigate(`/workspace/${workspace.id}`)}
+                    data-context-type="workspace"
+                    data-context-id={workspace.id}
+                    data-context-name={workspace.name}
+                    data-context-actions="open,---,delete"
                   >
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
