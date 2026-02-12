@@ -188,7 +188,7 @@ export function DespesasList() {
 
 📋 ÚLTIMAS DESPESAS
 ━━━━━━━━━━━━━━━━━━━━
-${filteredDespesas.slice(0, 5).map(d => `• ${format(new Date(d.data), "dd/MM/yyyy")} - ${d.categoria}: ${formatCurrency(d.valor)}`).join('\n')}
+${filteredDespesas.slice(0, 5).map(d => `• ${format(new Date(d.data + "T12:00:00"), "dd/MM/yyyy")} - ${d.categoria}: ${formatCurrency(d.valor)}`).join('\n')}
 
 💡 Relatório gerado automaticamente pela Neua`;
   };
@@ -196,7 +196,7 @@ ${filteredDespesas.slice(0, 5).map(d => `• ${format(new Date(d.data), "dd/MM/y
   const xlsData = {
     headers: ['Data', 'Categoria', 'Subcategoria', 'Descrição', 'Valor', 'Recorrente', 'Forma Pagamento'],
     rows: filteredDespesas.map((d) => [
-      format(new Date(d.data), "dd/MM/yyyy"),
+      format(new Date(d.data + "T12:00:00"), "dd/MM/yyyy"),
       d.categoria,
       d.subcategoria || "-",
       d.descricao || "-",
@@ -318,7 +318,7 @@ ${filteredDespesas.slice(0, 5).map(d => `• ${format(new Date(d.data), "dd/MM/y
                     exit={{ opacity: 0 }}
                     className="border-b border-border"
                   >
-                    <TableCell>{format(new Date(despesa.data), "dd/MM/yyyy")}</TableCell>
+                    <TableCell>{format(new Date(despesa.data + "T12:00:00"), "dd/MM/yyyy")}</TableCell>
                     <TableCell>
                       <Badge className={getCategoriaColor(despesa.categoria)} variant="outline">
                         {despesa.categoria}

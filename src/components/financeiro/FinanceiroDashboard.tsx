@@ -166,7 +166,7 @@ export function FinanceiroDashboard() {
 
   // Daily evolution data
   const evolutionData = receitas.reduce((acc, r) => {
-    const day = format(new Date(r.data), "dd/MM");
+    const day = format(new Date(r.data + "T12:00:00"), "dd/MM");
     const existing = acc.find(item => item.day === day);
     if (existing) {
       existing.receita += Number(r.valor_bruto);
@@ -177,7 +177,7 @@ export function FinanceiroDashboard() {
   }, [] as { day: string; receita: number; despesa: number }[]);
 
   despesas.forEach(d => {
-    const day = format(new Date(d.data), "dd/MM");
+    const day = format(new Date(d.data + "T12:00:00"), "dd/MM");
     const existing = evolutionData.find(item => item.day === day);
     if (existing) {
       existing.despesa += Number(d.valor);
