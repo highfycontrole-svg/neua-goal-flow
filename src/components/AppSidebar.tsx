@@ -80,6 +80,7 @@ const menuItems: MenuItem[] = [
     url: '/creators',
     icon: Users,
     basePath: '/creators',
+    hasSubmenu: true,
   },
 ];
 
@@ -174,6 +175,7 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
   const location = useLocation();
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
   const [metasMenuOpen, setMetasMenuOpen] = useState(false);
+  const [creatorsMenuOpen, setCreatorsMenuOpen] = useState(false);
 
   // Fetch workspaces for the submenu
   const { data: workspaces = [] } = useQuery({
@@ -198,6 +200,9 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
     if (location.pathname.startsWith('/dashboard')) {
       setMetasMenuOpen(true);
     }
+    if (location.pathname.startsWith('/creators')) {
+      setCreatorsMenuOpen(true);
+    }
   }, [location.pathname]);
 
   const handleMenuClick = (item: MenuItem) => {
@@ -206,6 +211,8 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
         setWorkspaceMenuOpen(!workspaceMenuOpen);
       } else if (item.basePath === '/dashboard') {
         setMetasMenuOpen(!metasMenuOpen);
+      } else if (item.basePath === '/creators') {
+        setCreatorsMenuOpen(!creatorsMenuOpen);
       }
       navigate(item.url);
     } else {
@@ -283,10 +290,11 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
           const active = isActive(item.basePath);
           const isWorkspaceItem = item.basePath === '/workspace';
           const isMetasItem = item.basePath === '/dashboard';
+          const isCreatorsItem = item.basePath === '/creators';
           const showSubmenu = item.hasSubmenu && open && (
-            (isWorkspaceItem && workspaceMenuOpen) || (isMetasItem && metasMenuOpen)
+            (isWorkspaceItem && workspaceMenuOpen) || (isMetasItem && metasMenuOpen) || (isCreatorsItem && creatorsMenuOpen)
           );
-          const submenuOpen = isWorkspaceItem ? workspaceMenuOpen : isMetasItem ? metasMenuOpen : false;
+          const submenuOpen = isWorkspaceItem ? workspaceMenuOpen : isMetasItem ? metasMenuOpen : isCreatorsItem ? creatorsMenuOpen : false;
           
           return (
             <div key={item.url}>
@@ -389,6 +397,39 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
                         { label: 'Resumo', path: '/dashboard' },
                         { label: 'Metas', path: '/dashboard/metas' },
                         { label: 'Super Metas', path: '/dashboard/super-metas' },
+                      ].map((sub) => (
+                        <motion.button
+                          key={sub.path}
+                          onClick={() => { navigate(sub.path); if (isMobile) setOpen(false); }}
+                          className={`w-full h-9 rounded-lg flex items-center gap-2 px-3 text-sm transition-all ${location.pathname === sub.path ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
+                          whileHover={{ x: 4 }}
+                        >
+                          <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
+                          <span>{sub.label}</span>
+                        </motion.button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
+
+              {/* Creators Submenu */}
+              {isCreatorsItem && (
+                <AnimatePresence>
+                  {showSubmenu && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="ml-4 mt-1 space-y-1 overflow-hidden"
+                    >
+                      {[
+                        { label: 'Resumo', path: '/creators' },
+                        { label: 'Registro', path: '/creators/registro' },
+                        { label: 'Desempenho', path: '/creators/desempenho' },
+                        { label: 'Logística', path: '/creators/logistica' },
+                        { label: 'Interações', path: '/creators/interacoes' },
                       ].map((sub) => (
                         <motion.button
                           key={sub.path}
