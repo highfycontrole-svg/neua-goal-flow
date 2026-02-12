@@ -167,7 +167,7 @@ export function ReceitasList() {
 
 📋 ÚLTIMAS RECEITAS
 ━━━━━━━━━━━━━━━━━━━━
-${filteredReceitas.slice(0, 5).map(r => `• ${format(new Date(r.data), "dd/MM/yyyy")} - ${r.origem}: ${formatCurrency(r.valor_bruto)}`).join('\n')}
+${filteredReceitas.slice(0, 5).map(r => `• ${format(new Date(r.data + "T12:00:00"), "dd/MM/yyyy")} - ${r.origem}: ${formatCurrency(r.valor_bruto)}`).join('\n')}
 
 💡 Relatório gerado automaticamente pela Neua`;
   };
@@ -175,7 +175,7 @@ ${filteredReceitas.slice(0, 5).map(r => `• ${format(new Date(r.data), "dd/MM/y
   const xlsData = {
     headers: ['Data', 'Origem', 'Valor Bruto', 'Taxas', 'Valor Líquido', 'Forma Recebimento', 'Status', 'Descrição'],
     rows: filteredReceitas.map((r) => [
-      format(new Date(r.data), "dd/MM/yyyy"),
+      format(new Date(r.data + "T12:00:00"), "dd/MM/yyyy"),
       r.origem,
       r.valor_bruto,
       r.taxas,
@@ -271,7 +271,7 @@ ${filteredReceitas.slice(0, 5).map(r => `• ${format(new Date(r.data), "dd/MM/y
                     exit={{ opacity: 0 }}
                     className="border-b border-border"
                   >
-                    <TableCell>{format(new Date(receita.data), "dd/MM/yyyy")}</TableCell>
+                    <TableCell>{format(new Date(receita.data + "T12:00:00"), "dd/MM/yyyy")}</TableCell>
                     <TableCell>{receita.origem}</TableCell>
                     <TableCell className="text-green-400">{formatCurrency(receita.valor_bruto)}</TableCell>
                     <TableCell className="text-red-400">-{formatCurrency(receita.taxas)}</TableCell>

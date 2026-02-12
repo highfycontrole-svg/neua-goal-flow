@@ -395,7 +395,7 @@ export default function GeralPage() {
   ];
 
   return (
-    <AnimatedGradientBackground>
+    <div>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -498,6 +498,6 @@ export default function GeralPage() {
           ))}
         </div>
       </motion.div>
-    </AnimatedGradientBackground>
+    </div>
   );
 }
