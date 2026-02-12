@@ -56,6 +56,7 @@ function FlowchartEditorInner() {
   const queryClient = useQueryClient();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, getViewport } = useReactFlow();
+  const connectingNodeId = useRef<string | null>(null);
   
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -73,14 +74,12 @@ function FlowchartEditorInner() {
         .select('*')
         .eq('id', projectId)
         .single();
-      
       if (error) throw error;
       return data;
     },
     enabled: !!projectId,
   });
 
-  // Fetch nodes
   const { data: dbNodes, isLoading: nodesLoading } = useQuery({
     queryKey: ['mindos-nodes', projectId],
     queryFn: async () => {
@@ -88,14 +87,12 @@ function FlowchartEditorInner() {
         .from('mindos_nodes')
         .select('*')
         .eq('project_id', projectId);
-      
       if (error) throw error;
       return data;
     },
     enabled: !!projectId,
   });
 
-  // Fetch edges
   const { data: dbEdges, isLoading: edgesLoading } = useQuery({
     queryKey: ['mindos-edges', projectId],
     queryFn: async () => {
@@ -103,7 +100,6 @@ function FlowchartEditorInner() {
         .from('mindos_edges')
         .select('*')
         .eq('project_id', projectId);
-      
       if (error) throw error;
       return data;
     },
@@ -112,13 +108,8 @@ function FlowchartEditorInner() {
 
   const handleDeleteNode = useCallback(async (nodeId: string) => {
     try {
-      const { error } = await supabase
-        .from('mindos_nodes')
-        .delete()
-        .eq('id', nodeId);
-      
+      const { error } = await supabase.from('mindos_nodes').delete().eq('id', nodeId);
       if (error) throw error;
-      
       setNodes((nds) => nds.filter((n) => n.id !== nodeId));
       setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
       queryClient.invalidateQueries({ queryKey: ['mindos-nodes', projectId] });
@@ -128,14 +119,11 @@ function FlowchartEditorInner() {
     }
   }, [projectId, queryClient, setNodes, setEdges]);
 
-  const handleUpdateNode = useCallback(async (nodeId: string, updates: any) => {
+  const handleUpdateNode = useCallback((nodeId: string, updates: any) => {
     setNodes((nds) =>
       nds.map((n) => {
         if (n.id === nodeId) {
-          return {
-            ...n,
-            data: { ...n.data, ...updates },
-          };
+          return { ...n, data: { ...n.data, ...updates } };
         }
         return n;
       })
@@ -143,7 +131,7 @@ function FlowchartEditorInner() {
     setHasUnsavedChanges(true);
   }, [setNodes]);
 
-  // Convert DB nodes to React Flow format
+  // Convert DB nodes
   useEffect(() => {
     if (dbNodes) {
       const flowNodes: Node[] = dbNodes.map((node) => ({
@@ -163,7 +151,7 @@ function FlowchartEditorInner() {
     }
   }, [dbNodes, handleDeleteNode, handleUpdateNode, setNodes]);
 
-  // Convert DB edges to React Flow format
+  // Convert DB edges
   useEffect(() => {
     if (dbEdges) {
       const flowEdges: Edge[] = dbEdges.map((edge) => ({
@@ -179,10 +167,16 @@ function FlowchartEditorInner() {
     }
   }, [dbEdges, setEdges]);
 
-  // Flowchart: allow drag-to-connect
+  // Track which node starts a connection
+  const onConnectStart = useCallback((_: any, params: any) => {
+    connectingNodeId.current = params.nodeId;
+  }, []);
+
+  // When connection is made to an existing node
   const onConnect = useCallback(
     async (connection: Connection) => {
       if (!connection.source || !connection.target) return;
+      connectingNodeId.current = null;
 
       const newEdge = {
         id: crypto.randomUUID(),
@@ -205,7 +199,6 @@ function FlowchartEditorInner() {
           target_node_id: connection.target,
           edge_type: 'smoothstep',
         });
-
         if (error) throw error;
         queryClient.invalidateQueries({ queryKey: ['mindos-edges', projectId] });
       } catch (error) {
@@ -213,6 +206,82 @@ function FlowchartEditorInner() {
       }
     },
     [projectId, queryClient, setEdges]
+  );
+
+  // When connection is dropped on empty canvas - create new node
+  const onConnectEnd = useCallback(
+    async (event: MouseEvent | TouchEvent) => {
+      if (!connectingNodeId.current) return;
+      const sourceNodeId = connectingNodeId.current;
+      connectingNodeId.current = null;
+
+      // Check if dropped on a node (handled by onConnect)
+      const targetIsPane = (event.target as HTMLElement)?.classList?.contains('react-flow__pane');
+      if (!targetIsPane) return;
+
+      // Get position from event
+      const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+      const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
+
+      const position = screenToFlowPosition({ x: clientX, y: clientY });
+
+      const newNodeId = crypto.randomUUID();
+      const newEdgeId = crypto.randomUUID();
+
+      const newNode: Node = {
+        id: newNodeId,
+        type: 'flowchart',
+        position,
+        data: {
+          label: '',
+          subtitle: '',
+          iconName: 'custom',
+          style: {},
+          onDelete: handleDeleteNode,
+          onUpdate: handleUpdateNode,
+        } as FlowchartNodeData,
+      };
+
+      const newEdge: Edge = {
+        id: newEdgeId,
+        source: sourceNodeId,
+        target: newNodeId,
+        type: 'smoothstep',
+        animated: false,
+        style: defaultEdgeOptions.style,
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+      setEdges((eds) => [...eds, newEdge]);
+      setHasUnsavedChanges(true);
+
+      try {
+        await supabase.from('mindos_nodes').insert({
+          id: newNodeId,
+          project_id: projectId,
+          node_type: 'icon',
+          position_x: position.x,
+          position_y: position.y,
+          icon_name: 'custom',
+          icon_category: 'custom',
+          content: { label: '', subtitle: '' },
+        });
+
+        await supabase.from('mindos_edges').insert({
+          id: newEdgeId,
+          project_id: projectId,
+          source_node_id: sourceNodeId,
+          target_node_id: newNodeId,
+          edge_type: 'smoothstep',
+        });
+
+        queryClient.invalidateQueries({ queryKey: ['mindos-nodes', projectId] });
+        queryClient.invalidateQueries({ queryKey: ['mindos-edges', projectId] });
+      } catch (error) {
+        toast.error('Erro ao criar bloco');
+      }
+    },
+    [projectId, screenToFlowPosition, handleDeleteNode, handleUpdateNode, queryClient, setNodes, setEdges]
   );
 
   const addNode = useCallback(
@@ -251,7 +320,6 @@ function FlowchartEditorInner() {
           icon_category: Object.entries(iconCategories).find(([_, icons]) => icons.includes(iconName))?.[0] || 'custom',
           content: { label: iconConfig.label, subtitle: '' },
         });
-
         if (error) throw error;
         queryClient.invalidateQueries({ queryKey: ['mindos-nodes', projectId] });
       } catch (error) {
@@ -278,10 +346,7 @@ function FlowchartEditorInner() {
       }
 
       const viewport = getViewport();
-      await supabase
-        .from('mindos_projects')
-        .update({ viewport })
-        .eq('id', projectId);
+      await supabase.from('mindos_projects').update({ viewport }).eq('id', projectId);
 
       setHasUnsavedChanges(false);
       toast.success('Alterações salvas!');
@@ -296,12 +361,8 @@ function FlowchartEditorInner() {
   const onNodeDragStop = useCallback(
     async (_: any, node: Node) => {
       try {
-        await supabase
-          .from('mindos_nodes')
-          .update({
-            position_x: node.position.x,
-            position_y: node.position.y,
-          })
+        await supabase.from('mindos_nodes')
+          .update({ position_x: node.position.x, position_y: node.position.y })
           .eq('id', node.id);
       } catch (error) {
         console.error('Error saving node position:', error);
@@ -310,29 +371,19 @@ function FlowchartEditorInner() {
     []
   );
 
-  // Edge context menu
   const onEdgeContextMenu = useCallback(
     (event: React.MouseEvent, edge: Edge) => {
       event.preventDefault();
-      setEdgeContextMenu({
-        x: event.clientX,
-        y: event.clientY,
-        edgeId: edge.id,
-      });
+      setEdgeContextMenu({ x: event.clientX, y: event.clientY, edgeId: edge.id });
     },
     []
   );
 
   const handleChangeEdgeType = useCallback(
     async (edgeId: string, type: string) => {
-      setEdges((eds) =>
-        eds.map((e) => (e.id === edgeId ? { ...e, type } : e))
-      );
+      setEdges((eds) => eds.map((e) => (e.id === edgeId ? { ...e, type } : e)));
       try {
-        await supabase
-          .from('mindos_edges')
-          .update({ edge_type: type })
-          .eq('id', edgeId);
+        await supabase.from('mindos_edges').update({ edge_type: type }).eq('id', edgeId);
       } catch (error) {
         console.error('Error updating edge type:', error);
       }
@@ -340,7 +391,6 @@ function FlowchartEditorInner() {
     [setEdges]
   );
 
-  // Close edge context menu on click anywhere
   useEffect(() => {
     const handler = () => setEdgeContextMenu(null);
     if (edgeContextMenu) {
@@ -367,6 +417,8 @@ function FlowchartEditorInner() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onConnectStart={onConnectStart}
+        onConnectEnd={onConnectEnd}
         onNodeDragStop={onNodeDragStop}
         onEdgeContextMenu={onEdgeContextMenu}
         nodeTypes={nodeTypes}
@@ -385,7 +437,6 @@ function FlowchartEditorInner() {
           maskColor="rgba(0, 0, 0, 0.5)"
         />
 
-        {/* Top Panel */}
         <Panel position="top-left" className="flex items-center gap-2">
           <Button 
             variant="outline" 
@@ -399,7 +450,6 @@ function FlowchartEditorInner() {
           <span className="text-foreground font-medium">{project?.name}</span>
         </Panel>
 
-        {/* Right Panel - Add Nodes */}
         <Panel position="top-right" className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -455,7 +505,6 @@ function FlowchartEditorInner() {
         </Panel>
       </ReactFlow>
 
-      {/* Edge Context Menu */}
       {edgeContextMenu && (
         <EdgeContextMenu
           x={edgeContextMenu.x}
@@ -466,7 +515,6 @@ function FlowchartEditorInner() {
         />
       )}
 
-      {/* Copilot Modal */}
       <MindOsCopilot
         open={copilotOpen}
         onOpenChange={setCopilotOpen}
