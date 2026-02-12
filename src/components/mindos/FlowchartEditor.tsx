@@ -30,6 +30,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, D
 import { toast } from 'sonner';
 import { FlowchartNode, FlowchartNodeData, flowchartIcons } from './nodes/FlowchartNode';
 import { MindOsCopilot } from './MindOsCopilot';
+import { EdgeContextMenu } from './EdgeContextMenu';
 
 const nodeTypes = {
   flowchart: FlowchartNode,
@@ -61,6 +62,7 @@ function FlowchartEditorInner() {
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [copilotOpen, setCopilotOpen] = useState(false);
+  const [edgeContextMenu, setEdgeContextMenu] = useState<{ x: number; y: number; edgeId: string } | null>(null);
 
   // Fetch project data
   const { data: project, isLoading: projectLoading } = useQuery({
@@ -177,6 +179,7 @@ function FlowchartEditorInner() {
     }
   }, [dbEdges, setEdges]);
 
+  // Flowchart: allow drag-to-connect
   const onConnect = useCallback(
     async (connection: Connection) => {
       if (!connection.source || !connection.target) return;
@@ -307,6 +310,45 @@ function FlowchartEditorInner() {
     []
   );
 
+  // Edge context menu
+  const onEdgeContextMenu = useCallback(
+    (event: React.MouseEvent, edge: Edge) => {
+      event.preventDefault();
+      setEdgeContextMenu({
+        x: event.clientX,
+        y: event.clientY,
+        edgeId: edge.id,
+      });
+    },
+    []
+  );
+
+  const handleChangeEdgeType = useCallback(
+    async (edgeId: string, type: string) => {
+      setEdges((eds) =>
+        eds.map((e) => (e.id === edgeId ? { ...e, type } : e))
+      );
+      try {
+        await supabase
+          .from('mindos_edges')
+          .update({ edge_type: type })
+          .eq('id', edgeId);
+      } catch (error) {
+        console.error('Error updating edge type:', error);
+      }
+    },
+    [setEdges]
+  );
+
+  // Close edge context menu on click anywhere
+  useEffect(() => {
+    const handler = () => setEdgeContextMenu(null);
+    if (edgeContextMenu) {
+      window.addEventListener('click', handler);
+      return () => window.removeEventListener('click', handler);
+    }
+  }, [edgeContextMenu]);
+
   const isLoading = projectLoading || nodesLoading || edgesLoading;
 
   if (isLoading) {
@@ -326,6 +368,7 @@ function FlowchartEditorInner() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeDragStop={onNodeDragStop}
+        onEdgeContextMenu={onEdgeContextMenu}
         nodeTypes={nodeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
         fitView
@@ -411,6 +454,17 @@ function FlowchartEditorInner() {
           )}
         </Panel>
       </ReactFlow>
+
+      {/* Edge Context Menu */}
+      {edgeContextMenu && (
+        <EdgeContextMenu
+          x={edgeContextMenu.x}
+          y={edgeContextMenu.y}
+          edgeId={edgeContextMenu.edgeId}
+          onClose={() => setEdgeContextMenu(null)}
+          onChangeType={handleChangeEdgeType}
+        />
+      )}
 
       {/* Copilot Modal */}
       <MindOsCopilot
