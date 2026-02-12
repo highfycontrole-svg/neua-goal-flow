@@ -145,6 +145,17 @@ function MindMapNodeComponent({ id, data, selected }: NodeProps) {
         id="top"
         className="!w-2 !h-2 !bg-primary/50 !border-0 !opacity-0"
       />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="!w-2 !h-2 !bg-primary/50 !border-0 !opacity-0"
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="source-bottom"
+        className="!w-2 !h-2 !bg-primary/50 !border-0 !opacity-0"
+      />
 
       {/* (+) Add Child buttons - visible on hover */}
       <button
