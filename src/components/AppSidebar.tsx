@@ -67,6 +67,7 @@ const menuItems: MenuItem[] = [
     url: '/dashboard',
     icon: Target,
     basePath: '/dashboard',
+    hasSubmenu: true,
   },
   {
     title: 'Planner',
@@ -172,6 +173,7 @@ interface SidebarContentProps {
 function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDate, isMobile, userId }: SidebarContentProps) {
   const location = useLocation();
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
+  const [metasMenuOpen, setMetasMenuOpen] = useState(false);
 
   // Fetch workspaces for the submenu
   const { data: workspaces = [] } = useQuery({
@@ -188,16 +190,23 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
     enabled: !!userId,
   });
 
-  // Auto-expand workspace menu if on workspace route
+  // Auto-expand menus if on their routes
   useEffect(() => {
     if (location.pathname.startsWith('/workspace')) {
       setWorkspaceMenuOpen(true);
+    }
+    if (location.pathname.startsWith('/dashboard')) {
+      setMetasMenuOpen(true);
     }
   }, [location.pathname]);
 
   const handleMenuClick = (item: MenuItem) => {
     if (item.hasSubmenu && open) {
-      setWorkspaceMenuOpen(!workspaceMenuOpen);
+      if (item.basePath === '/workspace') {
+        setWorkspaceMenuOpen(!workspaceMenuOpen);
+      } else if (item.basePath === '/dashboard') {
+        setMetasMenuOpen(!metasMenuOpen);
+      }
       navigate(item.url);
     } else {
       navigate(item.url);
@@ -272,7 +281,12 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
       <nav className="flex-1 space-y-1">
         {menuItems.map((item, index) => {
           const active = isActive(item.basePath);
-          const showSubmenu = item.hasSubmenu && workspaceMenuOpen && open;
+          const isWorkspaceItem = item.basePath === '/workspace';
+          const isMetasItem = item.basePath === '/dashboard';
+          const showSubmenu = item.hasSubmenu && open && (
+            (isWorkspaceItem && workspaceMenuOpen) || (isMetasItem && metasMenuOpen)
+          );
+          const submenuOpen = isWorkspaceItem ? workspaceMenuOpen : isMetasItem ? metasMenuOpen : false;
           
           return (
             <div key={item.url}>
@@ -311,7 +325,7 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
                       {item.hasSubmenu && (
                         <motion.div
                           initial={{ opacity: 0 }}
-                          animate={{ opacity: 1, rotate: workspaceMenuOpen ? 0 : -90 }}
+                          animate={{ opacity: 1, rotate: submenuOpen ? 0 : -90 }}
                           transition={{ duration: 0.2 }}
                         >
                           <ChevronDown className="h-4 w-4" />
@@ -323,67 +337,73 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
               </motion.button>
               
               {/* Workspace Submenu */}
-              <AnimatePresence>
-                {showSubmenu && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="ml-4 mt-1 space-y-1 overflow-hidden"
-                  >
-                    {/* Resumo/Dashboard link */}
-                    <motion.button
-                      onClick={() => {
-                        navigate('/workspace');
-                        if (isMobile) setOpen(false);
-                      }}
-                      className={`
-                        w-full h-9 rounded-lg flex items-center gap-2 px-3 text-sm transition-all
-                        ${location.pathname === '/workspace' 
-                          ? 'bg-primary/20 text-primary' 
-                          : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-                        }
-                      `}
-                      whileHover={{ x: 4 }}
+              {isWorkspaceItem && (
+                <AnimatePresence>
+                  {showSubmenu && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="ml-4 mt-1 space-y-1 overflow-hidden"
                     >
-                      <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
-                      <span>Resumo</span>
-                    </motion.button>
-                    
-                    {/* Individual workspaces */}
-                    {workspaces.map((workspace) => {
-                      const isWorkspaceActive = location.pathname === `/workspace/${workspace.id}`;
-                      return (
+                      <motion.button
+                        onClick={() => { navigate('/workspace'); if (isMobile) setOpen(false); }}
+                        className={`w-full h-9 rounded-lg flex items-center gap-2 px-3 text-sm transition-all ${location.pathname === '/workspace' ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
+                        whileHover={{ x: 4 }}
+                      >
+                        <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
+                        <span>Resumo</span>
+                      </motion.button>
+                      {workspaces.map((workspace) => (
                         <motion.button
                           key={workspace.id}
-                          onClick={() => {
-                            navigate(`/workspace/${workspace.id}`);
-                            if (isMobile) setOpen(false);
-                          }}
-                          className={`
-                            w-full h-9 rounded-lg flex items-center gap-2 px-3 text-sm transition-all
-                            ${isWorkspaceActive 
-                              ? 'bg-primary/20 text-primary' 
-                              : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-                            }
-                          `}
+                          onClick={() => { navigate(`/workspace/${workspace.id}`); if (isMobile) setOpen(false); }}
+                          className={`w-full h-9 rounded-lg flex items-center gap-2 px-3 text-sm transition-all ${location.pathname === `/workspace/${workspace.id}` ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
                           whileHover={{ x: 4 }}
                         >
                           <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
                           <span className="truncate">{workspace.name}</span>
                         </motion.button>
-                      );
-                    })}
-                    
-                    {workspaces.length === 0 && (
-                      <div className="px-3 py-2 text-xs text-muted-foreground italic">
-                        Nenhum workspace criado
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      ))}
+                      {workspaces.length === 0 && (
+                        <div className="px-3 py-2 text-xs text-muted-foreground italic">Nenhum workspace criado</div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
+
+              {/* Metas Submenu */}
+              {isMetasItem && (
+                <AnimatePresence>
+                  {showSubmenu && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="ml-4 mt-1 space-y-1 overflow-hidden"
+                    >
+                      {[
+                        { label: 'Resumo', path: '/dashboard' },
+                        { label: 'Metas', path: '/dashboard/metas' },
+                        { label: 'Super Metas', path: '/dashboard/super-metas' },
+                      ].map((sub) => (
+                        <motion.button
+                          key={sub.path}
+                          onClick={() => { navigate(sub.path); if (isMobile) setOpen(false); }}
+                          className={`w-full h-9 rounded-lg flex items-center gap-2 px-3 text-sm transition-all ${location.pathname === sub.path ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
+                          whileHover={{ x: 4 }}
+                        >
+                          <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
+                          <span>{sub.label}</span>
+                        </motion.button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
             </div>
           );
         })}
