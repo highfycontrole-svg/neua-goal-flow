@@ -1,6 +1,6 @@
 import { memo, useState, useCallback } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { Lightbulb, CheckSquare, FileText, GripVertical, Trash2, Palette, Type } from 'lucide-react';
+import { Lightbulb, CheckSquare, FileText, GripVertical, Trash2, Palette, Type, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -63,6 +63,7 @@ export interface MindMapNodeData extends Record<string, unknown> {
   status?: string;
   onDelete?: (id: string) => void;
   onUpdate?: (id: string, data: any) => void;
+  onAddChild?: (parentId: string, direction: 'right' | 'bottom') => void;
 }
 
 function MindMapNodeComponent({ id, data, selected }: NodeProps) {
@@ -105,6 +106,12 @@ function MindMapNodeComponent({ id, data, selected }: NodeProps) {
     }
   }, [id, nodeData]);
 
+  const handleAddChild = useCallback((direction: 'right' | 'bottom') => {
+    if (nodeData.onAddChild) {
+      nodeData.onAddChild(id, direction);
+    }
+  }, [id, nodeData]);
+
   const updateStyle = useCallback((key: string, value: any) => {
     if (nodeData.onUpdate) {
       nodeData.onUpdate(id, { 
@@ -118,7 +125,7 @@ function MindMapNodeComponent({ id, data, selected }: NodeProps) {
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       className={cn(
-        'min-w-[180px] max-w-[300px] rounded-xl border bg-gradient-to-br shadow-lg transition-all',
+        'min-w-[180px] max-w-[300px] rounded-xl border bg-gradient-to-br shadow-lg transition-all group',
         colorClass,
         selected && 'ring-2 ring-primary ring-offset-2 ring-offset-background'
       )}
@@ -126,29 +133,34 @@ function MindMapNodeComponent({ id, data, selected }: NodeProps) {
         backgroundColor: style.backgroundColor || undefined,
       }}
     >
-      {/* Handles for connections */}
+      {/* Handles for connections - hidden in mindmap, only used programmatically */}
       <Handle
         type="target"
         position={Position.Left}
-        className="!w-3 !h-3 !bg-primary !border-2 !border-background"
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        className="!w-3 !h-3 !bg-primary !border-2 !border-background"
+        className="!w-2 !h-2 !bg-primary/50 !border-0 !opacity-0"
       />
       <Handle
         type="target"
         position={Position.Top}
         id="top"
-        className="!w-3 !h-3 !bg-primary !border-2 !border-background"
+        className="!w-2 !h-2 !bg-primary/50 !border-0 !opacity-0"
       />
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        id="bottom"
-        className="!w-3 !h-3 !bg-primary !border-2 !border-background"
-      />
+
+      {/* (+) Add Child buttons - visible on hover */}
+      <button
+        className="absolute -right-4 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 z-10"
+        onClick={() => handleAddChild('right')}
+        title="Adicionar nó à direita"
+      >
+        <Plus className="h-4 w-4" />
+      </button>
+      <button
+        className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 z-10"
+        onClick={() => handleAddChild('bottom')}
+        title="Adicionar nó abaixo"
+      >
+        <Plus className="h-4 w-4" />
+      </button>
 
       {/* Header */}
       <div className="flex items-center justify-between p-2 border-b border-border/30">

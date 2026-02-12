@@ -16,16 +16,18 @@ import {
   ReactFlowProvider,
   Node,
   Edge,
+  EdgeMouseHandler,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowLeft, Plus, Lightbulb, CheckSquare, FileText, Save, Sparkles, Loader2 } from 'lucide-react';
+import { ArrowLeft, Plus, Lightbulb, CheckSquare, FileText, Save, Sparkles, Loader2, LayoutTemplate } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { MindMapNode, MindMapNodeData } from './nodes/MindMapNode';
 import { MindOsCopilot } from './MindOsCopilot';
+import { EdgeContextMenu } from './EdgeContextMenu';
 
 const nodeTypes = {
   mindmap: MindMapNode,
@@ -37,19 +39,139 @@ const defaultEdgeOptions = {
   animated: false,
 };
 
+type LayoutMode = 'radial' | 'top-down' | 'left-right' | 'vertical';
+
+function autoLayout(nodes: Node[], edges: Edge[], mode: LayoutMode): Node[] {
+  if (nodes.length === 0) return nodes;
+
+  // Find root nodes (no incoming edges)
+  const targetIds = new Set(edges.map(e => e.target));
+  const rootNodes = nodes.filter(n => !targetIds.has(n.id));
+  if (rootNodes.length === 0) {
+    // fallback: first node is root
+    rootNodes.push(nodes[0]);
+  }
+
+  // Build adjacency
+  const children: Record<string, string[]> = {};
+  edges.forEach(e => {
+    if (!children[e.source]) children[e.source] = [];
+    children[e.source].push(e.target);
+  });
+
+  const positioned = new Map<string, { x: number; y: number }>();
+  const NODE_W = 220;
+  const NODE_H = 120;
+  const GAP_X = 80;
+  const GAP_Y = 60;
+
+  function layoutTree(nodeId: string, x: number, y: number, depth: number): number {
+    const kids = children[nodeId] || [];
+    if (kids.length === 0) {
+      positioned.set(nodeId, { x, y });
+      return 1;
+    }
+
+    let totalSlots = 0;
+    const kidSlots: number[] = [];
+    kids.forEach(kid => {
+      const slots = layoutTree(kid, 0, 0, depth + 1); // dry run
+      kidSlots.push(slots);
+      totalSlots += slots;
+    });
+
+    // Position this node
+    if (mode === 'radial' || mode === 'left-right') {
+      positioned.set(nodeId, { x, y });
+      let currentY = y - ((totalSlots - 1) * (NODE_H + GAP_Y)) / 2;
+      kids.forEach((kid, i) => {
+        layoutSubtree(kid, x + NODE_W + GAP_X, currentY, depth + 1);
+        currentY += kidSlots[i] * (NODE_H + GAP_Y);
+      });
+    } else if (mode === 'top-down') {
+      positioned.set(nodeId, { x, y });
+      let currentX = x - ((totalSlots - 1) * (NODE_W + GAP_X)) / 2;
+      kids.forEach((kid, i) => {
+        layoutSubtree(kid, currentX, y + NODE_H + GAP_Y, depth + 1);
+        currentX += kidSlots[i] * (NODE_W + GAP_X);
+      });
+    } else {
+      // vertical list
+      positioned.set(nodeId, { x, y });
+      let currentY = y + NODE_H + GAP_Y;
+      kids.forEach((kid) => {
+        layoutSubtree(kid, x + 40, currentY, depth + 1);
+        currentY += NODE_H + GAP_Y;
+      });
+    }
+
+    return totalSlots;
+  }
+
+  function layoutSubtree(nodeId: string, x: number, y: number, depth: number) {
+    const kids = children[nodeId] || [];
+    positioned.set(nodeId, { x, y });
+
+    if (mode === 'radial' || mode === 'left-right') {
+      let totalH = kids.length * (NODE_H + GAP_Y) - GAP_Y;
+      let currentY = y - totalH / 2;
+      kids.forEach(kid => {
+        layoutSubtree(kid, x + NODE_W + GAP_X, currentY, depth + 1);
+        currentY += NODE_H + GAP_Y;
+      });
+    } else if (mode === 'top-down') {
+      let totalW = kids.length * (NODE_W + GAP_X) - GAP_X;
+      let currentX = x - totalW / 2;
+      kids.forEach(kid => {
+        layoutSubtree(kid, currentX, y + NODE_H + GAP_Y, depth + 1);
+        currentX += NODE_W + GAP_X;
+      });
+    } else {
+      let currentY = y + NODE_H + GAP_Y;
+      kids.forEach(kid => {
+        layoutSubtree(kid, x + 40, currentY, depth + 1);
+        currentY += NODE_H + GAP_Y;
+      });
+    }
+  }
+
+  // Layout from each root
+  let startY = 0;
+  rootNodes.forEach(root => {
+    layoutSubtree(root.id, 0, startY, 0);
+    startY += 400;
+  });
+
+  // Also position unconnected nodes
+  let unconnectedY = startY;
+  nodes.forEach(n => {
+    if (!positioned.has(n.id)) {
+      positioned.set(n.id, { x: 0, y: unconnectedY });
+      unconnectedY += NODE_H + GAP_Y;
+    }
+  });
+
+  return nodes.map(n => ({
+    ...n,
+    position: positioned.get(n.id) || n.position,
+  }));
+}
+
 function MindMapEditorInner() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { screenToFlowPosition, getViewport } = useReactFlow();
+  const { screenToFlowPosition, getViewport, fitView } = useReactFlow();
   
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [copilotOpen, setCopilotOpen] = useState(false);
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>('radial');
+  const [edgeContextMenu, setEdgeContextMenu] = useState<{ x: number; y: number; edgeId: string } | null>(null);
 
   // Fetch project data
   const { data: project, isLoading: projectLoading } = useQuery({
@@ -130,6 +252,79 @@ function MindMapEditorInner() {
     setHasUnsavedChanges(true);
   }, [setNodes]);
 
+  // Add child node from (+) button
+  const handleAddChild = useCallback(
+    async (parentId: string, direction: 'right' | 'bottom') => {
+      const parentNode = nodes.find(n => n.id === parentId);
+      if (!parentNode) return;
+
+      const offset = direction === 'right' 
+        ? { x: 300, y: 0 } 
+        : { x: 0, y: 180 };
+
+      const newPosition = {
+        x: parentNode.position.x + offset.x,
+        y: parentNode.position.y + offset.y,
+      };
+
+      const parentData = parentNode.data as unknown as MindMapNodeData;
+      const newNodeId = crypto.randomUUID();
+      const newEdgeId = crypto.randomUUID();
+
+      const newNode: Node = {
+        id: newNodeId,
+        type: 'mindmap',
+        position: newPosition,
+        data: {
+          label: '',
+          nodeType: parentData.nodeType || 'idea',
+          style: {},
+          tags: [],
+          onDelete: handleDeleteNode,
+          onUpdate: handleUpdateNode,
+          onAddChild: handleAddChild,
+        } as MindMapNodeData,
+      };
+
+      const newEdge: Edge = {
+        id: newEdgeId,
+        source: parentId,
+        target: newNodeId,
+        type: 'smoothstep',
+        animated: false,
+        style: defaultEdgeOptions.style,
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+      setEdges((eds) => [...eds, newEdge]);
+
+      try {
+        await supabase.from('mindos_nodes').insert({
+          id: newNodeId,
+          project_id: projectId,
+          node_type: parentData.nodeType || 'idea',
+          position_x: newPosition.x,
+          position_y: newPosition.y,
+          content: { label: '' },
+        });
+
+        await supabase.from('mindos_edges').insert({
+          id: newEdgeId,
+          project_id: projectId,
+          source_node_id: parentId,
+          target_node_id: newNodeId,
+          edge_type: 'smoothstep',
+        });
+
+        queryClient.invalidateQueries({ queryKey: ['mindos-nodes', projectId] });
+        queryClient.invalidateQueries({ queryKey: ['mindos-edges', projectId] });
+      } catch (error) {
+        toast.error('Erro ao criar nó');
+      }
+    },
+    [nodes, projectId, handleDeleteNode, handleUpdateNode, queryClient, setNodes, setEdges]
+  );
+
   // Convert DB nodes to React Flow format
   useEffect(() => {
     if (dbNodes) {
@@ -145,11 +340,12 @@ function MindMapEditorInner() {
           status: node.status,
           onDelete: handleDeleteNode,
           onUpdate: handleUpdateNode,
+          onAddChild: handleAddChild,
         } as MindMapNodeData,
       }));
       setNodes(flowNodes);
     }
-  }, [dbNodes, handleDeleteNode, handleUpdateNode, setNodes]);
+  }, [dbNodes, handleDeleteNode, handleUpdateNode, handleAddChild, setNodes]);
 
   // Convert DB edges to React Flow format
   useEffect(() => {
@@ -167,40 +363,10 @@ function MindMapEditorInner() {
     }
   }, [dbEdges, setEdges]);
 
-  const onConnect = useCallback(
-    async (connection: Connection) => {
-      if (!connection.source || !connection.target) return;
-
-      const newEdge = {
-        id: crypto.randomUUID(),
-        source: connection.source,
-        target: connection.target,
-        sourceHandle: connection.sourceHandle,
-        targetHandle: connection.targetHandle,
-        type: 'smoothstep',
-        animated: false,
-        style: defaultEdgeOptions.style,
-      };
-
-      setEdges((eds) => addEdge(newEdge, eds));
-
-      try {
-        const { error } = await supabase.from('mindos_edges').insert({
-          id: newEdge.id,
-          project_id: projectId,
-          source_node_id: connection.source,
-          target_node_id: connection.target,
-          edge_type: 'smoothstep',
-        });
-
-        if (error) throw error;
-        queryClient.invalidateQueries({ queryKey: ['mindos-edges', projectId] });
-      } catch (error) {
-        toast.error('Erro ao criar conexão');
-      }
-    },
-    [projectId, queryClient, setEdges]
-  );
+  // Disabled: No manual edge connections in mind map mode
+  const onConnect = useCallback((_: Connection) => {
+    // Connections are only created via the (+) button
+  }, []);
 
   const addNode = useCallback(
     async (nodeType: 'idea' | 'task' | 'text') => {
@@ -221,6 +387,7 @@ function MindMapEditorInner() {
           tags: [],
           onDelete: handleDeleteNode,
           onUpdate: handleUpdateNode,
+          onAddChild: handleAddChild,
         } as MindMapNodeData,
       };
 
@@ -242,13 +409,12 @@ function MindMapEditorInner() {
         toast.error('Erro ao criar nó');
       }
     },
-    [projectId, screenToFlowPosition, handleDeleteNode, handleUpdateNode, queryClient, setNodes]
+    [projectId, screenToFlowPosition, handleDeleteNode, handleUpdateNode, handleAddChild, queryClient, setNodes]
   );
 
   const saveChanges = useCallback(async () => {
     setIsSaving(true);
     try {
-      // Save all node positions and data
       for (const node of nodes) {
         const nodeData = node.data as MindMapNodeData;
         await supabase
@@ -263,7 +429,6 @@ function MindMapEditorInner() {
           .eq('id', node.id);
       }
 
-      // Save viewport
       const viewport = getViewport();
       await supabase
         .from('mindos_projects')
@@ -298,6 +463,54 @@ function MindMapEditorInner() {
     []
   );
 
+  // Edge context menu
+  const onEdgeContextMenu = useCallback(
+    (event: React.MouseEvent, edge: Edge) => {
+      event.preventDefault();
+      setEdgeContextMenu({
+        x: event.clientX,
+        y: event.clientY,
+        edgeId: edge.id,
+      });
+    },
+    []
+  );
+
+  const handleChangeEdgeType = useCallback(
+    async (edgeId: string, type: string) => {
+      setEdges((eds) =>
+        eds.map((e) => (e.id === edgeId ? { ...e, type } : e))
+      );
+      try {
+        await supabase
+          .from('mindos_edges')
+          .update({ edge_type: type })
+          .eq('id', edgeId);
+      } catch (error) {
+        console.error('Error updating edge type:', error);
+      }
+    },
+    [setEdges]
+  );
+
+  // Apply layout
+  const applyLayout = useCallback((mode: LayoutMode) => {
+    setLayoutMode(mode);
+    const layouted = autoLayout(nodes, edges, mode);
+    setNodes(layouted);
+    setHasUnsavedChanges(true);
+    setTimeout(() => fitView({ padding: 0.2 }), 100);
+  }, [nodes, edges, setNodes, fitView]);
+
+  // Close edge context menu on click anywhere
+  useEffect(() => {
+    const handler = () => setEdgeContextMenu(null);
+    if (edgeContextMenu) {
+      window.addEventListener('click', handler);
+      return () => window.removeEventListener('click', handler);
+    }
+  }, [edgeContextMenu]);
+
   const isLoading = projectLoading || nodesLoading || edgesLoading;
 
   if (isLoading) {
@@ -317,8 +530,10 @@ function MindMapEditorInner() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeDragStop={onNodeDragStop}
+        onEdgeContextMenu={onEdgeContextMenu}
         nodeTypes={nodeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
+        connectionLineStyle={{ display: 'none' }}
         fitView
         snapToGrid
         snapGrid={[15, 15]}
@@ -347,8 +562,32 @@ function MindMapEditorInner() {
           <span className="text-foreground font-medium">{project?.name}</span>
         </Panel>
 
-        {/* Right Panel - Add Nodes */}
+        {/* Right Panel */}
         <Panel position="top-right" className="flex items-center gap-2">
+          {/* Layout selector */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2 bg-[#242424] border-border/30">
+                <LayoutTemplate className="h-4 w-4" />
+                Layout
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-[#242424] border-border/30">
+              <DropdownMenuItem onClick={() => applyLayout('radial')}>
+                Mapa Mental (Radial)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => applyLayout('top-down')}>
+                Organograma (Top-Down)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => applyLayout('left-right')}>
+                Organograma (Left-Right)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => applyLayout('vertical')}>
+                Lista (Vertical)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button className="gap-2">
@@ -397,6 +636,17 @@ function MindMapEditorInner() {
           )}
         </Panel>
       </ReactFlow>
+
+      {/* Edge Context Menu */}
+      {edgeContextMenu && (
+        <EdgeContextMenu
+          x={edgeContextMenu.x}
+          y={edgeContextMenu.y}
+          edgeId={edgeContextMenu.edgeId}
+          onClose={() => setEdgeContextMenu(null)}
+          onChangeType={handleChangeEdgeType}
+        />
+      )}
 
       {/* Copilot Modal */}
       <MindOsCopilot
