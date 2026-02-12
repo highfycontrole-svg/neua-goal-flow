@@ -285,7 +285,7 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
                   w-full h-12 rounded-xl flex items-center gap-3 transition-all duration-300
                   ${active 
                     ? 'bg-primary text-primary-foreground' 
-                    : 'text-muted-foreground hover:bg-primary hover:text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                   }
                   ${open ? 'px-4 justify-start' : 'px-0 justify-center'}
                 `}

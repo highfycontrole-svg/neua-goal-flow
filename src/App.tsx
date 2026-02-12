@@ -23,7 +23,7 @@ import Planner2026Page from "./pages/planner/Planner2026Page";
 import PlannerCalendarioPage from "./pages/planner/PlannerCalendarioPage";
 import PlannerIdeiasPage from "./pages/planner/PlannerIdeiasPage";
 import PlannerManualPage from "./pages/planner/PlannerManualPage";
-import PlannerIAPage from "./pages/planner/PlannerIAPage";
+// PlannerIAPage removed
 import PedidosPage from "./pages/pedidos/PedidosPage";
 import FinanceiroPage from "./pages/financeiro/FinanceiroPage";
 import GeralPage from "./pages/geral/GeralPage";
@@ -194,7 +194,6 @@ const App = () => (
               <Route path="calendario" element={<PlannerCalendarioPage />} />
               <Route path="ideias" element={<PlannerIdeiasPage />} />
               <Route path="manual" element={<PlannerManualPage />} />
-              <Route path="ia" element={<PlannerIAPage />} />
             </Route>
             <Route
               path="/pedidos"

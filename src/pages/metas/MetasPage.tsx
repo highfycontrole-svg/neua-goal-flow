@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -15,12 +16,21 @@ import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'];
 
+const QUARTERS = [
+  { id: 'all', label: 'Todos', months: [] as number[] },
+  { id: 'q1', label: 'Q1', months: [1, 2, 3] },
+  { id: 'q2', label: 'Q2', months: [4, 5, 6] },
+  { id: 'q3', label: 'Q3', months: [7, 8, 9] },
+  { id: 'q4', label: 'Q4', months: [10, 11, 12] },
+];
+
 export default function MetasPage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [setores, setSetores] = useState<Array<{ id: string; nome: string }>>([]);
   const [metas, setMetas] = useState<any[]>([]);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [selectedQuarter, setSelectedQuarter] = useState('all');
   const [filters, setFilters] = useState({
     ano: new Date().getFullYear(),
     mes: 0,
@@ -117,19 +127,33 @@ export default function MetasPage() {
     }
   };
 
+  // Filter by selected quarter
+  const quarterMonths = QUARTERS.find(q => q.id === selectedQuarter)?.months || [];
+  const filteredByQuarter = quarterMonths.length > 0 
+    ? metas.filter(m => quarterMonths.includes(m.mes))
+    : metas;
+
   // Chart data by sector
   const chartDataBySector = setores.map(setor => ({
     name: setor.nome,
-    total: metas.filter(m => m.setor_id === setor.id).length,
-    concluidas: metas.filter(m => m.setor_id === setor.id && m.status).length
+    total: filteredByQuarter.filter(m => m.setor_id === setor.id).length,
+    concluidas: filteredByQuarter.filter(m => m.setor_id === setor.id && m.status).length
   })).filter(d => d.total > 0);
 
   // Pie chart data by priority
   const pieDataByPriority = [
-    { name: 'Alta', value: metas.filter(m => m.prioridade === 'Alta').length, color: '#EF4444' },
-    { name: 'Média', value: metas.filter(m => m.prioridade === 'Média').length, color: '#F59E0B' },
-    { name: 'Baixa', value: metas.filter(m => m.prioridade === 'Baixa').length, color: '#10B981' }
+    { name: 'Alta', value: filteredByQuarter.filter(m => m.prioridade === 'Alta').length, color: '#EF4444' },
+    { name: 'Média', value: filteredByQuarter.filter(m => m.prioridade === 'Média').length, color: '#F59E0B' },
+    { name: 'Baixa', value: filteredByQuarter.filter(m => m.prioridade === 'Baixa').length, color: '#10B981' }
   ].filter(d => d.value > 0);
+
+  // Stats for filtered quarter
+  const quarterStats = {
+    total: filteredByQuarter.length,
+    concluidas: filteredByQuarter.filter(m => m.status).length,
+    emAndamento: filteredByQuarter.filter(m => !m.status).length,
+    percentual: filteredByQuarter.length > 0 ? Math.round((filteredByQuarter.filter(m => m.status).length / filteredByQuarter.length) * 100) : 0
+  };
 
   if (loading) {
     return (
@@ -147,12 +171,21 @@ export default function MetasPage() {
         <p className="text-muted-foreground">Gerencie e acompanhe todas as suas metas.</p>
       </div>
 
+      {/* Quarterly Tabs */}
+      <Tabs value={selectedQuarter} onValueChange={setSelectedQuarter}>
+        <TabsList className="grid grid-cols-5 w-full max-w-lg">
+          {QUARTERS.map(q => (
+            <TabsTrigger key={q.id} value={q.id}>{q.label}</TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard title="Total de Metas" value={stats.total} icon={Target} description="Metas cadastradas" />
-        <KPICard title="Concluídas" value={stats.concluidas} icon={CheckCircle} description="Metas finalizadas" />
-        <KPICard title="Em Andamento" value={stats.emAndamento} icon={TrendingUp} description="Metas pendentes" />
-        <KPICard title="Taxa de Conclusão" value={`${stats.percentual}%`} icon={Award} description="Percentual concluído" />
+        <KPICard title="Total de Metas" value={quarterStats.total} icon={Target} description={selectedQuarter === 'all' ? 'Metas cadastradas' : `Metas no ${selectedQuarter.toUpperCase()}`} />
+        <KPICard title="Concluídas" value={quarterStats.concluidas} icon={CheckCircle} description="Metas finalizadas" />
+        <KPICard title="Em Andamento" value={quarterStats.emAndamento} icon={TrendingUp} description="Metas pendentes" />
+        <KPICard title="Taxa de Conclusão" value={`${quarterStats.percentual}%`} icon={Award} description="Percentual concluído" />
       </div>
 
       {/* Filters */}
@@ -281,7 +314,7 @@ export default function MetasPage() {
       {/* Table */}
       <div className="card-neua p-6">
         <h3 className="text-lg font-semibold mb-4">Lista de Metas</h3>
-        {metas.length > 0 ? (
+        {filteredByQuarter.length > 0 ? (
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -297,7 +330,7 @@ export default function MetasPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {metas.map((meta) => (
+                {filteredByQuarter.map((meta) => (
                   <TableRow key={meta.id} className={meta.status ? 'opacity-60' : ''}>
                     <TableCell>
                       <Checkbox

@@ -57,7 +57,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 export function FinanceiroDashboard() {
   const { user } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [periodo, setPeriodo] = useState("30");
+  const [periodo, setPeriodo] = useState("mes_atual");
   const [customDateRange, setCustomDateRange] = useState<{
     from: Date | undefined;
     to: Date | undefined;
@@ -69,12 +69,21 @@ export function FinanceiroDashboard() {
     if (isCustomPeriod && customDateRange.from) {
       return customDateRange.from;
     }
+    if (periodo === "mes_atual") {
+      return startOfMonth(new Date());
+    }
+    if (periodo === "ano") {
+      return new Date(new Date().getFullYear(), 0, 1);
+    }
     return subDays(new Date(), parseInt(periodo));
   };
 
   const getEndDate = () => {
     if (isCustomPeriod && customDateRange.to) {
       return customDateRange.to;
+    }
+    if (periodo === "mes_atual") {
+      return endOfMonth(new Date());
     }
     return new Date();
   };
@@ -133,7 +142,7 @@ export function FinanceiroDashboard() {
   // Previous period for comparison
   const daysDiff = isCustomPeriod && customDateRange.from && customDateRange.to
     ? Math.ceil((customDateRange.to.getTime() - customDateRange.from.getTime()) / (1000 * 60 * 60 * 24))
-    : parseInt(periodo);
+    : periodo === "mes_atual" ? 30 : periodo === "ano" ? 365 : parseInt(periodo);
   
   const prevStartDate = subDays(startDate, daysDiff);
   const { data: receitasPrev = [] } = useQuery({
@@ -191,6 +200,9 @@ export function FinanceiroDashboard() {
     color: CATEGORY_COLORS[name] || "#94a3b8",
   }));
 
+  // Ticket Médio
+  const ticketMedio = receitas.length > 0 ? receitaLiquida / receitas.length : 0;
+
   const kpis = [
     {
       title: "Faturamento Bruto",
@@ -229,6 +241,13 @@ export function FinanceiroDashboard() {
       icon: Target,
       color: margem >= 20 ? "text-emerald-400" : margem >= 10 ? "text-yellow-400" : "text-red-400",
       bgColor: margem >= 20 ? "bg-emerald-500/10" : margem >= 10 ? "bg-yellow-500/10" : "bg-red-500/10",
+    },
+    {
+      title: "Ticket Médio",
+      value: ticketMedio,
+      icon: DollarSign,
+      color: "text-purple-400",
+      bgColor: "bg-purple-500/10",
     },
   ];
 
@@ -292,14 +311,15 @@ export function FinanceiroDashboard() {
         />
         <div className="flex flex-wrap items-center gap-3">
           <Select value={periodo} onValueChange={handlePeriodChange}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[200px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="7">Últimos 7 dias</SelectItem>
+              <SelectItem value="15">Últimos 15 dias</SelectItem>
               <SelectItem value="30">Últimos 30 dias</SelectItem>
-              <SelectItem value="90">Últimos 90 dias</SelectItem>
-              <SelectItem value="365">Último ano</SelectItem>
+              <SelectItem value="mes_atual">Mês atual</SelectItem>
+              <SelectItem value="ano">Ano todo</SelectItem>
               <SelectItem value="custom">Personalizado</SelectItem>
             </SelectContent>
           </Select>
@@ -360,7 +380,7 @@ export function FinanceiroDashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {kpis.map((kpi, index) => (
           <motion.div
             key={kpi.title}

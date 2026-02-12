@@ -1,14 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { KPICard } from '@/components/KPICard';
-import { LayoutGrid, CheckCircle2, Clock, AlertTriangle, Plus } from 'lucide-react';
+import { LayoutGrid, CheckCircle2, Clock, AlertTriangle, Plus, Trash2 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { CreateWorkspaceDialog } from '@/components/workspace/CreateWorkspaceDialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 import { useState } from 'react';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -21,7 +23,27 @@ const STATUS_COLORS: Record<string, string> = {
 export default function WorkspaceResumo() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
+  const deleteWorkspaceMutation = useMutation({
+    mutationFn: async (workspaceId: string) => {
+      const { error } = await supabase
+        .from('workspaces')
+        .delete()
+        .eq('id', workspaceId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+      queryClient.invalidateQueries({ queryKey: ['all-workspace-tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['all-workspace-statuses'] });
+      toast.success('Workspace excluído com sucesso');
+    },
+    onError: () => {
+      toast.error('Erro ao excluir workspace');
+    },
+  });
 
   const { data: workspaces = [], isLoading: loadingWorkspaces } = useQuery({
     queryKey: ['workspaces', user?.id],
@@ -266,8 +288,42 @@ export default function WorkspaceResumo() {
                   >
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
-                        <h3 className="font-display font-semibold text-lg">{workspace.name}</h3>
-                        <LayoutGrid className="h-5 w-5 text-primary" />
+                        <h3 className="font-display font-semibold text-lg flex-1 min-w-0 truncate mr-2">{workspace.name}</h3>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <LayoutGrid className="h-5 w-5 text-primary" />
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Excluir workspace "{workspace.name}"?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta ação não pode ser desfeita. Todas as tarefas e status deste workspace serão permanentemente excluídos.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteWorkspaceMutation.mutate(workspace.id);
+                                  }}
+                                  className="bg-destructive text-destructive-foreground"
+                                >
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">

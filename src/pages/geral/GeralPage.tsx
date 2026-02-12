@@ -43,7 +43,7 @@ function KPICard({ title, value, icon, color, subtitle }: KPICardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="bg-card border-border hover:border-primary/50 transition-all duration-300">
+      <Card className="bg-card border-border transition-all duration-300">
         <CardContent className="p-6">
           <div className="flex items-start justify-between">
             <div className="flex-1">
