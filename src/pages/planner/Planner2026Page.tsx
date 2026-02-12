@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CalendarDays, Lightbulb, PenLine, Bot, ChevronDown } from 'lucide-react';
+import { CalendarDays, Lightbulb, PenLine, ChevronDown } from 'lucide-react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -8,7 +8,6 @@ const SUB_PAGES = [
   { id: 'calendario', label: 'Calendário', icon: CalendarDays, path: '/planner/calendario' },
   { id: 'ideias', label: 'Ideias', icon: Lightbulb, path: '/planner/ideias' },
   { id: 'manual', label: 'Planner Manual', icon: PenLine, path: '/planner/manual' },
-  { id: 'ia', label: 'Planner IA', icon: Bot, path: '/planner/ia' },
 ];
 
 export default function Planner2026Page() {
