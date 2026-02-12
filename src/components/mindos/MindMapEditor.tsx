@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ReactFlow,
   Controls,
   Background,
   MiniMap,
-  addEdge,
   useNodesState,
   useEdgesState,
   Connection,
@@ -16,7 +15,6 @@ import {
   ReactFlowProvider,
   Node,
   Edge,
-  EdgeMouseHandler,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,15 +42,12 @@ type LayoutMode = 'radial' | 'top-down' | 'left-right' | 'vertical';
 function autoLayout(nodes: Node[], edges: Edge[], mode: LayoutMode): Node[] {
   if (nodes.length === 0) return nodes;
 
-  // Find root nodes (no incoming edges)
   const targetIds = new Set(edges.map(e => e.target));
   const rootNodes = nodes.filter(n => !targetIds.has(n.id));
-  if (rootNodes.length === 0) {
-    // fallback: first node is root
+  if (rootNodes.length === 0 && nodes.length > 0) {
     rootNodes.push(nodes[0]);
   }
 
-  // Build adjacency
   const children: Record<string, string[]> = {};
   edges.forEach(e => {
     if (!children[e.source]) children[e.source] = [];
@@ -65,84 +60,53 @@ function autoLayout(nodes: Node[], edges: Edge[], mode: LayoutMode): Node[] {
   const GAP_X = 80;
   const GAP_Y = 60;
 
-  function layoutTree(nodeId: string, x: number, y: number, depth: number): number {
+  function countLeaves(nodeId: string, visited: Set<string>): number {
+    if (visited.has(nodeId)) return 1;
+    visited.add(nodeId);
     const kids = children[nodeId] || [];
-    if (kids.length === 0) {
-      positioned.set(nodeId, { x, y });
-      return 1;
-    }
+    if (kids.length === 0) return 1;
+    return kids.reduce((sum, kid) => sum + countLeaves(kid, visited), 0);
+  }
 
-    let totalSlots = 0;
-    const kidSlots: number[] = [];
-    kids.forEach(kid => {
-      const slots = layoutTree(kid, 0, 0, depth + 1); // dry run
-      kidSlots.push(slots);
-      totalSlots += slots;
-    });
+  function layoutSubtree(nodeId: string, x: number, y: number, visited: Set<string>) {
+    if (visited.has(nodeId)) return;
+    visited.add(nodeId);
+    positioned.set(nodeId, { x, y });
+    const kids = children[nodeId] || [];
+    if (kids.length === 0) return;
 
-    // Position this node
     if (mode === 'radial' || mode === 'left-right') {
-      positioned.set(nodeId, { x, y });
-      let currentY = y - ((totalSlots - 1) * (NODE_H + GAP_Y)) / 2;
+      const leafCounts = kids.map(k => countLeaves(k, new Set([...visited])));
+      const totalLeaves = leafCounts.reduce((a, b) => a + b, 0);
+      let currentY = y - ((totalLeaves - 1) * (NODE_H + GAP_Y)) / 2;
       kids.forEach((kid, i) => {
-        layoutSubtree(kid, x + NODE_W + GAP_X, currentY, depth + 1);
-        currentY += kidSlots[i] * (NODE_H + GAP_Y);
+        layoutSubtree(kid, x + NODE_W + GAP_X, currentY, visited);
+        currentY += leafCounts[i] * (NODE_H + GAP_Y);
       });
     } else if (mode === 'top-down') {
-      positioned.set(nodeId, { x, y });
-      let currentX = x - ((totalSlots - 1) * (NODE_W + GAP_X)) / 2;
+      const leafCounts = kids.map(k => countLeaves(k, new Set([...visited])));
+      const totalLeaves = leafCounts.reduce((a, b) => a + b, 0);
+      let currentX = x - ((totalLeaves - 1) * (NODE_W + GAP_X)) / 2;
       kids.forEach((kid, i) => {
-        layoutSubtree(kid, currentX, y + NODE_H + GAP_Y, depth + 1);
-        currentX += kidSlots[i] * (NODE_W + GAP_X);
+        layoutSubtree(kid, currentX, y + NODE_H + GAP_Y, visited);
+        currentX += leafCounts[i] * (NODE_W + GAP_X);
       });
     } else {
-      // vertical list
-      positioned.set(nodeId, { x, y });
       let currentY = y + NODE_H + GAP_Y;
       kids.forEach((kid) => {
-        layoutSubtree(kid, x + 40, currentY, depth + 1);
-        currentY += NODE_H + GAP_Y;
-      });
-    }
-
-    return totalSlots;
-  }
-
-  function layoutSubtree(nodeId: string, x: number, y: number, depth: number) {
-    const kids = children[nodeId] || [];
-    positioned.set(nodeId, { x, y });
-
-    if (mode === 'radial' || mode === 'left-right') {
-      let totalH = kids.length * (NODE_H + GAP_Y) - GAP_Y;
-      let currentY = y - totalH / 2;
-      kids.forEach(kid => {
-        layoutSubtree(kid, x + NODE_W + GAP_X, currentY, depth + 1);
-        currentY += NODE_H + GAP_Y;
-      });
-    } else if (mode === 'top-down') {
-      let totalW = kids.length * (NODE_W + GAP_X) - GAP_X;
-      let currentX = x - totalW / 2;
-      kids.forEach(kid => {
-        layoutSubtree(kid, currentX, y + NODE_H + GAP_Y, depth + 1);
-        currentX += NODE_W + GAP_X;
-      });
-    } else {
-      let currentY = y + NODE_H + GAP_Y;
-      kids.forEach(kid => {
-        layoutSubtree(kid, x + 40, currentY, depth + 1);
+        layoutSubtree(kid, x + 40, currentY, visited);
         currentY += NODE_H + GAP_Y;
       });
     }
   }
 
-  // Layout from each root
   let startY = 0;
   rootNodes.forEach(root => {
-    layoutSubtree(root.id, 0, startY, 0);
-    startY += 400;
+    layoutSubtree(root.id, 0, startY, new Set());
+    startY += 500;
   });
 
-  // Also position unconnected nodes
+  // Position unconnected nodes
   let unconnectedY = startY;
   nodes.forEach(n => {
     if (!positioned.has(n.id)) {
@@ -172,6 +136,13 @@ function MindMapEditorInner() {
   const [copilotOpen, setCopilotOpen] = useState(false);
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('radial');
   const [edgeContextMenu, setEdgeContextMenu] = useState<{ x: number; y: number; edgeId: string } | null>(null);
+  const [nodesInitialized, setNodesInitialized] = useState(false);
+
+  // Refs to break circular dependencies
+  const nodesRef = useRef<Node[]>([]);
+  nodesRef.current = nodes;
+  const edgesRef = useRef<Edge[]>([]);
+  edgesRef.current = edges;
 
   // Fetch project data
   const { data: project, isLoading: projectLoading } = useQuery({
@@ -182,14 +153,12 @@ function MindMapEditorInner() {
         .select('*')
         .eq('id', projectId)
         .single();
-      
       if (error) throw error;
       return data;
     },
     enabled: !!projectId,
   });
 
-  // Fetch nodes
   const { data: dbNodes, isLoading: nodesLoading } = useQuery({
     queryKey: ['mindos-nodes', projectId],
     queryFn: async () => {
@@ -197,14 +166,12 @@ function MindMapEditorInner() {
         .from('mindos_nodes')
         .select('*')
         .eq('project_id', projectId);
-      
       if (error) throw error;
       return data;
     },
     enabled: !!projectId,
   });
 
-  // Fetch edges
   const { data: dbEdges, isLoading: edgesLoading } = useQuery({
     queryKey: ['mindos-edges', projectId],
     queryFn: async () => {
@@ -212,7 +179,6 @@ function MindMapEditorInner() {
         .from('mindos_edges')
         .select('*')
         .eq('project_id', projectId);
-      
       if (error) throw error;
       return data;
     },
@@ -225,7 +191,6 @@ function MindMapEditorInner() {
         .from('mindos_nodes')
         .delete()
         .eq('id', nodeId);
-      
       if (error) throw error;
       
       setNodes((nds) => nds.filter((n) => n.id !== nodeId));
@@ -237,14 +202,11 @@ function MindMapEditorInner() {
     }
   }, [projectId, queryClient, setNodes, setEdges]);
 
-  const handleUpdateNode = useCallback(async (nodeId: string, updates: any) => {
+  const handleUpdateNode = useCallback((nodeId: string, updates: any) => {
     setNodes((nds) =>
       nds.map((n) => {
         if (n.id === nodeId) {
-          return {
-            ...n,
-            data: { ...n.data, ...updates },
-          };
+          return { ...n, data: { ...n.data, ...updates } };
         }
         return n;
       })
@@ -252,10 +214,10 @@ function MindMapEditorInner() {
     setHasUnsavedChanges(true);
   }, [setNodes]);
 
-  // Add child node from (+) button
+  // Stable handleAddChild that uses refs instead of nodes state
   const handleAddChild = useCallback(
     async (parentId: string, direction: 'right' | 'bottom') => {
-      const parentNode = nodes.find(n => n.id === parentId);
+      const parentNode = nodesRef.current.find(n => n.id === parentId);
       if (!parentNode) return;
 
       const offset = direction === 'right' 
@@ -271,6 +233,7 @@ function MindMapEditorInner() {
       const newNodeId = crypto.randomUUID();
       const newEdgeId = crypto.randomUUID();
 
+      // We'll set callbacks via a separate mechanism to avoid circular deps
       const newNode: Node = {
         id: newNodeId,
         type: 'mindmap',
@@ -280,9 +243,6 @@ function MindMapEditorInner() {
           nodeType: parentData.nodeType || 'idea',
           style: {},
           tags: [],
-          onDelete: handleDeleteNode,
-          onUpdate: handleUpdateNode,
-          onAddChild: handleAddChild,
         } as MindMapNodeData,
       };
 
@@ -297,6 +257,7 @@ function MindMapEditorInner() {
 
       setNodes((nds) => [...nds, newNode]);
       setEdges((eds) => [...eds, newEdge]);
+      setHasUnsavedChanges(true);
 
       try {
         await supabase.from('mindos_nodes').insert({
@@ -322,12 +283,25 @@ function MindMapEditorInner() {
         toast.error('Erro ao criar nó');
       }
     },
-    [nodes, projectId, handleDeleteNode, handleUpdateNode, queryClient, setNodes, setEdges]
+    [projectId, queryClient, setNodes, setEdges]
   );
 
-  // Convert DB nodes to React Flow format
+  // Store stable callback refs
+  const handleDeleteNodeRef = useRef(handleDeleteNode);
+  handleDeleteNodeRef.current = handleDeleteNode;
+  const handleUpdateNodeRef = useRef(handleUpdateNode);
+  handleUpdateNodeRef.current = handleUpdateNode;
+  const handleAddChildRef = useRef(handleAddChild);
+  handleAddChildRef.current = handleAddChild;
+
+  // Stable callback wrappers that never change identity
+  const stableDeleteNode = useCallback((id: string) => handleDeleteNodeRef.current(id), []);
+  const stableUpdateNode = useCallback((id: string, updates: any) => handleUpdateNodeRef.current(id, updates), []);
+  const stableAddChild = useCallback((id: string, dir: 'right' | 'bottom') => handleAddChildRef.current(id, dir), []);
+
+  // Convert DB nodes to React Flow format - only when dbNodes changes
   useEffect(() => {
-    if (dbNodes) {
+    if (dbNodes && !nodesInitialized) {
       const flowNodes: Node[] = dbNodes.map((node) => ({
         id: node.id,
         type: 'mindmap',
@@ -338,16 +312,46 @@ function MindMapEditorInner() {
           style: node.style || {},
           tags: node.tags || [],
           status: node.status,
-          onDelete: handleDeleteNode,
-          onUpdate: handleUpdateNode,
-          onAddChild: handleAddChild,
+          onDelete: stableDeleteNode,
+          onUpdate: stableUpdateNode,
+          onAddChild: stableAddChild,
         } as MindMapNodeData,
       }));
       setNodes(flowNodes);
+      setNodesInitialized(true);
     }
-  }, [dbNodes, handleDeleteNode, handleUpdateNode, handleAddChild, setNodes]);
+  }, [dbNodes, nodesInitialized, stableDeleteNode, stableUpdateNode, stableAddChild, setNodes]);
 
-  // Convert DB edges to React Flow format
+  // Reset initialization when project changes
+  useEffect(() => {
+    setNodesInitialized(false);
+  }, [projectId]);
+
+  // Inject callbacks into nodes that don't have them (e.g. newly added via handleAddChild)
+  useEffect(() => {
+    setNodes((nds) => {
+      let changed = false;
+      const updated = nds.map((n) => {
+        const d = n.data as unknown as MindMapNodeData;
+        if (!d.onDelete || !d.onUpdate || !d.onAddChild) {
+          changed = true;
+          return {
+            ...n,
+            data: {
+              ...n.data,
+              onDelete: stableDeleteNode,
+              onUpdate: stableUpdateNode,
+              onAddChild: stableAddChild,
+            },
+          };
+        }
+        return n;
+      });
+      return changed ? updated : nds;
+    });
+  }, [nodes.length, stableDeleteNode, stableUpdateNode, stableAddChild, setNodes]);
+
+  // Convert DB edges
   useEffect(() => {
     if (dbEdges) {
       const flowEdges: Edge[] = dbEdges.map((edge) => ({
@@ -363,10 +367,8 @@ function MindMapEditorInner() {
     }
   }, [dbEdges, setEdges]);
 
-  // Disabled: No manual edge connections in mind map mode
-  const onConnect = useCallback((_: Connection) => {
-    // Connections are only created via the (+) button
-  }, []);
+  // No manual connections in mind map
+  const onConnect = useCallback((_: Connection) => {}, []);
 
   const addNode = useCallback(
     async (nodeType: 'idea' | 'task' | 'text') => {
@@ -385,9 +387,9 @@ function MindMapEditorInner() {
           nodeType,
           style: {},
           tags: [],
-          onDelete: handleDeleteNode,
-          onUpdate: handleUpdateNode,
-          onAddChild: handleAddChild,
+          onDelete: stableDeleteNode,
+          onUpdate: stableUpdateNode,
+          onAddChild: stableAddChild,
         } as MindMapNodeData,
       };
 
@@ -402,20 +404,19 @@ function MindMapEditorInner() {
           position_y: position.y,
           content: { label: '' },
         });
-
         if (error) throw error;
         queryClient.invalidateQueries({ queryKey: ['mindos-nodes', projectId] });
       } catch (error) {
         toast.error('Erro ao criar nó');
       }
     },
-    [projectId, screenToFlowPosition, handleDeleteNode, handleUpdateNode, handleAddChild, queryClient, setNodes]
+    [projectId, screenToFlowPosition, stableDeleteNode, stableUpdateNode, stableAddChild, queryClient, setNodes]
   );
 
   const saveChanges = useCallback(async () => {
     setIsSaving(true);
     try {
-      for (const node of nodes) {
+      for (const node of nodesRef.current) {
         const nodeData = node.data as MindMapNodeData;
         await supabase
           .from('mindos_nodes')
@@ -443,18 +444,14 @@ function MindMapEditorInner() {
     } finally {
       setIsSaving(false);
     }
-  }, [nodes, projectId, getViewport, queryClient]);
+  }, [projectId, getViewport, queryClient]);
 
-  // Auto-save on node drag end
   const onNodeDragStop = useCallback(
     async (_: any, node: Node) => {
       try {
         await supabase
           .from('mindos_nodes')
-          .update({
-            position_x: node.position.x,
-            position_y: node.position.y,
-          })
+          .update({ position_x: node.position.x, position_y: node.position.y })
           .eq('id', node.id);
       } catch (error) {
         console.error('Error saving node position:', error);
@@ -463,29 +460,19 @@ function MindMapEditorInner() {
     []
   );
 
-  // Edge context menu
   const onEdgeContextMenu = useCallback(
     (event: React.MouseEvent, edge: Edge) => {
       event.preventDefault();
-      setEdgeContextMenu({
-        x: event.clientX,
-        y: event.clientY,
-        edgeId: edge.id,
-      });
+      setEdgeContextMenu({ x: event.clientX, y: event.clientY, edgeId: edge.id });
     },
     []
   );
 
   const handleChangeEdgeType = useCallback(
     async (edgeId: string, type: string) => {
-      setEdges((eds) =>
-        eds.map((e) => (e.id === edgeId ? { ...e, type } : e))
-      );
+      setEdges((eds) => eds.map((e) => (e.id === edgeId ? { ...e, type } : e)));
       try {
-        await supabase
-          .from('mindos_edges')
-          .update({ edge_type: type })
-          .eq('id', edgeId);
+        await supabase.from('mindos_edges').update({ edge_type: type }).eq('id', edgeId);
       } catch (error) {
         console.error('Error updating edge type:', error);
       }
@@ -493,16 +480,16 @@ function MindMapEditorInner() {
     [setEdges]
   );
 
-  // Apply layout
   const applyLayout = useCallback((mode: LayoutMode) => {
     setLayoutMode(mode);
-    const layouted = autoLayout(nodes, edges, mode);
+    const currentNodes = nodesRef.current;
+    const currentEdges = edgesRef.current;
+    const layouted = autoLayout(currentNodes, currentEdges, mode);
     setNodes(layouted);
     setHasUnsavedChanges(true);
     setTimeout(() => fitView({ padding: 0.2 }), 100);
-  }, [nodes, edges, setNodes, fitView]);
+  }, [setNodes, fitView]);
 
-  // Close edge context menu on click anywhere
   useEffect(() => {
     const handler = () => setEdgeContextMenu(null);
     if (edgeContextMenu) {
@@ -548,7 +535,6 @@ function MindMapEditorInner() {
           maskColor="rgba(0, 0, 0, 0.5)"
         />
 
-        {/* Top Panel */}
         <Panel position="top-left" className="flex items-center gap-2">
           <Button 
             variant="outline" 
@@ -562,9 +548,7 @@ function MindMapEditorInner() {
           <span className="text-foreground font-medium">{project?.name}</span>
         </Panel>
 
-        {/* Right Panel */}
         <Panel position="top-right" className="flex items-center gap-2">
-          {/* Layout selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2 bg-[#242424] border-border/30">
@@ -637,7 +621,6 @@ function MindMapEditorInner() {
         </Panel>
       </ReactFlow>
 
-      {/* Edge Context Menu */}
       {edgeContextMenu && (
         <EdgeContextMenu
           x={edgeContextMenu.x}
@@ -648,7 +631,6 @@ function MindMapEditorInner() {
         />
       )}
 
-      {/* Copilot Modal */}
       <MindOsCopilot
         open={copilotOpen}
         onOpenChange={setCopilotOpen}

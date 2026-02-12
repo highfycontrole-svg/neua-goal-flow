@@ -1,4 +1,4 @@
-import { memo, useState, useCallback } from 'react';
+import { memo, useState, useCallback, useRef } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { 
   Megaphone, UserPlus, Leaf, Heart, 
@@ -12,34 +12,24 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
-// Icon categories and their icons
 export const flowchartIcons: Record<string, { icon: any; label: string; color: string }> = {
-  // Actions / Triggers
   ad: { icon: Megaphone, label: 'Anúncio', color: '#ef4444' },
   signup: { icon: UserPlus, label: 'Inscrição', color: '#22c55e' },
   organic: { icon: Leaf, label: 'Orgânico', color: '#84cc16' },
   engagement: { icon: Heart, label: 'Engajamento', color: '#ec4899' },
-  
-  // Destinations
   landing: { icon: Globe, label: 'Landing Page', color: '#3b82f6' },
   capture: { icon: FileText, label: 'Captura', color: '#6366f1' },
   site: { icon: Globe, label: 'Site', color: '#8b5cf6' },
   purchase: { icon: CreditCard, label: 'Compra', color: '#10b981' },
   cart: { icon: ShoppingCart, label: 'Carrinho', color: '#f59e0b' },
-  
-  // Social Media
   instagram: { icon: Instagram, label: 'Instagram', color: '#e1306c' },
   youtube: { icon: Youtube, label: 'YouTube', color: '#ff0000' },
   facebook: { icon: Facebook, label: 'Facebook', color: '#1877f2' },
   tiktok: { icon: Megaphone, label: 'TikTok', color: '#000000' },
-  
-  // Tools
   email: { icon: Mail, label: 'Email', color: '#0ea5e9' },
   whatsapp: { icon: MessageCircle, label: 'WhatsApp', color: '#25d366' },
   manychat: { icon: Bot, label: 'Manychat', color: '#0084ff' },
   crm: { icon: Users, label: 'CRM', color: '#7c3aed' },
-  
-  // Custom
   custom: { icon: Upload, label: 'Personalizado', color: '#6b7280' },
 };
 
@@ -70,6 +60,8 @@ function FlowchartNodeComponent({ id, data, selected }: NodeProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editLabel, setEditLabel] = useState(nodeData.label || '');
   const [editSubtitle, setEditSubtitle] = useState(nodeData.subtitle || '');
+  const containerRef = useRef<HTMLDivElement>(null);
+  const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const iconConfig = flowchartIcons[nodeData.iconName] || flowchartIcons.custom;
   const Icon = iconConfig.icon;
@@ -81,12 +73,41 @@ function FlowchartNodeComponent({ id, data, selected }: NodeProps) {
     setEditSubtitle(nodeData.subtitle || '');
   }, [nodeData.label, nodeData.subtitle]);
 
-  const handleBlur = useCallback(() => {
+  const saveAndClose = useCallback(() => {
     setIsEditing(false);
     if (nodeData.onUpdate) {
       nodeData.onUpdate(id, { label: editLabel, subtitle: editSubtitle });
     }
   }, [id, editLabel, editSubtitle, nodeData]);
+
+  // Use a delayed blur so clicking between inputs doesn't close editing
+  const handleInputBlur = useCallback(() => {
+    blurTimeoutRef.current = setTimeout(() => {
+      // Check if focus is still within our editing container
+      if (containerRef.current && !containerRef.current.contains(document.activeElement)) {
+        saveAndClose();
+      }
+    }, 150);
+  }, [saveAndClose]);
+
+  const handleInputFocus = useCallback(() => {
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
+  }, []);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveAndClose();
+    }
+    if (e.key === 'Escape') {
+      setIsEditing(false);
+      setEditLabel(nodeData.label || '');
+      setEditSubtitle(nodeData.subtitle || '');
+    }
+  }, [saveAndClose, nodeData.label, nodeData.subtitle]);
 
   const handleDelete = useCallback(() => {
     if (nodeData.onDelete) {
@@ -109,7 +130,7 @@ function FlowchartNodeComponent({ id, data, selected }: NodeProps) {
         selected && 'z-10'
       )}
     >
-      {/* Handles for connections */}
+      {/* Handles for connections - visible for drag-to-connect */}
       <Handle
         type="target"
         position={Position.Left}
@@ -194,26 +215,29 @@ function FlowchartNodeComponent({ id, data, selected }: NodeProps) {
 
       {/* Labels */}
       <div 
-        className="mt-2 text-center max-w-[120px]"
+        className="mt-2 text-center max-w-[160px]"
         onDoubleClick={handleDoubleClick}
+        ref={containerRef}
       >
         {isEditing ? (
-          <div className="space-y-1">
+          <div className="space-y-1" onClick={(e) => e.stopPropagation()}>
             <input
               value={editLabel}
               onChange={(e) => setEditLabel(e.target.value)}
-              onBlur={handleBlur}
-              onKeyDown={(e) => e.key === 'Enter' && handleBlur()}
+              onBlur={handleInputBlur}
+              onFocus={handleInputFocus}
+              onKeyDown={handleKeyDown}
               autoFocus
-              className="w-full bg-[#161616] border border-border/30 rounded px-2 py-1 text-sm text-center"
+              className="w-full bg-[#161616] border border-border/30 rounded px-2 py-1 text-sm text-center text-foreground outline-none focus:border-primary"
               placeholder="Nome..."
             />
             <input
               value={editSubtitle}
               onChange={(e) => setEditSubtitle(e.target.value)}
-              onBlur={handleBlur}
-              onKeyDown={(e) => e.key === 'Enter' && handleBlur()}
-              className="w-full bg-[#161616] border border-border/30 rounded px-2 py-0.5 text-xs text-center"
+              onBlur={handleInputBlur}
+              onFocus={handleInputFocus}
+              onKeyDown={handleKeyDown}
+              className="w-full bg-[#161616] border border-border/30 rounded px-2 py-0.5 text-xs text-center text-foreground outline-none focus:border-primary"
               placeholder="Descrição..."
             />
           </div>
