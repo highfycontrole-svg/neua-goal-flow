@@ -47,6 +47,10 @@ export function KanbanCard({ task, onClick, isDragging }: KanbanCardProps) {
           isDragging ? 'shadow-lg shadow-primary/20 border-primary' : ''
         }`}
         style={{ backgroundColor: '#1a1a1a' }}
+        data-context-type="task"
+        data-context-id={task.id}
+        data-context-name={task.title}
+        data-context-actions="edit,---,delete"
       >
         <h4 className="font-medium text-sm mb-2 text-foreground">{task.title}</h4>
 

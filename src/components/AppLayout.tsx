@@ -1,18 +1,23 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { SidebarProvider, SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
+import { GlobalContextMenu } from './GlobalContextMenu';
+import { ContextMenuProvider } from '@/contexts/ContextMenuContext';
+import { useGlobalContextMenu } from '@/hooks/useGlobalContextMenu';
 import { motion } from 'framer-motion';
 
 interface AppLayoutProps {
   children: ReactNode;
 }
 
+function ContextMenuListener() {
+  useGlobalContextMenu();
+  return null;
+}
+
 function MainContent({ children }: { children: ReactNode }) {
   const { open, isMobile } = useSidebar();
   
-  // Dynamic spacing: sidebar width + 30px left margin of sidebar + 30px gap
-  // Open: 320px sidebar + 30px margin + 30px gap = 380px
-  // Collapsed: 80px sidebar + 30px margin + 30px gap = 140px
   const leftMargin = open ? 380 : 140;
   
   return (
@@ -59,11 +64,15 @@ function MainContent({ children }: { children: ReactNode }) {
 
 export function AppLayout({ children }: AppLayoutProps) {
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full" style={{ backgroundColor: '#161616' }}>
-        <AppSidebar />
-        <MainContent>{children}</MainContent>
-      </div>
-    </SidebarProvider>
+    <ContextMenuProvider>
+      <SidebarProvider defaultOpen={true}>
+        <div className="min-h-screen flex w-full" style={{ backgroundColor: '#161616' }}>
+          <AppSidebar />
+          <MainContent>{children}</MainContent>
+        </div>
+        <GlobalContextMenu />
+        <ContextMenuListener />
+      </SidebarProvider>
+    </ContextMenuProvider>
   );
 }

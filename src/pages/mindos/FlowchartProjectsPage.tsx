@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { registerContextActions } from '@/hooks/useGlobalContextMenu';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -207,6 +208,23 @@ export default function FlowchartProjectsPage() {
     updateMutation.mutate({ id: editingProject.id, name: editingProject.name.trim() });
   };
 
+  // Register context menu actions for right-click on project cards
+  useEffect(() => {
+    return registerContextActions({
+      'project:open': (id) => navigate(`/mindos/flowchart/${id}`),
+      'project:rename': (id, name) => {
+        setEditingProject({ id, name });
+        setEditDialogOpen(true);
+      },
+      'project:duplicate': (id) => duplicateMutation.mutate(id),
+      'project:delete': (id) => {
+        if (confirm('Tem certeza que deseja excluir este projeto?')) {
+          deleteMutation.mutate(id);
+        }
+      },
+    });
+  }, [navigate, duplicateMutation, deleteMutation]);
+
   return (
     <div className="space-y-6">
       {/* Header with Create Button */}
@@ -255,6 +273,10 @@ export default function FlowchartProjectsPage() {
                 <Card 
                   className="bg-[#161616] border-border/30 hover:border-primary/50 transition-all cursor-pointer group"
                   onClick={() => navigate(`/mindos/flowchart/${project.id}`)}
+                  data-context-type="project"
+                  data-context-id={project.id}
+                  data-context-name={project.name}
+                  data-context-actions="open,rename,duplicate,---,delete"
                 >
                   <CardContent className="p-0">
                     {/* Thumbnail Preview */}
