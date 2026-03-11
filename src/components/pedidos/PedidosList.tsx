@@ -248,11 +248,48 @@ export function PedidosList() {
         </div>
       </div>
 
+      {/* Bulk Actions Bar */}
+      <AnimatePresence>
+        {selectedIds.size > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/30"
+          >
+            <CheckSquare className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">{selectedIds.size} selecionado(s)</span>
+            <Select value={bulkStatus} onValueChange={setBulkStatus}>
+              <SelectTrigger className="w-[200px] h-8">
+                <SelectValue placeholder="Alterar status para..." />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button size="sm" disabled={!bulkStatus || bulkUpdateMutation.isPending} onClick={handleBulkUpdate}>
+              {bulkUpdateMutation.isPending ? "Atualizando..." : "Aplicar"}
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => { setSelectedIds(new Set()); setBulkStatus(""); }}>
+              <X className="h-4 w-4" />
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Table */}
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[40px]">
+                <Checkbox
+                  checked={filteredPedidos.length > 0 && selectedIds.size === filteredPedidos.length}
+                  onCheckedChange={toggleSelectAll}
+                />
+              </TableHead>
               <TableHead>Nº Pedido</TableHead>
               <TableHead>Transportadora</TableHead>
               <TableHead>Status</TableHead>
