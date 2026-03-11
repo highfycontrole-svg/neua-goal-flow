@@ -107,6 +107,46 @@ export function PedidosList() {
     },
   });
 
+  const bulkUpdateMutation = useMutation({
+    mutationFn: async ({ ids, status }: { ids: string[]; status: string }) => {
+      const { error } = await supabase
+        .from("pedidos")
+        .update({ status })
+        .in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pedidos"] });
+      setSelectedIds(new Set());
+      setBulkStatus("");
+      toast.success(`${selectedIds.size} pedidos atualizados`);
+    },
+    onError: () => {
+      toast.error("Erro ao atualizar pedidos");
+    },
+  });
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredPedidos.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredPedidos.map(p => p.id)));
+    }
+  };
+
+  const handleBulkUpdate = () => {
+    if (!bulkStatus || selectedIds.size === 0) return;
+    bulkUpdateMutation.mutate({ ids: Array.from(selectedIds), status: bulkStatus });
+  };
+
   const filteredPedidos = pedidos.filter((pedido) => {
     const matchesStatus = filterStatus === "all" || pedido.status === filterStatus;
     const matchesTransportadora = filterTransportadora === "all" || pedido.transportadora === filterTransportadora;
