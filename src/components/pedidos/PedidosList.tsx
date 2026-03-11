@@ -76,6 +76,8 @@ export function PedidosList() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterTransportadora, setFilterTransportadora] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkStatus, setBulkStatus] = useState<string>("");
 
   const { data: pedidos = [], isLoading } = useQuery({
     queryKey: ["pedidos", user?.id],
