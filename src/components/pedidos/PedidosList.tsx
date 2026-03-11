@@ -324,8 +324,14 @@ export function PedidosList() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="border-b border-border"
+                    className={`border-b border-border ${selectedIds.has(pedido.id) ? 'bg-primary/5' : ''}`}
                   >
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedIds.has(pedido.id)}
+                        onCheckedChange={() => toggleSelect(pedido.id)}
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">{pedido.numero_pedido}</TableCell>
                     <TableCell>{pedido.transportadora || "-"}</TableCell>
                     <TableCell>
