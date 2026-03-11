@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Upload, Download, Pencil, Trash2, ExternalLink, Search, Filter } from "lucide-react";
+import { Plus, Upload, Download, Pencil, Trash2, ExternalLink, Search, Filter, CheckSquare, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { CreatePedidoDialog } from "./CreatePedidoDialog";
@@ -75,6 +76,8 @@ export function PedidosList() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterTransportadora, setFilterTransportadora] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkStatus, setBulkStatus] = useState<string>("");
 
   const { data: pedidos = [], isLoading } = useQuery({
     queryKey: ["pedidos", user?.id],
@@ -103,6 +106,46 @@ export function PedidosList() {
       toast.error("Erro ao excluir pedido");
     },
   });
+
+  const bulkUpdateMutation = useMutation({
+    mutationFn: async ({ ids, status }: { ids: string[]; status: string }) => {
+      const { error } = await supabase
+        .from("pedidos")
+        .update({ status })
+        .in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pedidos"] });
+      setSelectedIds(new Set());
+      setBulkStatus("");
+      toast.success(`${selectedIds.size} pedidos atualizados`);
+    },
+    onError: () => {
+      toast.error("Erro ao atualizar pedidos");
+    },
+  });
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredPedidos.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredPedidos.map(p => p.id)));
+    }
+  };
+
+  const handleBulkUpdate = () => {
+    if (!bulkStatus || selectedIds.size === 0) return;
+    bulkUpdateMutation.mutate({ ids: Array.from(selectedIds), status: bulkStatus });
+  };
 
   const filteredPedidos = pedidos.filter((pedido) => {
     const matchesStatus = filterStatus === "all" || pedido.status === filterStatus;
@@ -205,11 +248,48 @@ export function PedidosList() {
         </div>
       </div>
 
+      {/* Bulk Actions Bar */}
+      <AnimatePresence>
+        {selectedIds.size > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/30"
+          >
+            <CheckSquare className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">{selectedIds.size} selecionado(s)</span>
+            <Select value={bulkStatus} onValueChange={setBulkStatus}>
+              <SelectTrigger className="w-[200px] h-8">
+                <SelectValue placeholder="Alterar status para..." />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button size="sm" disabled={!bulkStatus || bulkUpdateMutation.isPending} onClick={handleBulkUpdate}>
+              {bulkUpdateMutation.isPending ? "Atualizando..." : "Aplicar"}
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => { setSelectedIds(new Set()); setBulkStatus(""); }}>
+              <X className="h-4 w-4" />
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Table */}
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[40px]">
+                <Checkbox
+                  checked={filteredPedidos.length > 0 && selectedIds.size === filteredPedidos.length}
+                  onCheckedChange={toggleSelectAll}
+                />
+              </TableHead>
               <TableHead>Nº Pedido</TableHead>
               <TableHead>Transportadora</TableHead>
               <TableHead>Status</TableHead>
@@ -244,8 +324,14 @@ export function PedidosList() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="border-b border-border"
+                    className={`border-b border-border ${selectedIds.has(pedido.id) ? 'bg-primary/5' : ''}`}
                   >
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedIds.has(pedido.id)}
+                        onCheckedChange={() => toggleSelect(pedido.id)}
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">{pedido.numero_pedido}</TableCell>
                     <TableCell>{pedido.transportadora || "-"}</TableCell>
                     <TableCell>

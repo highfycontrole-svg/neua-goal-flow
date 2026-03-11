@@ -61,7 +61,7 @@ function FlowchartNodeComponent({ id, data, selected }: NodeProps) {
   const [editLabel, setEditLabel] = useState(nodeData.label || '');
   const [editSubtitle, setEditSubtitle] = useState(nodeData.subtitle || '');
   const containerRef = useRef<HTMLDivElement>(null);
-  const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const iconConfig = flowchartIcons[nodeData.iconName] || flowchartIcons.custom;
   const Icon = iconConfig.icon;

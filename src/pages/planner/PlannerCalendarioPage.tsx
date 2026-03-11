@@ -152,7 +152,11 @@ export default function PlannerCalendarioPage() {
                     <div
                       key={evento.id}
                       onClick={(e) => handleEventoClick(evento, e)}
-                      className={`text-xs px-2 py-1 rounded border truncate cursor-pointer hover:opacity-80 ${TIPO_COLORS[evento.tipo] || TIPO_COLORS.outro}`}
+                      className={`text-xs px-2 py-1 rounded border truncate cursor-pointer hover:opacity-80 ${
+                        evento.status === 'concluido'
+                          ? 'bg-green-500/30 border-green-500/50 text-green-300'
+                          : (TIPO_COLORS[evento.tipo] || TIPO_COLORS.outro)
+                      }`}
                     >
                       {evento.hora_inicio && (
                         <span className="font-medium mr-1">{evento.hora_inicio.slice(0, 5)}</span>
