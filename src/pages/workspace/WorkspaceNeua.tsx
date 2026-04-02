@@ -23,6 +23,9 @@ export default function WorkspaceNeua() {
   const [tagFilter, setTagFilter] = useState('todas');
   const [dateFilter, setDateFilter] = useState('todas');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(() => {
+    return localStorage.getItem('neua-workspace-show-completed') === 'true';
+  });
 
   const { data: workspaces = [], isLoading } = useQuery({
     queryKey: ['workspaces', user?.id],
@@ -54,6 +57,20 @@ export default function WorkspaceNeua() {
     enabled: !!selectedWorkspaceId,
   });
 
+  const { data: statuses = [] } = useQuery({
+    queryKey: ['workspace-statuses', selectedWorkspaceId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('workspace_statuses')
+        .select('*')
+        .eq('workspace_id', selectedWorkspaceId!)
+        .order('order_index', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedWorkspaceId,
+  });
+
   // Extract unique responsibles and tags from tasks
   const { availableResponsibles, availableTags } = useMemo(() => {
     const responsibles = new Set<string>();
@@ -70,8 +87,30 @@ export default function WorkspaceNeua() {
     };
   }, [tasks]);
 
+  const completedTerms = ['concluído', 'concluida', 'done', 'finalizado', 'completo'];
+
+  const completedStatusIds = useMemo(() => {
+    return statuses
+      .filter(s => completedTerms.some(term => s.name.toLowerCase().includes(term)))
+      .map(s => s.id);
+  }, [statuses]);
+
+  const completedCount = useMemo(() =>
+    tasks.filter(t => completedStatusIds.includes(t.status_id || '')).length,
+  [tasks, completedStatusIds]);
+
+  const handleShowCompletedChange = (value: boolean) => {
+    setShowCompleted(value);
+    localStorage.setItem('neua-workspace-show-completed', String(value));
+  };
+
   // Filter function for tasks
   const filterTasks = (task: any) => {
+    // Hide completed
+    if (!showCompleted && completedStatusIds.includes(task.status_id || '')) {
+      return false;
+    }
+
     // Search query filter
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.description?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -175,6 +214,9 @@ export default function WorkspaceNeua() {
                 onDateChange={setDateFilter}
                 availableResponsibles={availableResponsibles}
                 availableTags={availableTags}
+                showCompleted={showCompleted}
+                onShowCompletedChange={handleShowCompletedChange}
+                completedCount={completedCount}
               />
 
               <Tabs value={view} onValueChange={(v) => setView(v as any)} className="w-full sm:w-auto">
