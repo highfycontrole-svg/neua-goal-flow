@@ -7,14 +7,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { TrimestralPlannerEditor } from './TrimestralPlannerEditor';
 
-type PlannerType = 'anual' | 'campanha';
+type PlannerType = 'anual' | 'campanha' | 'trimestral';
 
 interface PlannerData {
   id: string;
   nome: string;
   tipo: PlannerType;
-  conteudo: Record<string, string>;
+  conteudo: Record<string, any>;
   created_at: string;
   updated_at: string;
 }
@@ -50,7 +51,7 @@ const SECTIONS_CAMPANHA = [
 
 export function ManualPlannerEditor({ plannerId, onBack }: ManualPlannerEditorProps) {
   const [planner, setPlanner] = useState<PlannerData | null>(null);
-  const [content, setContent] = useState<Record<string, string>>({});
+  const [content, setContent] = useState<Record<string, any>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -76,11 +77,11 @@ export function ManualPlannerEditor({ plannerId, onBack }: ManualPlannerEditorPr
     }
 
     setPlanner(data as PlannerData);
-    setContent((data.conteudo as Record<string, string>) || {});
+    setContent((data.conteudo as Record<string, any>) || {});
     setIsLoading(false);
   };
 
-  const handleContentChange = useCallback((key: string, value: string) => {
+  const handleContentChange = useCallback((key: string, value: any) => {
     setContent(prev => ({ ...prev, [key]: value }));
     setHasChanges(true);
   }, []);
@@ -125,6 +126,7 @@ export function ManualPlannerEditor({ plannerId, onBack }: ManualPlannerEditorPr
 
   if (!planner) return null;
 
+  const isTrimestral = planner.tipo === 'trimestral';
   const sections = planner.tipo === 'anual' ? SECTIONS_ANUAL : SECTIONS_CAMPANHA;
 
   return (
@@ -138,9 +140,16 @@ export function ManualPlannerEditor({ plannerId, onBack }: ManualPlannerEditorPr
             </Button>
             <div>
               <h2 className="font-semibold text-foreground">{planner.nome}</h2>
-              <p className="text-xs text-muted-foreground">
-                {planner.tipo === 'anual' ? 'Planejamento Anual' : 'Planejamento de Campanha'}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-muted-foreground">
+                  {planner.tipo === 'anual' ? 'Planejamento Anual' : planner.tipo === 'trimestral' ? 'Planner Trimestral' : 'Planejamento de Campanha'}
+                </p>
+                {isTrimestral && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400">
+                    Trimestral
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           <Button 
@@ -164,81 +173,85 @@ export function ManualPlannerEditor({ plannerId, onBack }: ManualPlannerEditorPr
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex min-h-0">
-        {/* Sidebar Navigation */}
-        <div className="w-48 lg:w-56 flex-shrink-0 border-r border-border/30 bg-[#161616]">
-          <ScrollArea className="h-full">
-            <div className="p-2 space-y-1">
-              {sections.map((section, index) => (
-                <motion.button
-                  key={section.key}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => setActiveSection(section.key)}
-                  className={cn(
-                    "w-full text-left px-3 py-2 rounded-lg text-sm transition-all",
-                    activeSection === section.key
-                      ? "bg-primary/20 text-primary"
-                      : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <span className="text-xs text-muted-foreground mr-2">{index + 1}.</span>
-                  {section.title}
-                </motion.button>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
+      {isTrimestral ? (
+        <TrimestralPlannerEditor content={content} onContentChange={handleContentChange} />
+      ) : (
+        <div className="flex-1 flex min-h-0">
+          {/* Sidebar Navigation */}
+          <div className="w-48 lg:w-56 flex-shrink-0 border-r border-border/30 bg-[#161616]">
+            <ScrollArea className="h-full">
+              <div className="p-2 space-y-1">
+                {sections.map((section, index) => (
+                  <motion.button
+                    key={section.key}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => setActiveSection(section.key)}
+                    className={cn(
+                      "w-full text-left px-3 py-2 rounded-lg text-sm transition-all",
+                      activeSection === section.key
+                        ? "bg-primary/20 text-primary"
+                        : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <span className="text-xs text-muted-foreground mr-2">{index + 1}.</span>
+                    {section.title}
+                  </motion.button>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
 
-        {/* Editor Area */}
-        <div className="flex-1 min-w-0">
-          <ScrollArea className="h-full">
-            <div className="p-4 sm:p-6 space-y-6 max-w-3xl">
-              <AnimatePresence mode="wait">
-                {activeSection ? (
-                  <motion.div
-                    key={activeSection}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="space-y-4"
-                  >
-                    {(() => {
-                      const section = sections.find(s => s.key === activeSection);
-                      if (!section) return null;
-                      return (
-                        <>
-                          <div>
-                            <h3 className="text-lg font-semibold text-foreground">{section.title}</h3>
-                            <p className="text-sm text-muted-foreground mt-1">{section.placeholder}</p>
-                          </div>
-                          <Textarea
-                            value={content[section.key] || ''}
-                            onChange={(e) => handleContentChange(section.key, e.target.value)}
-                            placeholder={section.placeholder}
-                            className="min-h-[300px] bg-[#1a1a1a] border-border/30 resize-none"
-                          />
-                        </>
-                      );
-                    })()}
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-center py-12"
-                  >
-                    <p className="text-muted-foreground">
-                      Selecione uma seção ao lado para começar a editar
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </ScrollArea>
+          {/* Editor Area */}
+          <div className="flex-1 min-w-0">
+            <ScrollArea className="h-full">
+              <div className="p-4 sm:p-6 space-y-6 max-w-3xl">
+                <AnimatePresence mode="wait">
+                  {activeSection ? (
+                    <motion.div
+                      key={activeSection}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="space-y-4"
+                    >
+                      {(() => {
+                        const section = sections.find(s => s.key === activeSection);
+                        if (!section) return null;
+                        return (
+                          <>
+                            <div>
+                              <h3 className="text-lg font-semibold text-foreground">{section.title}</h3>
+                              <p className="text-sm text-muted-foreground mt-1">{section.placeholder}</p>
+                            </div>
+                            <Textarea
+                              value={content[section.key] || ''}
+                              onChange={(e) => handleContentChange(section.key, e.target.value)}
+                              placeholder={section.placeholder}
+                              className="min-h-[300px] bg-[#1a1a1a] border-border/30 resize-none"
+                            />
+                          </>
+                        );
+                      })()}
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-center py-12"
+                    >
+                      <p className="text-muted-foreground">
+                        Selecione uma seção ao lado para começar a editar
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </ScrollArea>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

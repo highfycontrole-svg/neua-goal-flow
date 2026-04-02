@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Building2, Megaphone, Trash2, Loader2, Calendar, Clock } from 'lucide-react';
+import { Plus, Building2, Megaphone, LayoutGrid, Trash2, Loader2, Calendar, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,7 +10,7 @@ import { ptBR } from 'date-fns/locale';
 import { CreateManualPlannerDialog } from './CreateManualPlannerDialog';
 import { ManualPlannerEditor } from './ManualPlannerEditor';
 
-type PlannerType = 'anual' | 'campanha';
+type PlannerType = 'anual' | 'campanha' | 'trimestral';
 
 interface ManualPlanner {
   id: string;
@@ -55,7 +55,9 @@ export function ManualPlannerList() {
 
     const initialContent = tipo === 'anual' 
       ? { diagnostico: '', objetivos: '', financeiro: '', metas: '', marketing: '', operacional: '', equipe: '', riscos: '', tarefas: '' }
-      : { nome_campanha: '', objetivo: '', publico: '', periodo: '', orcamento: '', canais: '', cronograma: '', kpis: '', observacoes: '' };
+      : tipo === 'campanha'
+        ? { nome_campanha: '', objetivo: '', publico: '', periodo: '', orcamento: '', canais: '', cronograma: '', kpis: '', observacoes: '' }
+        : { q1: {}, q2: {}, q3: {}, q4: {} };
 
     const { data, error } = await supabase
       .from('planners_manuais')
@@ -167,28 +169,32 @@ export function ManualPlannerList() {
                   onClick={() => setSelectedPlannerId(planner.id)}
                   className="group p-4 rounded-xl border border-border/50 bg-card hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all cursor-pointer"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3 min-w-0">
-                      <div className={`h-10 w-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                        planner.tipo === 'anual' ? 'bg-blue-500/20' : 'bg-orange-500/20'
-                      }`}>
-                        {planner.tipo === 'anual' ? (
-                          <Building2 className={`h-5 w-5 ${planner.tipo === 'anual' ? 'text-blue-400' : 'text-orange-400'}`} />
-                        ) : (
-                          <Megaphone className="h-5 w-5 text-orange-400" />
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="font-semibold text-foreground truncate">{planner.nome}</h3>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full inline-block mt-1 ${
-                          planner.tipo === 'anual' 
-                            ? 'bg-blue-500/20 text-blue-400' 
-                            : 'bg-orange-500/20 text-orange-400'
-                        }`}>
-                          {planner.tipo === 'anual' ? 'Anual' : 'Campanha'}
-                        </span>
-                      </div>
-                    </div>
+                    <div className="flex items-start justify-between gap-3">
+                     <div className="flex items-start gap-3 min-w-0">
+                       <div className={`h-10 w-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                         planner.tipo === 'anual' ? 'bg-blue-500/20' : planner.tipo === 'trimestral' ? 'bg-purple-500/20' : 'bg-orange-500/20'
+                       }`}>
+                         {planner.tipo === 'anual' ? (
+                           <Building2 className="h-5 w-5 text-blue-400" />
+                         ) : planner.tipo === 'trimestral' ? (
+                           <LayoutGrid className="h-5 w-5 text-purple-400" />
+                         ) : (
+                           <Megaphone className="h-5 w-5 text-orange-400" />
+                         )}
+                       </div>
+                       <div className="min-w-0">
+                         <h3 className="font-semibold text-foreground truncate">{planner.nome}</h3>
+                         <span className={`text-[10px] px-2 py-0.5 rounded-full inline-block mt-1 ${
+                           planner.tipo === 'anual' 
+                             ? 'bg-blue-500/20 text-blue-400' 
+                             : planner.tipo === 'trimestral'
+                               ? 'bg-purple-500/20 text-purple-400'
+                               : 'bg-orange-500/20 text-orange-400'
+                         }`}>
+                           {planner.tipo === 'anual' ? 'Anual' : planner.tipo === 'trimestral' ? 'Trimestral' : 'Campanha'}
+                         </span>
+                       </div>
+                     </div>
                     <Button
                       variant="ghost"
                       size="icon"

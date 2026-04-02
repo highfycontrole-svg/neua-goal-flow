@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Filter, X } from 'lucide-react';
+import { Search, Filter, X, CheckCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 interface WorkspaceFiltersProps {
   searchQuery: string;
@@ -16,6 +16,9 @@ interface WorkspaceFiltersProps {
   onDateChange: (value: string) => void;
   availableResponsibles: string[];
   availableTags: string[];
+  showCompleted: boolean;
+  onShowCompletedChange: (value: boolean) => void;
+  completedCount: number;
 }
 
 export function WorkspaceFilters({
@@ -29,6 +32,9 @@ export function WorkspaceFilters({
   onDateChange,
   availableResponsibles,
   availableTags,
+  showCompleted,
+  onShowCompletedChange,
+  completedCount,
 }: WorkspaceFiltersProps) {
   const activeFiltersCount = useMemo(() => {
     let count = 0;
@@ -122,6 +128,28 @@ export function WorkspaceFilters({
               Limpar ({activeFiltersCount})
             </Button>
           )}
+
+          {/* Toggle Completed */}
+          <button
+            onClick={() => onShowCompletedChange(!showCompleted)}
+            className={cn(
+              "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border",
+              showCompleted
+                ? "bg-primary/20 text-primary border-primary/40"
+                : "bg-transparent text-muted-foreground border-border/40 hover:border-border hover:text-foreground"
+            )}
+          >
+            <CheckCheck className="h-3.5 w-3.5" />
+            {showCompleted ? "Ocultar concluídas" : "Ver concluídas"}
+            {completedCount > 0 && (
+              <span className={cn(
+                "px-1.5 py-0.5 rounded-full text-[10px]",
+                showCompleted ? "bg-primary/30" : "bg-muted"
+              )}>
+                {completedCount}
+              </span>
+            )}
+          </button>
         </div>
       </div>
     </div>

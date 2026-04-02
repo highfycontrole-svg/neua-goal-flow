@@ -1,8 +1,9 @@
+import { useMemo } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, CheckCircle2 } from 'lucide-react';
 import { KanbanCard } from './KanbanCard';
 
 interface KanbanColumnProps {
@@ -12,10 +13,16 @@ interface KanbanColumnProps {
   onAddTask: () => void;
 }
 
+const COMPLETED_TERMS = ['concluído', 'concluida', 'done', 'finalizado', 'completo'];
+
 export function KanbanColumn({ status, tasks, onTaskClick, onAddTask }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: status.id,
   });
+
+  const isCompletedColumn = useMemo(() =>
+    COMPLETED_TERMS.some(term => status.name.toLowerCase().includes(term)),
+  [status.name]);
 
   return (
     <Card 
@@ -26,11 +33,15 @@ export function KanbanColumn({ status, tasks, onTaskClick, onAddTask }: KanbanCo
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: status.color }}
-          />
-          <h3 className="font-semibold text-foreground">{status.name}</h3>
+          {isCompletedColumn ? (
+            <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
+          ) : (
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: status.color }}
+            />
+          )}
+          <h3 className={`font-semibold ${isCompletedColumn ? 'text-green-400' : 'text-foreground'}`}>{status.name}</h3>
           <span className="text-xs text-muted-foreground">({tasks.length})</span>
         </div>
         <Button
@@ -51,7 +62,12 @@ export function KanbanColumn({ status, tasks, onTaskClick, onAddTask }: KanbanCo
       >
         <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
           {tasks.map((task) => (
-            <KanbanCard key={task.id} task={task} onClick={() => onTaskClick(task.id)} />
+            <KanbanCard
+              key={task.id}
+              task={task}
+              onClick={() => onTaskClick(task.id)}
+              isCompleted={isCompletedColumn}
+            />
           ))}
         </SortableContext>
       </div>

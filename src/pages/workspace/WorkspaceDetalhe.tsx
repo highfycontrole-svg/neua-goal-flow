@@ -24,6 +24,9 @@ export default function WorkspaceDetalhe() {
   const [tagFilter, setTagFilter] = useState('todas');
   const [dateFilter, setDateFilter] = useState('todas');
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(() => {
+    return localStorage.getItem('neua-workspace-show-completed') === 'true';
+  });
 
   const { data: workspace, isLoading: loadingWorkspace } = useQuery({
     queryKey: ['workspace', id],
@@ -56,6 +59,20 @@ export default function WorkspaceDetalhe() {
     enabled: !!id,
   });
 
+  const { data: statuses = [] } = useQuery({
+    queryKey: ['workspace-statuses', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('workspace_statuses')
+        .select('*')
+        .eq('workspace_id', id!)
+        .order('order_index', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+
   // Extract unique responsibles and tags from tasks
   const { availableResponsibles, availableTags } = useMemo(() => {
     const responsibles = new Set<string>();
@@ -72,8 +89,29 @@ export default function WorkspaceDetalhe() {
     };
   }, [tasks]);
 
+  const completedTerms = ['concluído', 'concluida', 'done', 'finalizado', 'completo'];
+
+  const completedStatusIds = useMemo(() => {
+    return statuses
+      .filter(s => completedTerms.some(term => s.name.toLowerCase().includes(term)))
+      .map(s => s.id);
+  }, [statuses]);
+
+  const completedCount = useMemo(() =>
+    tasks.filter(t => completedStatusIds.includes(t.status_id || '')).length,
+  [tasks, completedStatusIds]);
+
+  const handleShowCompletedChange = (value: boolean) => {
+    setShowCompleted(value);
+    localStorage.setItem('neua-workspace-show-completed', String(value));
+  };
+
   // Filter function for tasks
   const filterTasks = (task: any) => {
+    if (!showCompleted && completedStatusIds.includes(task.status_id || '')) {
+      return false;
+    }
+
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.description?.toLowerCase().includes(searchQuery.toLowerCase());
     
@@ -168,6 +206,9 @@ export default function WorkspaceDetalhe() {
               onDateChange={setDateFilter}
               availableResponsibles={availableResponsibles}
               availableTags={availableTags}
+              showCompleted={showCompleted}
+              onShowCompletedChange={handleShowCompletedChange}
+              completedCount={completedCount}
             />
             <Button onClick={() => setIsCreateTaskOpen(true)} className="gap-2 shrink-0">
               <Plus className="h-4 w-4" />
