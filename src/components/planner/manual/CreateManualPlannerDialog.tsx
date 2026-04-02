@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Building2, Megaphone, Loader2 } from 'lucide-react';
+import { Building2, Megaphone, LayoutGrid, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { motion } from 'framer-motion';
 
-type PlannerType = 'anual' | 'campanha';
+type PlannerType = 'anual' | 'campanha' | 'trimestral';
 
 interface CreateManualPlannerDialogProps {
   open: boolean;
@@ -33,6 +33,13 @@ const plannerTypes = [
     subtitle: 'Marketing',
     description: 'Layout focado em campanhas específicas, lançamentos e ações pontuais.',
     icon: Megaphone,
+  },
+  {
+    id: 'trimestral' as PlannerType,
+    title: 'Planner Trimestral',
+    subtitle: 'Q1 · Q2 · Q3 · Q4',
+    description: 'Planejamento estruturado por trimestre, com metas, KPIs, calendário e planos de ação por área.',
+    icon: LayoutGrid,
   },
 ];
 
