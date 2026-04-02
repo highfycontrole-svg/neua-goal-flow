@@ -11,9 +11,10 @@ interface KanbanCardProps {
   task: any;
   onClick?: () => void;
   isDragging?: boolean;
+  isCompleted?: boolean;
 }
 
-export function KanbanCard({ task, onClick, isDragging }: KanbanCardProps) {
+export function KanbanCard({ task, onClick, isDragging, isCompleted }: KanbanCardProps) {
   const {
     attributes,
     listeners,
@@ -45,14 +46,14 @@ export function KanbanCard({ task, onClick, isDragging }: KanbanCardProps) {
         onClick={onClick}
         className={`p-3 cursor-pointer transition-all duration-200 border-border/30 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 ${
           isDragging ? 'shadow-lg shadow-primary/20 border-primary' : ''
-        }`}
+        } ${isCompleted ? 'opacity-50' : ''}`}
         style={{ backgroundColor: '#1a1a1a' }}
         data-context-type="task"
         data-context-id={task.id}
         data-context-name={task.title}
         data-context-actions="edit,---,delete"
       >
-        <h4 className="font-medium text-sm mb-2 text-foreground">{task.title}</h4>
+        <h4 className={`font-medium text-sm mb-2 text-foreground ${isCompleted ? 'line-through' : ''}`}>{task.title}</h4>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
           {task.date && (
