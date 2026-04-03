@@ -30,7 +30,7 @@ interface CreatePackDialogProps {
   campaignId?: string | null;
 }
 
-export function CreatePackDialog({ open, onOpenChange, produtoId, isCatalog }: CreatePackDialogProps) {
+export function CreatePackDialog({ open, onOpenChange, produtoId, isCatalog, campaignId }: CreatePackDialogProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [nome, setNome] = useState('');
