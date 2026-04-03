@@ -39,14 +39,34 @@ interface AnuncioCount {
   total: number;
 }
 
+interface Campaign {
+  id: string;
+  name: string;
+  description: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  status: string;
+  created_at: string;
+}
+
 // Virtual catalog ID for institutional ads
 const CATALOG_ID = 'catalogo';
+const CAMPAIGN_PREFIX = 'campanha-';
+
+const campaignStatusConfig: Record<string, { label: string; color: string }> = {
+  draft: { label: 'Rascunho', color: 'bg-yellow-500/20 text-yellow-500' },
+  active: { label: 'Ativa', color: 'bg-green-500/20 text-green-500' },
+  paused: { label: 'Pausada', color: 'bg-orange-500/20 text-orange-500' },
+};
 
 export default function AdLabPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [createCampaignOpen, setCreateCampaignOpen] = useState(false);
+  const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
 
   // Fetch products from catalog
   const { data: produtos = [], isLoading } = useQuery({
