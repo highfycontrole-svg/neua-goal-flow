@@ -185,7 +185,9 @@ export default function AdLabPacksPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{produto?.nome || 'Produto'}</BreadcrumbPage>
+            <BreadcrumbPage>
+              {isCampaign ? (campaign?.name || 'Campanha') : isCatalog ? 'Catálogo Institucional' : (produto?.nome || 'Produto')}
+            </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -197,7 +199,11 @@ export default function AdLabPacksPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-3">
-            {isCatalog ? (
+            {isCampaign ? (
+              <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                <Megaphone className="h-6 w-6 text-primary" />
+              </div>
+            ) : isCatalog ? (
               <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
                 <Layers className="h-6 w-6 text-primary" />
               </div>
@@ -210,9 +216,11 @@ export default function AdLabPacksPage() {
             ) : null}
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                {isCatalog ? 'Catálogo Institucional' : produto?.nome}
+                {isCampaign ? campaign?.name : isCatalog ? 'Catálogo Institucional' : produto?.nome}
               </h1>
-              {isCatalog ? (
+              {isCampaign ? (
+                <p className="text-sm text-muted-foreground">Campanha · Packs de anúncios</p>
+              ) : isCatalog ? (
                 <p className="text-sm text-muted-foreground">Anúncios de branding, coleção e institucionais</p>
               ) : produto?.categoria ? (
                 <p className="text-sm text-muted-foreground">{produto.categoria}</p>
