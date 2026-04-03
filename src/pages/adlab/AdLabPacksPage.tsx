@@ -338,8 +338,9 @@ export default function AdLabPacksPage() {
       <CreatePackDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
-        produtoId={isCatalog ? null : produtoId!}
+        produtoId={isCampaign ? null : isCatalog ? null : produtoId!}
         isCatalog={isCatalog}
+        campaignId={campaignId}
       />
 
       {editingPack && (
