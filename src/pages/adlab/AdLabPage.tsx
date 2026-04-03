@@ -89,7 +89,7 @@ export default function AdLabPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('ad_packs')
-        .select('produto_id, status');
+        .select('produto_id, campaign_id, status');
 
       if (error) throw error;
 
