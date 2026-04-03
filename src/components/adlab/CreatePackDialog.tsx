@@ -27,6 +27,7 @@ interface CreatePackDialogProps {
   onOpenChange: (open: boolean) => void;
   produtoId: string | null;
   isCatalog?: boolean;
+  campaignId?: string | null;
 }
 
 export function CreatePackDialog({ open, onOpenChange, produtoId, isCatalog }: CreatePackDialogProps) {
