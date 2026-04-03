@@ -42,7 +42,8 @@ export function CreatePackDialog({ open, onOpenChange, produtoId, isCatalog, cam
     mutationFn: async () => {
       const { error } = await supabase.from('ad_packs').insert({
         user_id: user?.id!,
-        produto_id: isCatalog ? null : produtoId,
+        produto_id: (isCatalog || campaignId) ? null : produtoId,
+        campaign_id: campaignId || null,
         nome,
         insight_central: insightCentral || null,
         promessa_principal: promessaPrincipal || null,
