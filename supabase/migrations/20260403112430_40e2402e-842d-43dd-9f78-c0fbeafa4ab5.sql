@@ -1,0 +1,2 @@
+ALTER TABLE public.planners_manuais DROP CONSTRAINT planners_manuais_tipo_check;
+ALTER TABLE public.planners_manuais ADD CONSTRAINT planners_manuais_tipo_check CHECK (tipo = ANY (ARRAY['anual'::text, 'campanha'::text, 'trimestral'::text]));

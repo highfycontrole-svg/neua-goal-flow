@@ -285,7 +285,7 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
       </AnimatePresence>
 
       {/* Menu Items */}
-      <nav className="flex-1 space-y-1">
+      <nav className="flex-1 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
         {menuItems.map((item, index) => {
           const active = isActive(item.basePath);
           const isWorkspaceItem = item.basePath === '/workspace';
