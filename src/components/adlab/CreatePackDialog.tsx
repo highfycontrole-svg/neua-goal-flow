@@ -53,7 +53,7 @@ export function CreatePackDialog({ open, onOpenChange, produtoId, isCatalog, cam
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['packs', isCatalog ? 'catalogo' : produtoId] });
+      queryClient.invalidateQueries({ queryKey: ['packs', campaignId ? `campaign-${campaignId}` : isCatalog ? 'catalogo' : produtoId] });
       queryClient.invalidateQueries({ queryKey: ['pack-counts'] });
       toast.success('Pack criado com sucesso!');
       resetForm();
