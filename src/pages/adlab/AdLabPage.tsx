@@ -94,7 +94,9 @@ export default function AdLabPage() {
       if (error) throw error;
 
       const counts: Record<string, PackCount> = {};
-      (data || []).forEach((pack: { produto_id: string | null; status: string }) => {
+      (data || []).forEach((pack: { produto_id: string | null; campaign_id: string | null; status: string }) => {
+        // Skip campaign packs from product/catalog counts
+        if (pack.campaign_id) return;
         const prodId = pack.produto_id || CATALOG_ID;
         if (!counts[prodId]) {
           counts[prodId] = { produto_id: prodId, total: 0, validados: 0 };
