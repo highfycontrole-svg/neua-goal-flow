@@ -1,15 +1,24 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Package, Search, Grid, List, ChevronRight, Layers, PlayCircle, Library, Building2 } from 'lucide-react';
+import { Package, Search, Grid, List, ChevronRight, Layers, PlayCircle, Library, Building2, Megaphone, Plus, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { AdLabDashboard } from '@/components/adlab/AdLabDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CreateCampaignDialog } from '@/components/adlab/CreateCampaignDialog';
+import { EditCampaignDialog } from '@/components/adlab/EditCampaignDialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
 
 interface Produto {
   id: string;
