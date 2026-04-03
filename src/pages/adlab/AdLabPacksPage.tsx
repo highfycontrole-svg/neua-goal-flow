@@ -158,7 +158,7 @@ export default function AdLabPacksPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['packs', isCatalog ? 'catalogo' : produtoId] });
+      queryClient.invalidateQueries({ queryKey: ['packs', isCatalog ? 'catalogo' : isCampaign ? `campaign-${campaignId}` : produtoId] });
       queryClient.invalidateQueries({ queryKey: ['pack-counts'] });
       toast.success('Pack deletado com sucesso!');
     },
