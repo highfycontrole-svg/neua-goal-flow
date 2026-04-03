@@ -15,7 +15,8 @@ import {
   Lightbulb,
   FlaskConical,
   CheckCircle2,
-  Archive
+  Archive,
+  Megaphone
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -62,6 +63,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: any }> 
 };
 
 const CATALOG_ID = 'catalogo';
+const CAMPAIGN_PREFIX = 'campanha-';
 
 export default function AdLabPacksPage() {
   const { produtoId } = useParams<{ produtoId: string }>();
@@ -72,8 +74,10 @@ export default function AdLabPacksPage() {
   const [editingPack, setEditingPack] = useState<Pack | null>(null);
 
   const isCatalog = produtoId === CATALOG_ID;
+  const isCampaign = produtoId?.startsWith(CAMPAIGN_PREFIX) || false;
+  const campaignId = isCampaign ? produtoId!.replace(CAMPAIGN_PREFIX, '') : null;
 
-  // Fetch product details (only for real products, not catalog)
+  // Fetch product details (only for real products)
   const { data: produto } = useQuery({
     queryKey: ['produto', produtoId],
     queryFn: async () => {
@@ -86,12 +90,27 @@ export default function AdLabPacksPage() {
       if (error) throw error;
       return data as Produto;
     },
-    enabled: !!produtoId && !isCatalog,
+    enabled: !!produtoId && !isCatalog && !isCampaign,
   });
 
-  // Fetch packs for this product OR catalog (produto_id IS NULL)
+  // Fetch campaign details
+  const { data: campaign } = useQuery({
+    queryKey: ['campaign', campaignId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('id', campaignId)
+        .single();
+      if (error) throw error;
+      return data as { id: string; name: string; description: string | null; status: string };
+    },
+    enabled: !!campaignId,
+  });
+
+  // Fetch packs
   const { data: packs = [], isLoading } = useQuery({
-    queryKey: ['packs', isCatalog ? 'catalogo' : produtoId],
+    queryKey: ['packs', isCatalog ? 'catalogo' : isCampaign ? `campaign-${campaignId}` : produtoId],
     queryFn: async () => {
       let query = supabase
         .from('ad_packs')
@@ -99,13 +118,14 @@ export default function AdLabPacksPage() {
         .order('created_at', { ascending: false });
 
       if (isCatalog) {
-        query = query.is('produto_id', null);
+        query = query.is('produto_id', null).is('campaign_id', null);
+      } else if (isCampaign) {
+        query = query.eq('campaign_id', campaignId!);
       } else {
-        query = query.eq('produto_id', produtoId);
+        query = query.eq('produto_id', produtoId!);
       }
 
       const { data, error } = await query;
-
       if (error) throw error;
       return data as Pack[];
     },
@@ -139,7 +159,7 @@ export default function AdLabPacksPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['packs', isCatalog ? 'catalogo' : produtoId] });
+      queryClient.invalidateQueries({ queryKey: ['packs', isCatalog ? 'catalogo' : isCampaign ? `campaign-${campaignId}` : produtoId] });
       queryClient.invalidateQueries({ queryKey: ['pack-counts'] });
       toast.success('Pack deletado com sucesso!');
     },
@@ -166,7 +186,9 @@ export default function AdLabPacksPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{produto?.nome || 'Produto'}</BreadcrumbPage>
+            <BreadcrumbPage>
+              {isCampaign ? (campaign?.name || 'Campanha') : isCatalog ? 'Catálogo Institucional' : (produto?.nome || 'Produto')}
+            </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -178,7 +200,11 @@ export default function AdLabPacksPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-3">
-            {isCatalog ? (
+            {isCampaign ? (
+              <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                <Megaphone className="h-6 w-6 text-primary" />
+              </div>
+            ) : isCatalog ? (
               <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
                 <Layers className="h-6 w-6 text-primary" />
               </div>
@@ -191,9 +217,11 @@ export default function AdLabPacksPage() {
             ) : null}
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                {isCatalog ? 'Catálogo Institucional' : produto?.nome}
+                {isCampaign ? campaign?.name : isCatalog ? 'Catálogo Institucional' : produto?.nome}
               </h1>
-              {isCatalog ? (
+              {isCampaign ? (
+                <p className="text-sm text-muted-foreground">Campanha · Packs de anúncios</p>
+              ) : isCatalog ? (
                 <p className="text-sm text-muted-foreground">Anúncios de branding, coleção e institucionais</p>
               ) : produto?.categoria ? (
                 <p className="text-sm text-muted-foreground">{produto.categoria}</p>
@@ -310,8 +338,9 @@ export default function AdLabPacksPage() {
       <CreatePackDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
-        produtoId={isCatalog ? null : produtoId!}
+        produtoId={isCampaign ? null : isCatalog ? null : produtoId!}
         isCatalog={isCatalog}
+        campaignId={campaignId}
       />
 
       {editingPack && (

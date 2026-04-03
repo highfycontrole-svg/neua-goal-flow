@@ -27,9 +27,10 @@ interface CreatePackDialogProps {
   onOpenChange: (open: boolean) => void;
   produtoId: string | null;
   isCatalog?: boolean;
+  campaignId?: string | null;
 }
 
-export function CreatePackDialog({ open, onOpenChange, produtoId, isCatalog }: CreatePackDialogProps) {
+export function CreatePackDialog({ open, onOpenChange, produtoId, isCatalog, campaignId }: CreatePackDialogProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [nome, setNome] = useState('');
@@ -41,7 +42,8 @@ export function CreatePackDialog({ open, onOpenChange, produtoId, isCatalog }: C
     mutationFn: async () => {
       const { error } = await supabase.from('ad_packs').insert({
         user_id: user?.id!,
-        produto_id: isCatalog ? null : produtoId,
+        produto_id: (isCatalog || campaignId) ? null : produtoId,
+        campaign_id: campaignId || null,
         nome,
         insight_central: insightCentral || null,
         promessa_principal: promessaPrincipal || null,
@@ -51,7 +53,7 @@ export function CreatePackDialog({ open, onOpenChange, produtoId, isCatalog }: C
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['packs', isCatalog ? 'catalogo' : produtoId] });
+      queryClient.invalidateQueries({ queryKey: ['packs', campaignId ? `campaign-${campaignId}` : isCatalog ? 'catalogo' : produtoId] });
       queryClient.invalidateQueries({ queryKey: ['pack-counts'] });
       toast.success('Pack criado com sucesso!');
       resetForm();
