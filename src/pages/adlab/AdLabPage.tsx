@@ -144,9 +144,61 @@ export default function AdLabPage() {
     enabled: !!user?.id,
   });
 
+  // Fetch campaigns
+  const { data: campaigns = [] } = useQuery({
+    queryKey: ['campaigns', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data as Campaign[];
+    },
+    enabled: !!user?.id,
+  });
+
+  // Fetch pack counts per campaign
+  const { data: campaignPackCounts = {} } = useQuery({
+    queryKey: ['campaign-pack-counts', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('ad_packs')
+        .select('campaign_id, status')
+        .not('campaign_id', 'is', null);
+      if (error) throw error;
+      const counts: Record<string, { total: number; validados: number }> = {};
+      (data || []).forEach((pack: any) => {
+        if (!pack.campaign_id) return;
+        if (!counts[pack.campaign_id]) counts[pack.campaign_id] = { total: 0, validados: 0 };
+        counts[pack.campaign_id].total++;
+        if (pack.status === 'validado') counts[pack.campaign_id].validados++;
+      });
+      return counts;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Delete campaign mutation
+  const deleteCampaignMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('campaigns').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['campaigns'] });
+      toast.success('Campanha deletada!');
+    },
+    onError: () => toast.error('Erro ao deletar campanha'),
+  });
+
   const filteredProdutos = produtos.filter((produto) =>
     produto.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (produto.categoria?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
+
+  const filteredCampaigns = campaigns.filter((c) =>
+    c.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getPackCount = (produtoId: string) => {
