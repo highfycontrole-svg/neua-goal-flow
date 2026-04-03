@@ -425,30 +425,150 @@ export default function AdLabPage() {
         </div>
       </motion.div>
 
-      {/* Products Grid/List */}
-      {isLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      {/* Campaigns Section */}
+      {filteredCampaigns.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+              <Megaphone className="h-5 w-5 text-primary" />
+              Campanhas
+            </h2>
+            <Button size="sm" variant="outline" onClick={() => setCreateCampaignOpen(true)}>
+              <Plus className="h-4 w-4 mr-1" />
+              Nova Campanha
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredCampaigns.map((campaign, index) => {
+              const statusCfg = campaignStatusConfig[campaign.status] || campaignStatusConfig.draft;
+              const cPackCount = campaignPackCounts[campaign.id] || { total: 0, validados: 0 };
+
+              return (
+                <motion.div
+                  key={campaign.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="bg-card rounded-xl border border-border p-5 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all group"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <Badge className={statusCfg.color}>{statusCfg.label}</Badge>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setEditingCampaign(campaign)}>
+                          <Pencil className="h-4 w-4 mr-2" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => {
+                            if (confirm('Deletar esta campanha e todos os packs vinculados?')) {
+                              deleteCampaignMutation.mutate(campaign.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Deletar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  <div
+                    className="cursor-pointer"
+                    onClick={() => navigate(`/adlab/campanha-${campaign.id}`)}
+                  >
+                    <h3 className="font-semibold text-foreground text-lg mb-1 group-hover:text-primary transition-colors line-clamp-1">
+                      {campaign.name}
+                    </h3>
+                    {campaign.description && (
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{campaign.description}</p>
+                    )}
+
+                    {(campaign.start_date || campaign.end_date) && (
+                      <p className="text-xs text-muted-foreground mb-3">
+                        {campaign.start_date && new Date(campaign.start_date + 'T12:00:00').toLocaleDateString('pt-BR')}
+                        {campaign.start_date && campaign.end_date && ' → '}
+                        {campaign.end_date && new Date(campaign.end_date + 'T12:00:00').toLocaleDateString('pt-BR')}
+                      </p>
+                    )}
+
+                    <div className="flex items-center justify-between pt-3 border-t border-border">
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <Layers className="h-4 w-4 text-primary" />
+                        <span className="text-muted-foreground">{cPackCount.total} packs</span>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
-      ) : filteredProdutos.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 text-center">
-          <Package className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium text-foreground">Nenhum produto encontrado</h3>
+      )}
+
+      {/* Create Campaign Button (when no campaigns exist) */}
+      {campaigns.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          onClick={() => setCreateCampaignOpen(true)}
+          className="bg-card rounded-xl border border-dashed border-border p-6 cursor-pointer hover:border-primary/50 transition-all text-center"
+        >
+          <Megaphone className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+          <h3 className="font-semibold text-foreground">Criar Campanha</h3>
           <p className="text-sm text-muted-foreground mt-1">
-            Adicione produtos no Catálogo para começar a criar anúncios
+            Crie campanhas para organizar anúncios de branding, lançamentos e promoções
           </p>
-          <Button className="mt-4" onClick={() => navigate('/pricing')}>
-            Ir para Catálogo
-          </Button>
-        </div>
-      ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredProdutos.map((produto, index) => renderProductCard(produto, index))}
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {filteredProdutos.map((produto, index) => renderProductListItem(produto, index))}
-        </div>
+        </motion.div>
+      )}
+
+      {/* Products Grid/List */}
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+          <Package className="h-5 w-5 text-primary" />
+          Produtos
+        </h2>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          </div>
+        ) : filteredProdutos.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 text-center">
+            <Package className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium text-foreground">Nenhum produto encontrado</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Adicione produtos no Catálogo para começar a criar anúncios
+            </p>
+            <Button className="mt-4" onClick={() => navigate('/pricing')}>
+              Ir para Catálogo
+            </Button>
+          </div>
+        ) : viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredProdutos.map((produto, index) => renderProductCard(produto, index))}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {filteredProdutos.map((produto, index) => renderProductListItem(produto, index))}
+          </div>
+        )}
+      </div>
+
+      {/* Dialogs */}
+      <CreateCampaignDialog open={createCampaignOpen} onOpenChange={setCreateCampaignOpen} />
+      {editingCampaign && (
+        <EditCampaignDialog
+          open={!!editingCampaign}
+          onOpenChange={(open) => !open && setEditingCampaign(null)}
+          campaign={editingCampaign}
+        />
       )}
     </div>
   );
