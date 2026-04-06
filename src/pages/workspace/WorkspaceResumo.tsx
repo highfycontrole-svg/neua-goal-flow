@@ -73,7 +73,7 @@ export default function WorkspaceResumo() {
       if (error) throw error;
       return data;
     },
-    enabled: workspaces.length > 0,
+    enabled: workspaces.length > 0 && !loadingWorkspaces,
   });
 
   const { data: allStatuses = [] } = useQuery({
