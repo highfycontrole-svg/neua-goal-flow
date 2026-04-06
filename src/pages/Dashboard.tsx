@@ -227,7 +227,7 @@ export default function Dashboard() {
         </div>
 
         {/* Filtros e Ações */}
-        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: '#161616' }}>
+        <div className="p-4 sm:p-6 rounded-2xl border border-border/30 bg-background">
           <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <Select value={filters.ano.toString()} onValueChange={value => setFilters({
