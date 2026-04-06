@@ -295,7 +295,7 @@ export default function WorkspaceResumo() {
                   whileTap={{ scale: 0.98 }}
                 >
                   <Card 
-                    className="cursor-pointer border-border/50 hover:border-primary/50 transition-all duration-300"
+                    className="cursor-pointer border-border/50 hover:border-primary/50 transition-all duration-300 bg-background"
                     style={{ backgroundColor: '#161616' }}
                     onClick={() => navigate(`/workspace/${workspace.id}`)}
                     data-context-type="workspace"
