@@ -296,7 +296,7 @@ export default function WorkspaceResumo() {
                 >
                   <Card 
                     className="cursor-pointer border-border/50 hover:border-primary/50 transition-all duration-300 bg-background"
-                    style={{ backgroundColor: '#161616' }}
+                    onClick={() => navigate(`/workspace/${workspace.id}`)}
                     onClick={() => navigate(`/workspace/${workspace.id}`)}
                     data-context-type="workspace"
                     data-context-id={workspace.id}
