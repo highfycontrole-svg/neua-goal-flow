@@ -369,7 +369,7 @@ export default function WorkspaceResumo() {
             })}
           </div>
         ) : (
-          <Card className="border-border/50" style={{ backgroundColor: '#161616' }}>
+          <Card className="border-border/50 bg-background">
             <CardContent className="py-12 text-center">
               <LayoutGrid className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Nenhum workspace criado</h3>

@@ -303,7 +303,7 @@ export default function Dashboard() {
       }} />
 
         {/* Tabelas */}
-        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: '#161616' }}>
+        <div className="p-4 sm:p-6 rounded-2xl border border-border/30 bg-background">
           <Tabs defaultValue="geral" className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-4">
               <TabsTrigger value="geral" className="text-xs sm:text-sm">Geral</TabsTrigger>
