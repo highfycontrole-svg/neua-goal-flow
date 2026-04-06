@@ -73,7 +73,7 @@ export default function WorkspaceResumo() {
       if (error) throw error;
       return data;
     },
-    enabled: workspaces.length > 0,
+    enabled: workspaces.length > 0 && !loadingWorkspaces,
   });
 
   const { data: allStatuses = [] } = useQuery({
@@ -89,7 +89,7 @@ export default function WorkspaceResumo() {
       if (error) throw error;
       return data;
     },
-    enabled: workspaces.length > 0,
+    enabled: workspaces.length > 0 && !loadingWorkspaces,
   });
 
   // Calculate stats
@@ -203,7 +203,7 @@ export default function WorkspaceResumo() {
         className="grid grid-cols-1 lg:grid-cols-2 gap-6"
       >
         {/* Tasks by Status */}
-        <Card className="border-border/50" style={{ backgroundColor: '#161616' }}>
+        <Card className="border-border/50 bg-background">
           <CardHeader>
             <CardTitle className="text-xl font-display">Tarefas por Status</CardTitle>
           </CardHeader>
@@ -244,7 +244,7 @@ export default function WorkspaceResumo() {
         </Card>
 
         {/* Tasks by Workspace */}
-        <Card className="border-border/50" style={{ backgroundColor: '#161616' }}>
+        <Card className="border-border/50 bg-background">
           <CardHeader>
             <CardTitle className="text-xl font-display">Tarefas por Workspace</CardTitle>
           </CardHeader>
@@ -295,8 +295,7 @@ export default function WorkspaceResumo() {
                   whileTap={{ scale: 0.98 }}
                 >
                   <Card 
-                    className="cursor-pointer border-border/50 hover:border-primary/50 transition-all duration-300"
-                    style={{ backgroundColor: '#161616' }}
+                    className="cursor-pointer border-border/50 hover:border-primary/50 transition-all duration-300 bg-background"
                     onClick={() => navigate(`/workspace/${workspace.id}`)}
                     data-context-type="workspace"
                     data-context-id={workspace.id}
@@ -369,7 +368,7 @@ export default function WorkspaceResumo() {
             })}
           </div>
         ) : (
-          <Card className="border-border/50" style={{ backgroundColor: '#161616' }}>
+          <Card className="border-border/50 bg-background">
             <CardContent className="py-12 text-center">
               <LayoutGrid className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Nenhum workspace criado</h3>

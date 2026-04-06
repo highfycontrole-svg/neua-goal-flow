@@ -27,8 +27,7 @@ export function KPICard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={`p-4 sm:p-6 rounded-2xl border border-border/30 transition-all duration-300 hover:border-primary/30 ${className}`}
-      style={{ backgroundColor: '#1a1a1a' }}
+      className={`p-4 sm:p-6 rounded-2xl border border-border/30 transition-all duration-200 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 bg-background ${className}`}
     >
       <div className="flex items-start justify-between mb-3 sm:mb-4">
         <div className="flex-1 min-w-0">

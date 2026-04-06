@@ -227,7 +227,7 @@ export default function Dashboard() {
         </div>
 
         {/* Filtros e Ações */}
-        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: '#161616' }}>
+        <div className="p-4 sm:p-6 rounded-2xl border border-border/30 bg-background">
           <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <Select value={filters.ano.toString()} onValueChange={value => setFilters({
@@ -303,12 +303,12 @@ export default function Dashboard() {
       }} />
 
         {/* Tabelas */}
-        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: '#161616' }}>
+        <div className="p-4 sm:p-6 rounded-2xl border border-border/30 bg-background">
           <Tabs defaultValue="geral" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-4">
-              <TabsTrigger value="geral" className="text-xs sm:text-sm">Geral</TabsTrigger>
-              <TabsTrigger value="por-setor" className="text-xs sm:text-sm">Por Setor</TabsTrigger>
-              <TabsTrigger value="resumo" className="text-xs sm:text-sm">Resumo</TabsTrigger>
+            <TabsList className="bg-card border border-border/30 p-1 rounded-xl gap-1 h-auto grid w-full grid-cols-3 mb-4">
+              <TabsTrigger value="geral" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm text-xs sm:text-sm">Geral</TabsTrigger>
+              <TabsTrigger value="por-setor" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm text-xs sm:text-sm">Por Setor</TabsTrigger>
+              <TabsTrigger value="resumo" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm text-xs sm:text-sm">Resumo</TabsTrigger>
             </TabsList>
             <TabsContent value="geral">
               <MetasTable metas={metas} superMetas={superMetas} setores={setores} allMetas={allMetas} onUpdate={loadStats} viewType="geral" />

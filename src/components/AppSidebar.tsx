@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign, Home, PlayCircle, Brain } from 'lucide-react';
+import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign, Home, PlayCircle, Brain, Link2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
@@ -13,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface MenuItem {
   title: string;
   url: string;
-  icon: any;
+  icon: React.ElementType;
   basePath: string;
   hasSubmenu?: boolean;
 }
@@ -61,6 +61,12 @@ const menuItems: MenuItem[] = [
     url: '/mindos',
     icon: Brain,
     basePath: '/mindos',
+  },
+  {
+    title: 'UTM Builder',
+    url: '/utm',
+    icon: Link2,
+    basePath: '/utm',
   },
   {
     title: 'Metas',
@@ -140,10 +146,9 @@ export function AppSidebar() {
       initial={false}
       animate={{ width: sidebarWidth }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      className="fixed left-[30px] top-[30px] z-50 flex flex-col"
+      className="fixed left-[30px] top-[30px] z-50 flex flex-col bg-background"
       style={{ 
         height: 'calc(100vh - 60px)',
-        backgroundColor: '#161616',
       }}
     >
       <SidebarContent 

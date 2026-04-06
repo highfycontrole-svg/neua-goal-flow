@@ -44,12 +44,12 @@ export default function FinanceiroPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-3 lg:grid-cols-6 gap-2 h-auto bg-transparent p-0">
+          <TabsList className="bg-card border border-border/30 p-1 rounded-xl gap-1 h-auto grid grid-cols-3 lg:grid-cols-6">
             {tabs.map((tab) => (
               <TabsTrigger
                 key={tab.id}
                 value={tab.id}
-                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 rounded-lg border border-border bg-card"
+                className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm flex items-center gap-2 px-4 py-2"
               >
                 <tab.icon className="h-4 w-4" />
                 <span className="hidden sm:inline">{tab.label}</span>

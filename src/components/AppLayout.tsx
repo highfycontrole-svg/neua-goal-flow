@@ -33,7 +33,7 @@ function MainContent({ children }: { children: ReactNode }) {
     >
       {/* Mobile Header */}
       {isMobile && (
-        <header className="sticky top-0 z-40 bg-card border-b border-border/30 px-4 h-14 flex items-center">
+        <header className="sticky top-0 z-40 backdrop-blur-md bg-card/80 border-b border-border/30 px-4 h-14 flex items-center">
           <SidebarTrigger className="text-foreground" />
           <span className="ml-3 font-display font-semibold text-foreground">Neua</span>
         </header>
@@ -47,14 +47,15 @@ function MainContent({ children }: { children: ReactNode }) {
         className={`
           flex-1 
           ${isMobile ? '' : 'rounded-[18px]'}
-          overflow-hidden
+          overflow-y-auto
         `}
         style={{
-          backgroundColor: '#242424',
+          backgroundColor: 'hsl(var(--card))',
           boxShadow: isMobile ? 'none' : '0 8px 32px -8px hsl(0 0% 0% / 0.4)',
+          height: isMobile ? undefined : 'calc(100vh - 60px)',
         }}
       >
-        <div className="h-full overflow-auto content-spacing">
+        <div className="min-h-full overflow-y-auto content-spacing">
           {children}
         </div>
       </motion.main>
@@ -66,7 +67,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <ContextMenuProvider>
       <SidebarProvider defaultOpen={true}>
-        <div className="min-h-screen flex w-full" style={{ backgroundColor: '#161616' }}>
+        <div className="min-h-screen flex w-full bg-background">
           <AppSidebar />
           <MainContent>{children}</MainContent>
         </div>

@@ -150,7 +150,7 @@ export default function WorkspaceDetalhe() {
 
   if (loadingWorkspace) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
@@ -168,7 +168,7 @@ export default function WorkspaceDetalhe() {
   }
 
   return (
-    <div className="p-4 md:p-6 lg:p-8" style={{ backgroundColor: '#242424', minHeight: '100%' }}>
+    <div className="p-4 md:p-6 lg:p-8 bg-card min-h-full">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
