@@ -36,6 +36,7 @@ import FlowchartProjectsPage from "./pages/mindos/FlowchartProjectsPage";
 import MindMapEditor from "./components/mindos/MindMapEditor";
 import FlowchartEditor from "./components/mindos/FlowchartEditor";
 import NotFound from "./pages/NotFound";
+import UTMBuilderPage from "./pages/utm/UTMBuilderPage";
 import { AppLayout } from "@/components/AppLayout";
 
 const queryClient = new QueryClient({
