@@ -38,7 +38,16 @@ import FlowchartEditor from "./components/mindos/FlowchartEditor";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "@/components/AppLayout";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 10,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

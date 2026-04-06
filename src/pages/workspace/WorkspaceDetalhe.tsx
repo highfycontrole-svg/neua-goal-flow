@@ -168,7 +168,7 @@ export default function WorkspaceDetalhe() {
   }
 
   return (
-    <div className="p-4 md:p-6 lg:p-8" style={{ backgroundColor: '#242424', minHeight: '100%' }}>
+    <div className="p-4 md:p-6 lg:p-8 bg-card min-h-full">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

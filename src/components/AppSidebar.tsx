@@ -13,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface MenuItem {
   title: string;
   url: string;
-  icon: any;
+  icon: React.ElementType;
   basePath: string;
   hasSubmenu?: boolean;
 }

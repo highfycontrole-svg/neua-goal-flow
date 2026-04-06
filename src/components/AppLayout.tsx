@@ -33,7 +33,7 @@ function MainContent({ children }: { children: ReactNode }) {
     >
       {/* Mobile Header */}
       {isMobile && (
-        <header className="sticky top-0 z-40 bg-card border-b border-border/30 px-4 h-14 flex items-center">
+        <header className="sticky top-0 z-40 backdrop-blur-md bg-card/80 border-b border-border/30 px-4 h-14 flex items-center">
           <SidebarTrigger className="text-foreground" />
           <span className="ml-3 font-display font-semibold text-foreground">Neua</span>
         </header>
