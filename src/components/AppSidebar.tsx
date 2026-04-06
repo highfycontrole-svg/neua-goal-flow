@@ -146,10 +146,9 @@ export function AppSidebar() {
       initial={false}
       animate={{ width: sidebarWidth }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      className="fixed left-[30px] top-[30px] z-50 flex flex-col"
+      className="fixed left-[30px] top-[30px] z-50 flex flex-col bg-background"
       style={{ 
         height: 'calc(100vh - 60px)',
-        backgroundColor: '#161616',
       }}
     >
       <SidebarContent 

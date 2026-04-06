@@ -22,17 +22,17 @@ const PedidosPage = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full max-w-md grid-cols-2 h-auto bg-transparent p-0 gap-2">
+        <TabsList className="bg-card border border-border/30 p-1 rounded-xl gap-1 h-auto w-full max-w-md grid grid-cols-2">
           <TabsTrigger 
             value="lista" 
-            className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 rounded-lg border border-border bg-card"
+            className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm flex items-center gap-2 px-4 py-2"
           >
             <Package className="h-4 w-4" />
             <span>Lista de Pedidos</span>
           </TabsTrigger>
           <TabsTrigger 
             value="metricas" 
-            className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 rounded-lg border border-border bg-card"
+            className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm flex items-center gap-2 px-4 py-2"
           >
             <BarChart3 className="h-4 w-4" />
             <span>Métricas</span>
