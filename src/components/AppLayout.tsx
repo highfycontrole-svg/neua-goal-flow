@@ -67,7 +67,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <ContextMenuProvider>
       <SidebarProvider defaultOpen={true}>
-        <div className="min-h-screen flex w-full" style={{ backgroundColor: '#161616' }}>
+        <div className="min-h-screen flex w-full bg-background">
           <AppSidebar />
           <MainContent>{children}</MainContent>
         </div>
