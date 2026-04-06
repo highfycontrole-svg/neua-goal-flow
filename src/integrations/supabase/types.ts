@@ -1525,6 +1525,86 @@ export type Database = {
           },
         ]
       }
+      utm_campaigns: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      utm_links: {
+        Row: {
+          base_url: string
+          campaign_id: string
+          created_at: string
+          id: string
+          label: string | null
+          user_id: string
+          utm_campaign: string
+          utm_content: string | null
+          utm_medium: string
+          utm_source: string
+          utm_term: string | null
+        }
+        Insert: {
+          base_url: string
+          campaign_id: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          user_id: string
+          utm_campaign: string
+          utm_content?: string | null
+          utm_medium: string
+          utm_source: string
+          utm_term?: string | null
+        }
+        Update: {
+          base_url?: string
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          user_id?: string
+          utm_campaign?: string
+          utm_content?: string | null
+          utm_medium?: string
+          utm_source?: string
+          utm_term?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "utm_links_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "utm_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_statuses: {
         Row: {
           color: string
