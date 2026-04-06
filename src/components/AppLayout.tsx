@@ -47,14 +47,15 @@ function MainContent({ children }: { children: ReactNode }) {
         className={`
           flex-1 
           ${isMobile ? '' : 'rounded-[18px]'}
-          overflow-hidden
+          overflow-y-auto
         `}
         style={{
-          backgroundColor: '#242424',
+          backgroundColor: 'hsl(var(--card))',
           boxShadow: isMobile ? 'none' : '0 8px 32px -8px hsl(0 0% 0% / 0.4)',
+          height: isMobile ? undefined : 'calc(100vh - 60px)',
         }}
       >
-        <div className="h-full overflow-auto content-spacing">
+        <div className="min-h-full overflow-y-auto content-spacing">
           {children}
         </div>
       </motion.main>
