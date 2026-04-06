@@ -290,6 +290,16 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/utm"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <UTMBuilderPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

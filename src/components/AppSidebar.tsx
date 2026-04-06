@@ -63,6 +63,12 @@ const menuItems: MenuItem[] = [
     basePath: '/mindos',
   },
   {
+    title: 'UTM Builder',
+    url: '/utm',
+    icon: Link2,
+    basePath: '/utm',
+  },
+  {
     title: 'Metas',
     url: '/dashboard',
     icon: Target,
