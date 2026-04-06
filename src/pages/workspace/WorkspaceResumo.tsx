@@ -203,7 +203,7 @@ export default function WorkspaceResumo() {
         className="grid grid-cols-1 lg:grid-cols-2 gap-6"
       >
         {/* Tasks by Status */}
-        <Card className="border-border/50" style={{ backgroundColor: '#161616' }}>
+        <Card className="border-border/50 bg-background">
           <CardHeader>
             <CardTitle className="text-xl font-display">Tarefas por Status</CardTitle>
           </CardHeader>
