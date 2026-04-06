@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign, Home, PlayCircle, Brain } from 'lucide-react';
+import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign, Home, PlayCircle, Brain, Link2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
