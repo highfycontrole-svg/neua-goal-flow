@@ -663,6 +663,84 @@ export type Database = {
         }
         Relationships: []
       }
+      meta_connections: {
+        Row: {
+          access_token: string
+          connected_at: string
+          id: string
+          meta_user_id: string | null
+          meta_user_name: string | null
+          selected_ad_account_id: string | null
+          selected_ad_account_name: string | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          connected_at?: string
+          id?: string
+          meta_user_id?: string | null
+          meta_user_name?: string | null
+          selected_ad_account_id?: string | null
+          selected_ad_account_name?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          connected_at?: string
+          id?: string
+          meta_user_id?: string | null
+          meta_user_name?: string | null
+          selected_ad_account_id?: string | null
+          selected_ad_account_name?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      meta_insights_cache: {
+        Row: {
+          ad_account_id: string
+          date_start: string
+          date_stop: string
+          id: string
+          level: string
+          metrics: Json | null
+          object_id: string
+          object_name: string | null
+          synced_at: string
+          user_id: string
+        }
+        Insert: {
+          ad_account_id: string
+          date_start: string
+          date_stop: string
+          id?: string
+          level: string
+          metrics?: Json | null
+          object_id: string
+          object_name?: string | null
+          synced_at?: string
+          user_id: string
+        }
+        Update: {
+          ad_account_id?: string
+          date_start?: string
+          date_stop?: string
+          id?: string
+          level?: string
+          metrics?: Json | null
+          object_id?: string
+          object_name?: string | null
+          synced_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       metas: {
         Row: {
           ano: number
