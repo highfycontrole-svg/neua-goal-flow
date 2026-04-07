@@ -37,6 +37,8 @@ import MindMapEditor from "./components/mindos/MindMapEditor";
 import FlowchartEditor from "./components/mindos/FlowchartEditor";
 import NotFound from "./pages/NotFound";
 import UTMBuilderPage from "./pages/utm/UTMBuilderPage";
+import AdsNeuaPage from "./pages/ads/AdsNeuaPage";
+import AdsNeuaCallback from "./pages/ads/AdsNeuaCallback";
 import { AppLayout } from "@/components/AppLayout";
 
 const queryClient = new QueryClient({
@@ -297,6 +299,24 @@ const App = () => (
                   <AppLayout>
                     <UTMBuilderPage />
                   </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ads-neua"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <AdsNeuaPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ads-neua/callback"
+              element={
+                <ProtectedRoute>
+                  <AdsNeuaCallback />
                 </ProtectedRoute>
               }
             />
