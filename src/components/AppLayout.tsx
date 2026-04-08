@@ -18,11 +18,12 @@ function ContextMenuListener() {
 function MainContent({ children }: { children: ReactNode }) {
   const { open, isMobile } = useSidebar();
   
+  
   const leftMargin = open ? 380 : 140;
   
   return (
     <div 
-      className="flex-1 flex flex-col transition-all duration-300 ease-out"
+      className="flex-1 flex flex-col transition-all duration-300 ease-out overflow-hidden"
       style={{
         marginLeft: isMobile ? 0 : `${leftMargin}px`,
         marginRight: isMobile ? 0 : '30px',
@@ -47,7 +48,7 @@ function MainContent({ children }: { children: ReactNode }) {
         className={`
           flex-1 
           ${isMobile ? '' : 'rounded-[18px]'}
-          overflow-y-auto
+          overflow-hidden
         `}
         style={{
           backgroundColor: 'hsl(var(--card))',
@@ -55,7 +56,7 @@ function MainContent({ children }: { children: ReactNode }) {
           height: isMobile ? undefined : 'calc(100vh - 60px)',
         }}
       >
-        <div className="min-h-full overflow-y-auto content-spacing">
+        <div className="min-h-full h-full overflow-y-auto overflow-x-hidden content-spacing">
           {children}
         </div>
       </motion.main>
