@@ -18,6 +18,7 @@ function ContextMenuListener() {
 function MainContent({ children }: { children: ReactNode }) {
   const { open, isMobile } = useSidebar();
   
+  
   const leftMargin = open ? 380 : 140;
   
   return (
