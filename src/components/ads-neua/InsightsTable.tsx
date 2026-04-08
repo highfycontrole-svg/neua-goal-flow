@@ -178,6 +178,47 @@ export function InsightsTable({ insights, level, loading, onRowClick }: Insights
                   <TableCell className="text-xs">{i.conversion_rate_ranking || "-"}</TableCell>
                 </TableRow>
               ))}
+              {/* Summary Row */}
+              {filtered.length > 0 && (() => {
+                const count = filtered.length;
+                const sumSpend = filtered.reduce((s, i) => s + Number(i.spend || 0), 0);
+                const sumImpressions = filtered.reduce((s, i) => s + Number(i.impressions || 0), 0);
+                const sumReach = filtered.reduce((s, i) => s + Number(i.reach || 0), 0);
+                const avgFrequency = filtered.reduce((s, i) => s + Number(i.frequency || 0), 0) / count;
+                const avgCpm = filtered.reduce((s, i) => s + Number(i.cpm || 0), 0) / count;
+                const sumClicks = filtered.reduce((s, i) => s + Number(i.clicks || 0), 0);
+                const avgCpc = sumClicks > 0 ? sumSpend / sumClicks : 0;
+                const avgCtr = sumImpressions > 0 ? (sumClicks / sumImpressions) * 100 : 0;
+                const avgUniqueCtr = filtered.reduce((s, i) => s + Number(i.unique_ctr || 0), 0) / count;
+                const sumPurchases = filtered.reduce((s, i) => s + getPurchases(i), 0);
+                const costPerPurchase = sumPurchases > 0 ? sumSpend / sumPurchases : 0;
+                const sumRevenue = filtered.reduce((s, i) => s + getRevenue(i), 0);
+                const roas = sumSpend > 0 ? sumRevenue / sumSpend : 0;
+
+                return (
+                  <TableRow className="bg-primary/5 border-t-2 border-primary/20 font-semibold hover:bg-primary/10">
+                    <TableCell className="sticky left-0 bg-primary/5 z-10 font-bold">
+                      Resumo ({count})
+                    </TableCell>
+                    <TableCell>{fmt(sumSpend, "currency")}</TableCell>
+                    <TableCell>{fmt(sumImpressions)}</TableCell>
+                    <TableCell>{fmt(sumReach)}</TableCell>
+                    <TableCell>{fmt(avgFrequency)}</TableCell>
+                    <TableCell>{fmt(avgCpm, "currency")}</TableCell>
+                    <TableCell>{fmt(sumClicks)}</TableCell>
+                    <TableCell>{fmt(avgCpc, "currency")}</TableCell>
+                    <TableCell>{fmt(avgCtr, "percent")}</TableCell>
+                    <TableCell>{fmt(avgUniqueCtr, "percent")}</TableCell>
+                    <TableCell>{sumPurchases}</TableCell>
+                    <TableCell>{fmt(costPerPurchase, "currency")}</TableCell>
+                    <TableCell>{fmt(sumRevenue, "currency")}</TableCell>
+                    <TableCell>{fmt(roas)}</TableCell>
+                    <TableCell className="text-xs">-</TableCell>
+                    <TableCell className="text-xs">-</TableCell>
+                    <TableCell className="text-xs">-</TableCell>
+                  </TableRow>
+                );
+              })()}
             </TableBody>
           </Table>
         </div>
