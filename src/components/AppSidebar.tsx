@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign, Home, PlayCircle, Brain, Link2, BarChart3 } from 'lucide-react';
+import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign, Home, PlayCircle, Brain, Link2, BarChart3, BarChart2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
@@ -61,6 +61,13 @@ const menuItems: MenuItem[] = [
     url: '/ads-neua',
     icon: BarChart3,
     basePath: '/ads-neua',
+  },
+  {
+    title: 'KPIs',
+    url: '/kpis',
+    icon: BarChart2,
+    basePath: '/kpis',
+    hasSubmenu: true,
   },
   {
     title: 'MindOs',
