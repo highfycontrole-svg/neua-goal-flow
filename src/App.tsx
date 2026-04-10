@@ -39,6 +39,9 @@ import NotFound from "./pages/NotFound";
 import UTMBuilderPage from "./pages/utm/UTMBuilderPage";
 import AdsNeuaPage from "./pages/ads/AdsNeuaPage";
 import AdsNeuaCallback from "./pages/ads/AdsNeuaCallback";
+import KpisPage from "./pages/kpis/KpisPage";
+import ManychatKpiPage from "./pages/kpis/ManychatKpiPage";
+import GrupoVipKpiPage from "./pages/kpis/GrupoVipKpiPage";
 import { AppLayout } from "@/components/AppLayout";
 
 const queryClient = new QueryClient({
@@ -317,6 +320,36 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AdsNeuaCallback />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/kpis"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <KpisPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/kpis/manychat"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <ManychatKpiPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/kpis/grupo-vip"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <GrupoVipKpiPage />
+                  </AppLayout>
                 </ProtectedRoute>
               }
             />
