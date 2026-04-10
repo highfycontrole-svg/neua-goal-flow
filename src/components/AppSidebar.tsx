@@ -315,10 +315,11 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
           const isWorkspaceItem = item.basePath === '/workspace';
           const isMetasItem = item.basePath === '/dashboard';
           const isCreatorsItem = item.basePath === '/creators';
+          const isKpisItem = item.basePath === '/kpis';
           const showSubmenu = item.hasSubmenu && open && (
-            (isWorkspaceItem && workspaceMenuOpen) || (isMetasItem && metasMenuOpen) || (isCreatorsItem && creatorsMenuOpen)
+            (isWorkspaceItem && workspaceMenuOpen) || (isMetasItem && metasMenuOpen) || (isCreatorsItem && creatorsMenuOpen) || (isKpisItem && kpisMenuOpen)
           );
-          const submenuOpen = isWorkspaceItem ? workspaceMenuOpen : isMetasItem ? metasMenuOpen : isCreatorsItem ? creatorsMenuOpen : false;
+          const submenuOpen = isWorkspaceItem ? workspaceMenuOpen : isMetasItem ? metasMenuOpen : isCreatorsItem ? creatorsMenuOpen : isKpisItem ? kpisMenuOpen : false;
           
           return (
             <div key={item.url}>
