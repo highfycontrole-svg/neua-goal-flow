@@ -290,96 +290,13 @@ export default function Dashboard() {
 
   const formatCurrency = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
-  return (
-    <div className="space-y-4 sm:space-y-6 md:space-y-8 p-3 sm:p-4 md:p-6" ref={dashboardRef}>
-        {/* Page Header */}
-        <div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold mb-2">Painel de Metas - Loja Neua</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">Acompanhe o progresso das suas metas e super metas da Neua.</p>
-        </div>
-
-        {/* KPI Weekly Widget */}
-        <div>
-          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <BarChart2 className="h-5 w-5 text-primary" />
-            Resumo KPIs da Semana
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* Faturamento vs Meta semanal */}
-            <div className="p-4 rounded-2xl bg-card border border-border/30 hover:border-primary/30 transition-all">
-              <div className="flex items-center gap-2 mb-2">
-                <DollarSign className="h-4 w-4 text-primary" />
-                <span className="text-xs text-muted-foreground">Faturamento Semanal</span>
-              </div>
-              <p className="text-lg font-bold">{formatCurrency(fatSemana)}</p>
-              <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
-                <div className={`h-full rounded-full transition-all ${pctFatSemana >= 100 ? 'bg-green-500' : pctFatSemana >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                  style={{ width: `${Math.min(pctFatSemana, 100)}%` }} />
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Meta semanal est.: {formatCurrency(metaSemanal)}</p>
-            </div>
-
-            {/* ROAS */}
-            <div className="p-4 rounded-2xl bg-card border border-border/30 hover:border-primary/30 transition-all">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="h-4 w-4 text-primary" />
-                <span className="text-xs text-muted-foreground">ROAS da Semana</span>
-              </div>
-              {connection?.selected_ad_account_id ? (
-                <>
-                  <p className="text-lg font-bold">{weekRoas.toFixed(2)}</p>
-                  <Badge className={`mt-1 text-xs ${roasBadge}`}>{roasLabel}</Badge>
-                </>
-              ) : (
-                <>
-                  <p className="text-lg font-bold text-muted-foreground">—</p>
-                  <Link to="/ads-neua" className="text-xs text-primary underline">Conectar Meta Ads</Link>
-                </>
-              )}
-            </div>
-
-            {/* Grupo VIP */}
-            <div className="p-4 rounded-2xl bg-card border border-border/30 hover:border-primary/30 transition-all">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="h-4 w-4 text-primary" />
-                <span className="text-xs text-muted-foreground">Grupo VIP</span>
-              </div>
-              {weekGrupoVip ? (
-                <>
-                  <p className="text-lg font-bold">{weekGrupoVip.novos_membros} novos</p>
-                  <p className="text-xs text-muted-foreground">Total: {weekGrupoVip.total_membros} membros</p>
-                </>
-              ) : (
-                <>
-                  <p className="text-lg font-bold text-muted-foreground">0</p>
-                  <Link to="/kpis" className="text-xs text-primary underline">Registrar →</Link>
-                </>
-              )}
-            </div>
-
-            {/* ManyChat */}
-            <div className="p-4 rounded-2xl bg-card border border-border/30 hover:border-primary/30 transition-all">
-              <div className="flex items-center gap-2 mb-2">
-                <MessageSquare className="h-4 w-4 text-primary" />
-                <span className="text-xs text-muted-foreground">ManyChat</span>
-              </div>
-              {weekManychat ? (
-                <>
-                  <p className="text-lg font-bold">{weekManychat.vendas_atribuidas} vendas</p>
-                  <Badge className={`mt-1 text-xs ${weekManychat.vendas_atribuidas > 0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                    {weekManychat.vendas_atribuidas > 0 ? '✓ Ativo' : '⚠ Sem vendas'}
-                  </Badge>
-                  <p className="text-xs text-muted-foreground mt-1">{weekManychat.leads_gerados} leads gerados</p>
-                </>
-              ) : (
-                <>
-                  <p className="text-lg font-bold text-muted-foreground">—</p>
-                  <Badge className="mt-1 text-xs bg-muted text-muted-foreground">Não registrado</Badge>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
         {/* KPI Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
