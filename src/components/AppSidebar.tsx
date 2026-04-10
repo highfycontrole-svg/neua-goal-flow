@@ -194,6 +194,7 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
   const [metasMenuOpen, setMetasMenuOpen] = useState(false);
   const [creatorsMenuOpen, setCreatorsMenuOpen] = useState(false);
+  const [kpisMenuOpen, setKpisMenuOpen] = useState(false);
 
   // Fetch workspaces for the submenu
   const { data: workspaces = [] } = useQuery({
@@ -221,6 +222,9 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
     if (location.pathname.startsWith('/creators')) {
       setCreatorsMenuOpen(true);
     }
+    if (location.pathname.startsWith('/kpis')) {
+      setKpisMenuOpen(true);
+    }
   }, [location.pathname]);
 
   const handleMenuClick = (item: MenuItem) => {
@@ -231,6 +235,8 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
         setMetasMenuOpen(!metasMenuOpen);
       } else if (item.basePath === '/creators') {
         setCreatorsMenuOpen(!creatorsMenuOpen);
+      } else if (item.basePath === '/kpis') {
+        setKpisMenuOpen(!kpisMenuOpen);
       }
       navigate(item.url);
     } else {
