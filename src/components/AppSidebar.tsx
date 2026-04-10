@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign, Home, PlayCircle, Brain, Link2, BarChart3 } from 'lucide-react';
+import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign, Home, PlayCircle, Brain, Link2, BarChart3, BarChart2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
@@ -61,6 +61,13 @@ const menuItems: MenuItem[] = [
     url: '/ads-neua',
     icon: BarChart3,
     basePath: '/ads-neua',
+  },
+  {
+    title: 'KPIs',
+    url: '/kpis',
+    icon: BarChart2,
+    basePath: '/kpis',
+    hasSubmenu: true,
   },
   {
     title: 'MindOs',
@@ -187,6 +194,7 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
   const [metasMenuOpen, setMetasMenuOpen] = useState(false);
   const [creatorsMenuOpen, setCreatorsMenuOpen] = useState(false);
+  const [kpisMenuOpen, setKpisMenuOpen] = useState(false);
 
   // Fetch workspaces for the submenu
   const { data: workspaces = [] } = useQuery({
@@ -214,6 +222,9 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
     if (location.pathname.startsWith('/creators')) {
       setCreatorsMenuOpen(true);
     }
+    if (location.pathname.startsWith('/kpis')) {
+      setKpisMenuOpen(true);
+    }
   }, [location.pathname]);
 
   const handleMenuClick = (item: MenuItem) => {
@@ -224,6 +235,8 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
         setMetasMenuOpen(!metasMenuOpen);
       } else if (item.basePath === '/creators') {
         setCreatorsMenuOpen(!creatorsMenuOpen);
+      } else if (item.basePath === '/kpis') {
+        setKpisMenuOpen(!kpisMenuOpen);
       }
       navigate(item.url);
     } else {
@@ -302,10 +315,11 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
           const isWorkspaceItem = item.basePath === '/workspace';
           const isMetasItem = item.basePath === '/dashboard';
           const isCreatorsItem = item.basePath === '/creators';
+          const isKpisItem = item.basePath === '/kpis';
           const showSubmenu = item.hasSubmenu && open && (
-            (isWorkspaceItem && workspaceMenuOpen) || (isMetasItem && metasMenuOpen) || (isCreatorsItem && creatorsMenuOpen)
+            (isWorkspaceItem && workspaceMenuOpen) || (isMetasItem && metasMenuOpen) || (isCreatorsItem && creatorsMenuOpen) || (isKpisItem && kpisMenuOpen)
           );
-          const submenuOpen = isWorkspaceItem ? workspaceMenuOpen : isMetasItem ? metasMenuOpen : isCreatorsItem ? creatorsMenuOpen : false;
+          const submenuOpen = isWorkspaceItem ? workspaceMenuOpen : isMetasItem ? metasMenuOpen : isCreatorsItem ? creatorsMenuOpen : isKpisItem ? kpisMenuOpen : false;
           
           return (
             <div key={item.url}>
@@ -441,6 +455,37 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
                         { label: 'Desempenho', path: '/creators/desempenho' },
                         { label: 'Logística', path: '/creators/logistica' },
                         { label: 'Interações', path: '/creators/interacoes' },
+                      ].map((sub) => (
+                        <motion.button
+                          key={sub.path}
+                          onClick={() => { navigate(sub.path); if (isMobile) setOpen(false); }}
+                          className={`w-full h-9 rounded-lg flex items-center gap-2 px-3 text-sm transition-all ${location.pathname === sub.path ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
+                          whileHover={{ x: 4 }}
+                        >
+                          <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
+                          <span>{sub.label}</span>
+                        </motion.button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
+
+              {/* KPIs Submenu */}
+              {isKpisItem && (
+                <AnimatePresence>
+                  {showSubmenu && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="ml-4 mt-1 space-y-1 overflow-hidden border-l border-border/30 pl-3"
+                    >
+                      {[
+                        { label: 'Visão Geral', path: '/kpis' },
+                        { label: 'ManyChat', path: '/kpis/manychat' },
+                        { label: 'Grupo VIP', path: '/kpis/grupo-vip' },
                       ].map((sub) => (
                         <motion.button
                           key={sub.path}

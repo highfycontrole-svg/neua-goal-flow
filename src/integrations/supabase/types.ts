@@ -475,6 +475,144 @@ export type Database = {
           },
         ]
       }
+      kpi_cac_canal: {
+        Row: {
+          ano: number
+          cac_google_ads: number | null
+          cac_grupo_vip: number | null
+          cac_meta_ads: number | null
+          cac_organico: number | null
+          created_at: string | null
+          id: string
+          mes: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ano: number
+          cac_google_ads?: number | null
+          cac_grupo_vip?: number | null
+          cac_meta_ads?: number | null
+          cac_organico?: number | null
+          created_at?: string | null
+          id?: string
+          mes: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ano?: number
+          cac_google_ads?: number | null
+          cac_grupo_vip?: number | null
+          cac_meta_ads?: number | null
+          cac_organico?: number | null
+          created_at?: string | null
+          id?: string
+          mes?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      kpi_grupo_vip: {
+        Row: {
+          cliques_links: number | null
+          created_at: string | null
+          id: string
+          investimento: number | null
+          mensagens_enviadas: number | null
+          notas: string | null
+          novos_membros: number | null
+          receita_atribuida: number | null
+          semana_inicio: string
+          total_membros: number | null
+          updated_at: string | null
+          user_id: string
+          vendas_atribuidas: number | null
+        }
+        Insert: {
+          cliques_links?: number | null
+          created_at?: string | null
+          id?: string
+          investimento?: number | null
+          mensagens_enviadas?: number | null
+          notas?: string | null
+          novos_membros?: number | null
+          receita_atribuida?: number | null
+          semana_inicio: string
+          total_membros?: number | null
+          updated_at?: string | null
+          user_id: string
+          vendas_atribuidas?: number | null
+        }
+        Update: {
+          cliques_links?: number | null
+          created_at?: string | null
+          id?: string
+          investimento?: number | null
+          mensagens_enviadas?: number | null
+          notas?: string | null
+          novos_membros?: number | null
+          receita_atribuida?: number | null
+          semana_inicio?: string
+          total_membros?: number | null
+          updated_at?: string | null
+          user_id?: string
+          vendas_atribuidas?: number | null
+        }
+        Relationships: []
+      }
+      kpi_manychat: {
+        Row: {
+          created_at: string | null
+          ctr_fluxo: number | null
+          disparos: number | null
+          id: string
+          investimento: number | null
+          leads_gerados: number | null
+          notas: string | null
+          pct_conclusao: number | null
+          ponto_abandono: string | null
+          receita_atribuida: number | null
+          semana_inicio: string
+          updated_at: string | null
+          user_id: string
+          vendas_atribuidas: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          ctr_fluxo?: number | null
+          disparos?: number | null
+          id?: string
+          investimento?: number | null
+          leads_gerados?: number | null
+          notas?: string | null
+          pct_conclusao?: number | null
+          ponto_abandono?: string | null
+          receita_atribuida?: number | null
+          semana_inicio: string
+          updated_at?: string | null
+          user_id: string
+          vendas_atribuidas?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          ctr_fluxo?: number | null
+          disparos?: number | null
+          id?: string
+          investimento?: number | null
+          leads_gerados?: number | null
+          notas?: string | null
+          pct_conclusao?: number | null
+          ponto_abandono?: string | null
+          receita_atribuida?: number | null
+          semana_inicio?: string
+          updated_at?: string | null
+          user_id?: string
+          vendas_atribuidas?: number | null
+        }
+        Relationships: []
+      }
       logistica_conteudo: {
         Row: {
           arquiteto_id: string

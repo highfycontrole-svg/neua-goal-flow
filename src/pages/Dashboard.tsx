@@ -5,13 +5,20 @@ import { MetasChart } from '@/components/MetasChart';
 import { DonutChart } from '@/components/DonutChart';
 import { MetasTable } from '@/components/MetasTable';
 import { ExportButtons } from '@/components/ExportButtons';
-import { Target, TrendingUp, Award, Calendar } from 'lucide-react';
+import { Target, TrendingUp, Award, Calendar, DollarSign, Users, MessageSquare, BarChart2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { format, startOfMonth, endOfMonth, startOfWeek } from 'date-fns';
+import { getWeekStart } from '@/lib/weekUtils';
+import { useMetaConnection } from '@/hooks/useMetaConnection';
+import { useMetaInsights, getActionValue } from '@/hooks/useMetaInsights';
+import { Link } from 'react-router-dom';
 interface DashboardStats {
   totalSuperMetas: number;
   totalMetas: number;
@@ -202,6 +209,63 @@ export default function Dashboard() {
       setLoading(false);
     }
   };
+  const now = new Date();
+  const weekStartStr = format(getWeekStart(now), 'yyyy-MM-dd');
+  const mesAtual = now.getMonth() + 1;
+  const anoAtual = now.getFullYear();
+
+  const { data: weekReceitas = [] } = useQuery({
+    queryKey: ['dash-week-receitas', user?.id, weekStartStr],
+    queryFn: async () => {
+      const { data } = await supabase.from('receitas').select('valor_bruto').gte('data', weekStartStr);
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
+  const { data: metaFat } = useQuery({
+    queryKey: ['dash-meta-fat', user?.id, mesAtual, anoAtual],
+    queryFn: async () => {
+      const { data } = await supabase.from('metas').select('valor_meta').eq('mes', mesAtual).eq('ano', anoAtual).ilike('nome', '%faturamento%').maybeSingle();
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+  const { data: weekGrupoVip } = useQuery({
+    queryKey: ['dash-grupo-vip', user?.id, weekStartStr],
+    queryFn: async () => {
+      const { data } = await supabase.from('kpi_grupo_vip' as any).select('*').eq('semana_inicio', weekStartStr).maybeSingle();
+      return data as any;
+    },
+    enabled: !!user?.id,
+  });
+  const { data: weekManychat } = useQuery({
+    queryKey: ['dash-manychat', user?.id, weekStartStr],
+    queryFn: async () => {
+      const { data } = await supabase.from('kpi_manychat' as any).select('*').eq('semana_inicio', weekStartStr).maybeSingle();
+      return data as any;
+    },
+    enabled: !!user?.id,
+  });
+  const { connection } = useMetaConnection();
+  const { insights, fetchInsights } = useMetaInsights();
+
+  useEffect(() => {
+    if (connection?.selected_ad_account_id) {
+      fetchInsights({ ad_account_id: connection.selected_ad_account_id, level: 'campaign', date_preset: 'this_week_sun_today' });
+    }
+  }, [connection?.selected_ad_account_id, fetchInsights]);
+
+  const fatSemana = weekReceitas.reduce((a: number, r: any) => a + Number(r.valor_bruto), 0);
+  const metaFatVal = metaFat?.valor_meta ? parseFloat(metaFat.valor_meta.replace(/\./g, '').replace(',', '.')) || 30000 : 30000;
+  const metaSemanal = metaFatVal / 4;
+  const pctFatSemana = metaSemanal > 0 ? (fatSemana / metaSemanal) * 100 : 0;
+  const weekSpend = insights.reduce((a, i) => a + Number(i.spend || 0), 0);
+  const weekRevenue = insights.reduce((a, i) => a + getActionValue(i.action_values, 'purchase') + getActionValue(i.action_values, 'omni_purchase'), 0);
+  const weekRoas = weekSpend > 0 ? weekRevenue / weekSpend : 0;
+  const roasBadge = weekRoas >= 3 ? 'bg-green-500/20 text-green-400' : weekRoas >= 1.5 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400';
+  const roasLabel = weekRoas >= 3 ? 'Ótimo' : weekRoas >= 1.5 ? 'Regular' : 'Baixo';
+  const formatCurrency = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -209,13 +273,97 @@ export default function Dashboard() {
       </div>
     );
   }
-  
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 sm:space-y-6 md:space-y-8 p-3 sm:p-4 md:p-6" ref={dashboardRef}>
         {/* Page Header */}
         <div>
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold mb-2">Painel de Metas - Loja Neua</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">Acompanhe o progresso das suas metas e super metas da Neua. </p>
+          <p className="text-xs sm:text-sm text-muted-foreground">Acompanhe o progresso das suas metas e super metas da Neua.</p>
+        </div>
+
+        {/* KPI Weekly Widget */}
+        <div>
+          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+            <BarChart2 className="h-5 w-5 text-primary" />
+            Resumo KPIs da Semana
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="p-4 rounded-2xl bg-card border border-border/30 hover:border-primary/30 transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <DollarSign className="h-4 w-4 text-primary" />
+                <span className="text-xs text-muted-foreground">Faturamento Semanal</span>
+              </div>
+              <p className="text-lg font-bold">{formatCurrency(fatSemana)}</p>
+              <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
+                <div className={`h-full rounded-full transition-all ${pctFatSemana >= 100 ? 'bg-green-500' : pctFatSemana >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                  style={{ width: `${Math.min(pctFatSemana, 100)}%` }} />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Meta semanal est.: {formatCurrency(metaSemanal)}</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-card border border-border/30 hover:border-primary/30 transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                <span className="text-xs text-muted-foreground">ROAS da Semana</span>
+              </div>
+              {connection?.selected_ad_account_id ? (
+                <>
+                  <p className="text-lg font-bold">{weekRoas.toFixed(2)}</p>
+                  <Badge className={`mt-1 text-xs ${roasBadge}`}>{roasLabel}</Badge>
+                </>
+              ) : (
+                <>
+                  <p className="text-lg font-bold text-muted-foreground">—</p>
+                  <Link to="/ads-neua" className="text-xs text-primary underline">Conectar Meta Ads</Link>
+                </>
+              )}
+            </div>
+            <div className="p-4 rounded-2xl bg-card border border-border/30 hover:border-primary/30 transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="h-4 w-4 text-primary" />
+                <span className="text-xs text-muted-foreground">Grupo VIP</span>
+              </div>
+              {weekGrupoVip ? (
+                <>
+                  <p className="text-lg font-bold">{weekGrupoVip.novos_membros} novos</p>
+                  <p className="text-xs text-muted-foreground">Total: {weekGrupoVip.total_membros} membros</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-lg font-bold text-muted-foreground">0</p>
+                  <Link to="/kpis" className="text-xs text-primary underline">Registrar →</Link>
+                </>
+              )}
+            </div>
+            <div className="p-4 rounded-2xl bg-card border border-border/30 hover:border-primary/30 transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <MessageSquare className="h-4 w-4 text-primary" />
+                <span className="text-xs text-muted-foreground">ManyChat</span>
+              </div>
+              {weekManychat ? (
+                <>
+                  <p className="text-lg font-bold">{weekManychat.vendas_atribuidas} vendas</p>
+                  <Badge className={`mt-1 text-xs ${weekManychat.vendas_atribuidas > 0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                    {weekManychat.vendas_atribuidas > 0 ? '✓ Ativo' : '⚠ Sem vendas'}
+                  </Badge>
+                  <p className="text-xs text-muted-foreground mt-1">{weekManychat.leads_gerados} leads gerados</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-lg font-bold text-muted-foreground">—</p>
+                  <Badge className="mt-1 text-xs bg-muted text-muted-foreground">Não registrado</Badge>
+                </>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* KPI Cards Grid */}
