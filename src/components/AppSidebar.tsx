@@ -470,6 +470,37 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
                   )}
                 </AnimatePresence>
               )}
+
+              {/* KPIs Submenu */}
+              {isKpisItem && (
+                <AnimatePresence>
+                  {showSubmenu && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="ml-4 mt-1 space-y-1 overflow-hidden border-l border-border/30 pl-3"
+                    >
+                      {[
+                        { label: 'Visão Geral', path: '/kpis' },
+                        { label: 'ManyChat', path: '/kpis/manychat' },
+                        { label: 'Grupo VIP', path: '/kpis/grupo-vip' },
+                      ].map((sub) => (
+                        <motion.button
+                          key={sub.path}
+                          onClick={() => { navigate(sub.path); if (isMobile) setOpen(false); }}
+                          className={`w-full h-9 rounded-lg flex items-center gap-2 px-3 text-sm transition-all ${location.pathname === sub.path ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
+                          whileHover={{ x: 4 }}
+                        >
+                          <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
+                          <span>{sub.label}</span>
+                        </motion.button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
             </div>
           );
         })}
