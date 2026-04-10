@@ -209,71 +209,49 @@ export default function Dashboard() {
       setLoading(false);
     }
   };
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-  
   const now = new Date();
   const weekStartStr = format(getWeekStart(now), 'yyyy-MM-dd');
-  const startMonth = format(startOfMonth(now), 'yyyy-MM-dd');
-  const endMonth = format(endOfMonth(now), 'yyyy-MM-dd');
   const mesAtual = now.getMonth() + 1;
   const anoAtual = now.getFullYear();
 
   const { data: weekReceitas = [] } = useQuery({
     queryKey: ['dash-week-receitas', user?.id, weekStartStr],
     queryFn: async () => {
-      const { data } = await supabase.from('receitas').select('valor_bruto')
-        .gte('data', weekStartStr);
+      const { data } = await supabase.from('receitas').select('valor_bruto').gte('data', weekStartStr);
       return data || [];
     },
     enabled: !!user?.id,
   });
-
   const { data: metaFat } = useQuery({
     queryKey: ['dash-meta-fat', user?.id, mesAtual, anoAtual],
     queryFn: async () => {
-      const { data } = await supabase.from('metas').select('valor_meta')
-        .eq('mes', mesAtual).eq('ano', anoAtual).ilike('nome', '%faturamento%').maybeSingle();
+      const { data } = await supabase.from('metas').select('valor_meta').eq('mes', mesAtual).eq('ano', anoAtual).ilike('nome', '%faturamento%').maybeSingle();
       return data;
     },
     enabled: !!user?.id,
   });
-
   const { data: weekGrupoVip } = useQuery({
     queryKey: ['dash-grupo-vip', user?.id, weekStartStr],
     queryFn: async () => {
-      const { data } = await supabase.from('kpi_grupo_vip' as any).select('*')
-        .eq('semana_inicio', weekStartStr).maybeSingle();
+      const { data } = await supabase.from('kpi_grupo_vip' as any).select('*').eq('semana_inicio', weekStartStr).maybeSingle();
       return data as any;
     },
     enabled: !!user?.id,
   });
-
   const { data: weekManychat } = useQuery({
     queryKey: ['dash-manychat', user?.id, weekStartStr],
     queryFn: async () => {
-      const { data } = await supabase.from('kpi_manychat' as any).select('*')
-        .eq('semana_inicio', weekStartStr).maybeSingle();
+      const { data } = await supabase.from('kpi_manychat' as any).select('*').eq('semana_inicio', weekStartStr).maybeSingle();
       return data as any;
     },
     enabled: !!user?.id,
   });
-
   const { connection } = useMetaConnection();
   const { insights, fetchInsights } = useMetaInsights();
 
   useEffect(() => {
     if (connection?.selected_ad_account_id) {
-      fetchInsights({
-        ad_account_id: connection.selected_ad_account_id,
-        level: 'campaign',
-        date_preset: 'this_week_sun_today',
-      });
+      fetchInsights({ ad_account_id: connection.selected_ad_account_id, level: 'campaign', date_preset: 'this_week_sun_today' });
     }
   }, [connection?.selected_ad_account_id, fetchInsights]);
 
@@ -281,14 +259,20 @@ export default function Dashboard() {
   const metaFatVal = metaFat?.valor_meta ? parseFloat(metaFat.valor_meta.replace(/\./g, '').replace(',', '.')) || 30000 : 30000;
   const metaSemanal = metaFatVal / 4;
   const pctFatSemana = metaSemanal > 0 ? (fatSemana / metaSemanal) * 100 : 0;
-
   const weekSpend = insights.reduce((a, i) => a + Number(i.spend || 0), 0);
   const weekRevenue = insights.reduce((a, i) => a + getActionValue(i.action_values, 'purchase') + getActionValue(i.action_values, 'omni_purchase'), 0);
   const weekRoas = weekSpend > 0 ? weekRevenue / weekSpend : 0;
   const roasBadge = weekRoas >= 3 ? 'bg-green-500/20 text-green-400' : weekRoas >= 1.5 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400';
   const roasLabel = weekRoas >= 3 ? 'Ótimo' : weekRoas >= 1.5 ? 'Regular' : 'Baixo';
-
   const formatCurrency = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
