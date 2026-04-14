@@ -217,7 +217,7 @@ export default function Dashboard() {
   const { data: weekReceitas = [] } = useQuery({
     queryKey: ['dash-week-receitas', user?.id, weekStartStr],
     queryFn: async () => {
-      const { data } = await supabase.from('receitas').select('valor_bruto').gte('data', weekStartStr);
+      const { data } = await supabase.from('receitas').select('valor_bruto, taxas').gte('data', weekStartStr);
       return data || [];
     },
     enabled: !!user?.id,
@@ -255,8 +255,16 @@ export default function Dashboard() {
     }
   }, [connection?.selected_ad_account_id, fetchInsights]);
 
-  const fatSemana = weekReceitas.reduce((a: number, r: any) => a + Number(r.valor_bruto), 0);
-  const metaFatVal = metaFat?.valor_meta ? parseFloat(metaFat.valor_meta.replace(/\./g, '').replace(',', '.')) || 30000 : 30000;
+  const fatSemana = weekReceitas.reduce((a: number, r: any) => a + Number(r.valor_bruto || 0) - Number(r.taxas || 0), 0);
+  const parseDashMeta = (val: string | undefined | null): number => {
+    if (!val) return 0;
+    const cleaned = val.replace(/R\$\s?/g, '').replace(/\s/g, '').trim();
+    if (cleaned.includes(',')) return parseFloat(cleaned.replace(/\./g, '').replace(',', '.')) || 0;
+    const dotIdx = cleaned.indexOf('.');
+    if (dotIdx !== -1 && cleaned.length - dotIdx - 1 !== 2) return parseFloat(cleaned.replace(/\./g, '')) || 0;
+    return parseFloat(cleaned) || 0;
+  };
+  const metaFatVal = parseDashMeta(metaFat?.valor_meta) || 30000;
   const metaSemanal = metaFatVal / 4;
   const pctFatSemana = metaSemanal > 0 ? (fatSemana / metaSemanal) * 100 : 0;
   const weekSpend = insights.reduce((a, i) => a + Number(i.spend || 0), 0);
