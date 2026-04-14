@@ -14,7 +14,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMetaInsights, getActionValue } from '@/hooks/useMetaInsights';
 import { useMetaConnection } from '@/hooks/useMetaConnection';
 import { toast } from 'sonner';
-import { format, startOfMonth, endOfMonth, subWeeks, startOfWeek, endOfWeek } from 'date-fns';
+import { format, startOfMonth, endOfMonth, subWeeks, endOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { getWeekOptions, getWeekStart } from '@/lib/weekUtils';
 import {
@@ -30,23 +30,42 @@ const formatCurrency = (v: number) =>
 
 function parseMeta(val: string | undefined | null): number {
   if (!val) return 0;
-  return parseFloat(val.replace(/\./g, '').replace(',', '.')) || 0;
+  const cleaned = val.replace(/R\$\s?/g, '').replace(/\s/g, '').trim();
+  if (cleaned.includes(',')) {
+    return parseFloat(cleaned.replace(/\./g, '').replace(',', '.')) || 0;
+  }
+  const dotIdx = cleaned.indexOf('.');
+  if (dotIdx !== -1 && cleaned.length - dotIdx - 1 !== 2) {
+    return parseFloat(cleaned.replace(/\./g, '')) || 0;
+  }
+  return parseFloat(cleaned) || 0;
 }
 
 // ─── FINANCEIRO TAB ─────────────────────────────────────────────
-function FinanceiroTab() {
+function FinanceiroTab({ selectedMes, selectedAno, setSelectedMes, setSelectedAno }: {
+  selectedMes: number; selectedAno: number;
+  setSelectedMes: (m: number) => void; setSelectedAno: (a: number) => void;
+}) {
   const { user } = useAuth();
   const now = new Date();
-  const mesAtual = now.getMonth() + 1;
-  const anoAtual = now.getFullYear();
-  const startMonth = format(startOfMonth(now), 'yyyy-MM-dd');
-  const endMonth = format(endOfMonth(now), 'yyyy-MM-dd');
-  const prevMonth = new Date(anoAtual, mesAtual - 2, 1);
-  const startPrev = format(startOfMonth(prevMonth), 'yyyy-MM-dd');
-  const endPrev = format(endOfMonth(prevMonth), 'yyyy-MM-dd');
+
+  const monthOptions = Array.from({ length: 12 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    return {
+      label: format(d, 'MMMM yyyy', { locale: ptBR }),
+      mes: d.getMonth() + 1,
+      ano: d.getFullYear(),
+    };
+  });
+
+  const startMonth = format(new Date(selectedAno, selectedMes - 1, 1), 'yyyy-MM-dd');
+  const endMonth = format(endOfMonth(new Date(selectedAno, selectedMes - 1, 1)), 'yyyy-MM-dd');
+  const prevDate = new Date(selectedAno, selectedMes - 2, 1);
+  const startPrev = format(prevDate, 'yyyy-MM-dd');
+  const endPrev = format(endOfMonth(prevDate), 'yyyy-MM-dd');
 
   const { data: receitas = [] } = useQuery({
-    queryKey: ['kpi-receitas', user?.id, mesAtual, anoAtual],
+    queryKey: ['kpi-receitas', user?.id, selectedMes, selectedAno],
     queryFn: async () => {
       const { data } = await supabase.from('receitas').select('*')
         .gte('data', startMonth).lte('data', endMonth);
@@ -56,9 +75,9 @@ function FinanceiroTab() {
   });
 
   const { data: receitasPrev = [] } = useQuery({
-    queryKey: ['kpi-receitas-prev', user?.id, mesAtual, anoAtual],
+    queryKey: ['kpi-receitas-prev', user?.id, selectedMes, selectedAno],
     queryFn: async () => {
-      const { data } = await supabase.from('receitas').select('valor_bruto')
+      const { data } = await supabase.from('receitas').select('valor_bruto, taxas')
         .gte('data', startPrev).lte('data', endPrev);
       return data || [];
     },
@@ -66,82 +85,103 @@ function FinanceiroTab() {
   });
 
   const { data: despesas = [] } = useQuery({
-    queryKey: ['kpi-despesas', user?.id, mesAtual, anoAtual],
+    queryKey: ['kpi-despesas', user?.id, selectedMes, selectedAno],
     queryFn: async () => {
-      const { data } = await supabase.from('despesas').select('*')
+      const { data } = await supabase.from('despesas').select('valor')
         .gte('data', startMonth).lte('data', endMonth);
       return data || [];
     },
     enabled: !!user?.id,
   });
 
-  const { data: pedidos = [] } = useQuery({
-    queryKey: ['kpi-pedidos', user?.id, mesAtual, anoAtual],
-    queryFn: async () => {
-      const { data } = await supabase.from('pedidos').select('id, created_at')
-        .gte('created_at', `${startMonth}T00:00:00`)
-        .lte('created_at', `${endMonth}T23:59:59`);
-      return data || [];
-    },
-    enabled: !!user?.id,
-  });
-
   const { data: metaFaturamento } = useQuery({
-    queryKey: ['meta-faturamento', user?.id, mesAtual, anoAtual],
+    queryKey: ['meta-faturamento', user?.id, selectedMes, selectedAno],
     queryFn: async () => {
       const { data } = await supabase.from('metas').select('valor_meta')
-        .eq('mes', mesAtual).eq('ano', anoAtual).ilike('nome', '%faturamento%').maybeSingle();
+        .eq('mes', selectedMes).eq('ano', selectedAno).ilike('nome', '%faturamento%').maybeSingle();
       return data;
     },
     enabled: !!user?.id,
   });
 
   const { data: metaLucro } = useQuery({
-    queryKey: ['meta-lucro', user?.id, mesAtual, anoAtual],
+    queryKey: ['meta-lucro', user?.id, selectedMes, selectedAno],
     queryFn: async () => {
       const { data } = await supabase.from('metas').select('valor_meta')
-        .eq('mes', mesAtual).eq('ano', anoAtual).ilike('nome', '%lucro%').maybeSingle();
+        .eq('mes', selectedMes).eq('ano', selectedAno).ilike('nome', '%lucro%').maybeSingle();
       return data;
     },
     enabled: !!user?.id,
   });
 
-  const faturamento = receitas.reduce((a, r) => a + Number(r.valor_bruto), 0);
-  const faturamentoPrev = receitasPrev.reduce((a, r) => a + Number(r.valor_bruto), 0);
-  const totalDespesas = despesas.reduce((a, d) => a + Number(d.valor), 0);
-  const lucro = faturamento - totalDespesas;
-  const margem = faturamento > 0 ? (lucro / faturamento) * 100 : 0;
-  const ticketMedio = pedidos.length > 0 ? faturamento / pedidos.length : 0;
+  // CÁLCULOS CORRETOS
+  const faturamentoBruto = receitas.reduce((a, r) => a + Number(r.valor_bruto || 0), 0);
+  const totalTaxas = receitas.reduce((a, r) => a + Number(r.taxas || 0), 0);
+  const receitaLiquida = faturamentoBruto - totalTaxas;
+
+  const totalDespesas = despesas.reduce((a, d) => a + Number(d.valor || 0), 0);
+  const lucroLiquido = receitaLiquida - totalDespesas;
+  const margem = receitaLiquida > 0 ? (lucroLiquido / receitaLiquida) * 100 : 0;
+
+  const qtdPedidos = receitas.length;
+  const ticketMedio = qtdPedidos > 0 ? receitaLiquida / qtdPedidos : 0;
+
+  const receitaLiquidaPrev = receitasPrev.reduce((a, r) => a + Number(r.valor_bruto || 0) - Number(r.taxas || 0), 0);
+  const crescimento = receitaLiquidaPrev > 0 ? ((receitaLiquida - receitaLiquidaPrev) / receitaLiquidaPrev) * 100 : 0;
+
   const metaFat = parseMeta(metaFaturamento?.valor_meta) || 30000;
   const metaLuc = parseMeta(metaLucro?.valor_meta) || 3000;
   const metaTicket = 380;
   const metaMargem = 10;
-  const pctFat = metaFat > 0 ? (faturamento / metaFat) * 100 : 0;
-  const pctLuc = metaLuc > 0 ? (lucro / metaLuc) * 100 : 0;
-  const crescimento = faturamentoPrev > 0 ? ((faturamento - faturamentoPrev) / faturamentoPrev) * 100 : 0;
+  const pctFat = metaFat > 0 ? (receitaLiquida / metaFat) * 100 : 0;
+  const pctLuc = metaLuc > 0 ? (lucroLiquido / metaLuc) * 100 : 0;
 
   const progressColor = (pct: number) =>
     pct >= 100 ? 'bg-green-500' : pct >= 70 ? 'bg-yellow-500' : 'bg-red-500';
 
-  // Weekly chart data
+  // Weekly chart data — use selected month center as reference
   const weeklyData = Array.from({ length: 4 }, (_, i) => {
-    const ws = getWeekStart(subWeeks(now, 3 - i));
+    const ws = getWeekStart(subWeeks(new Date(selectedAno, selectedMes - 1, 15), 3 - i));
     const we = endOfWeek(ws, { weekStartsOn: 1 });
     const wsStr = format(ws, 'yyyy-MM-dd');
     const weStr = format(we, 'yyyy-MM-dd');
-    const total = receitas.filter(r => r.data >= wsStr && r.data <= weStr)
-      .reduce((a, r) => a + Number(r.valor_bruto), 0);
+    const total = receitas
+      .filter(r => r.data >= wsStr && r.data <= weStr)
+      .reduce((a, r) => a + Number(r.valor_bruto || 0) - Number(r.taxas || 0), 0);
     return { name: `Sem ${format(ws, 'dd/MM')}`, valor: total };
   });
 
   return (
     <div className="space-y-6">
+      {/* Month selector */}
+      <div className="flex items-center gap-3 mb-6">
+        <Select
+          value={`${selectedMes}-${selectedAno}`}
+          onValueChange={(val) => {
+            const [m, a] = val.split('-').map(Number);
+            setSelectedMes(m);
+            setSelectedAno(a);
+          }}
+        >
+          <SelectTrigger className="w-[220px]">
+            <SelectValue placeholder="Selecionar mês" />
+          </SelectTrigger>
+          <SelectContent>
+            {monthOptions.map(opt => (
+              <SelectItem key={`${opt.mes}-${opt.ano}`} value={`${opt.mes}-${opt.ano}`}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Faturamento */}
-        <KpiProgressCard title="Faturamento" value={faturamento} meta={metaFat} pct={pctFat}
+        {/* Receita Líquida */}
+        <KpiProgressCard title="Receita Líquida" value={receitaLiquida} meta={metaFat} pct={pctFat}
           icon={DollarSign} crescimento={crescimento} progressColor={progressColor(pctFat)} />
         {/* Lucro */}
-        <KpiProgressCard title="Lucro Líquido" value={lucro} meta={metaLuc} pct={pctLuc}
+        <KpiProgressCard title="Lucro Líquido" value={lucroLiquido} meta={metaLuc} pct={pctLuc}
           icon={TrendingUp} progressColor={progressColor(pctLuc)} />
         {/* Margem */}
         <div className="p-5 rounded-2xl bg-card border border-border/30 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all">
@@ -169,19 +209,19 @@ function FinanceiroTab() {
               style={{ width: `${Math.min((ticketMedio / metaTicket) * 100, 100)}%` }} />
           </div>
         </div>
-        {/* Pedidos */}
+        {/* Pedidos (= receitas.length) */}
         <div className="p-5 rounded-2xl bg-card border border-border/30 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-2 rounded-lg bg-primary/10"><Target className="h-4 w-4 text-primary" /></div>
             <span className="text-sm text-muted-foreground">Pedidos do Mês</span>
           </div>
-          <p className="text-2xl font-bold">{pedidos.length}</p>
+          <p className="text-2xl font-bold">{qtdPedidos}</p>
         </div>
       </div>
 
       {/* Weekly chart */}
       <div className="p-5 rounded-2xl bg-card border border-border/30">
-        <h3 className="text-sm font-semibold mb-4">Faturamento Semanal</h3>
+        <h3 className="text-sm font-semibold mb-4">Receita Líquida Semanal</h3>
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={weeklyData}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -424,7 +464,6 @@ function ManychatTab() {
         {saveMutation.isPending ? 'Salvando...' : 'Salvar Semana'}
       </Button>
 
-      {/* History */}
       {history.length > 0 && (
         <div className="overflow-x-auto rounded-xl border border-border/30">
           <table className="w-full text-sm">
@@ -536,7 +575,6 @@ function GrupoVipTab() {
 
   return (
     <div className="space-y-6">
-      {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4">
         <div className="p-4 rounded-2xl bg-card border border-border/30">
           <p className="text-xs text-muted-foreground">Total Membros</p>
@@ -614,14 +652,17 @@ function FormField({ label, value, onChange, type = 'text', step }: {
 }
 
 // ─── MAIN PAGE ──────────────────────────────────────────────────
-const mesAtualFormatado = format(new Date(), "MMMM 'de' yyyy", { locale: ptBR });
-
 export default function KpisPage() {
+  const now = new Date();
+  const [selectedMes, setSelectedMes] = useState(now.getMonth() + 1);
+  const [selectedAno, setSelectedAno] = useState(now.getFullYear());
+  const mesFormatado = format(new Date(selectedAno, selectedMes - 1, 1), "MMMM 'de' yyyy", { locale: ptBR });
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 p-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight font-display">KPIs Q2</h1>
-        <p className="text-muted-foreground">Indicadores de performance por canal — {mesAtualFormatado}</p>
+        <p className="text-muted-foreground">Indicadores de performance por canal — {mesFormatado}</p>
       </div>
       <Tabs defaultValue="financeiro" className="space-y-6">
         <TabsList className="bg-card border border-border/30 p-1 rounded-xl gap-1 h-auto grid grid-cols-4">
@@ -630,7 +671,9 @@ export default function KpisPage() {
           <TabsTrigger value="manychat" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm">ManyChat</TabsTrigger>
           <TabsTrigger value="grupo_vip" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm">Grupo VIP</TabsTrigger>
         </TabsList>
-        <TabsContent value="financeiro"><FinanceiroTab /></TabsContent>
+        <TabsContent value="financeiro">
+          <FinanceiroTab selectedMes={selectedMes} selectedAno={selectedAno} setSelectedMes={setSelectedMes} setSelectedAno={setSelectedAno} />
+        </TabsContent>
         <TabsContent value="meta_ads"><MetaAdsTab /></TabsContent>
         <TabsContent value="manychat"><ManychatTab /></TabsContent>
         <TabsContent value="grupo_vip"><GrupoVipTab /></TabsContent>
