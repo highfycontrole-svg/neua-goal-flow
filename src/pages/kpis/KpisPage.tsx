@@ -11,7 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useMetaInsights, getActionValue } from '@/hooks/useMetaInsights';
+import { useMetaInsights, getActionValue, getPurchaseValue } from '@/hooks/useMetaInsights';
 import { useMetaConnection } from '@/hooks/useMetaConnection';
 import { toast } from 'sonner';
 import { format, startOfMonth, endOfMonth, subWeeks, endOfWeek } from 'date-fns';
@@ -292,14 +292,9 @@ function MetaAdsTab() {
   }
 
   const totalSpend = insights.reduce((a, i) => a + Number(i.spend || 0), 0);
-  const totalRevenue = insights.reduce((a, i) => {
-    const purch = getActionValue(i.action_values, 'purchase') + getActionValue(i.action_values, 'omni_purchase');
-    return a + purch;
-  }, 0);
+  const totalRevenue = insights.reduce((a, i) => a + getPurchaseValue(i.action_values), 0);
   const roas = totalSpend > 0 ? totalRevenue / totalSpend : 0;
-  const totalPurchases = insights.reduce((a, i) => {
-    return a + getActionValue(i.actions, 'purchase') + getActionValue(i.actions, 'omni_purchase');
-  }, 0);
+  const totalPurchases = insights.reduce((a, i) => a + getPurchaseValue(i.actions), 0);
   const cac = totalPurchases > 0 ? totalSpend / totalPurchases : 0;
   const avgCtr = insights.length > 0 ? insights.reduce((a, i) => a + Number(i.ctr || 0), 0) / insights.length : 0;
   const avgCpc = insights.length > 0 ? insights.reduce((a, i) => a + Number(i.cpc || 0), 0) / insights.length : 0;
@@ -308,12 +303,12 @@ function MetaAdsTab() {
   const roasBadge = roas >= 3 ? 'bg-green-500/20 text-green-400' : roas >= 1.5 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400';
 
   const top5 = [...insights].sort((a, b) => {
-    const ra = Number(a.spend || 0) > 0 ? (getActionValue(a.action_values, 'purchase') + getActionValue(a.action_values, 'omni_purchase')) / Number(a.spend || 1) : 0;
-    const rb = Number(b.spend || 0) > 0 ? (getActionValue(b.action_values, 'purchase') + getActionValue(b.action_values, 'omni_purchase')) / Number(b.spend || 1) : 0;
+    const ra = Number(a.spend || 0) > 0 ? getPurchaseValue(a.action_values) / Number(a.spend || 1) : 0;
+    const rb = Number(b.spend || 0) > 0 ? getPurchaseValue(b.action_values) / Number(b.spend || 1) : 0;
     return rb - ra;
   }).slice(0, 5).map(i => ({
     name: (i.campaign_name || '').substring(0, 20),
-    roas: Number(i.spend || 0) > 0 ? (getActionValue(i.action_values, 'purchase') + getActionValue(i.action_values, 'omni_purchase')) / Number(i.spend || 1) : 0,
+    roas: Number(i.spend || 0) > 0 ? getPurchaseValue(i.action_values) / Number(i.spend || 1) : 0,
   }));
 
   return (
