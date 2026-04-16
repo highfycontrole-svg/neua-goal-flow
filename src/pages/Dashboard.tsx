@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import { format, startOfMonth, endOfMonth, startOfWeek } from 'date-fns';
 import { getWeekStart } from '@/lib/weekUtils';
 import { useMetaConnection } from '@/hooks/useMetaConnection';
-import { useMetaInsights, getActionValue } from '@/hooks/useMetaInsights';
+import { useMetaInsights, getActionValue, getPurchaseValue } from '@/hooks/useMetaInsights';
 import { Link } from 'react-router-dom';
 interface DashboardStats {
   totalSuperMetas: number;
