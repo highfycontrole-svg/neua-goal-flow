@@ -16,91 +16,32 @@ interface MenuItem {
   icon: React.ElementType;
   basePath: string;
   hasSubmenu?: boolean;
+  section?: string;
 }
 
 const menuItems: MenuItem[] = [
-  {
-    title: 'Geral',
-    url: '/geral',
-    icon: Home,
-    basePath: '/geral',
-  },
-  {
-    title: 'Workspace',
-    url: '/workspace',
-    icon: LayoutGrid,
-    basePath: '/workspace',
-    hasSubmenu: true,
-  },
-  {
-    title: 'Financeiro',
-    url: '/financeiro',
-    icon: DollarSign,
-    basePath: '/financeiro',
-  },
-  {
-    title: 'Pedidos',
-    url: '/pedidos',
-    icon: Package,
-    basePath: '/pedidos',
-  },
-  {
-    title: 'Catálogo',
-    url: '/pricing',
-    icon: Calculator,
-    basePath: '/pricing',
-  },
-  {
-    title: 'AD Lab',
-    url: '/adlab',
-    icon: PlayCircle,
-    basePath: '/adlab',
-  },
-  {
-    title: 'Ads Neua',
-    url: '/ads-neua',
-    icon: BarChart3,
-    basePath: '/ads-neua',
-  },
-  {
-    title: 'KPIs',
-    url: '/kpis',
-    icon: BarChart2,
-    basePath: '/kpis',
-    hasSubmenu: true,
-  },
-  {
-    title: 'MindOs',
-    url: '/mindos',
-    icon: Brain,
-    basePath: '/mindos',
-  },
-  {
-    title: 'UTM Builder',
-    url: '/utm',
-    icon: Link2,
-    basePath: '/utm',
-  },
-  {
-    title: 'Metas',
-    url: '/dashboard',
-    icon: Target,
-    basePath: '/dashboard',
-    hasSubmenu: true,
-  },
-  {
-    title: 'Planner',
-    url: '/planner',
-    icon: Rocket,
-    basePath: '/planner',
-  },
-  {
-    title: 'Creators',
-    url: '/creators',
-    icon: Users,
-    basePath: '/creators',
-    hasSubmenu: true,
-  },
+  // GERAL
+  { title: 'Geral', url: '/geral', icon: Home, basePath: '/geral', section: 'GERAL' },
+
+  // OPERACIONAL
+  { title: 'Workspace', url: '/workspace', icon: LayoutGrid, basePath: '/workspace', hasSubmenu: true, section: 'OPERACIONAL' },
+  { title: 'Financeiro', url: '/financeiro', icon: DollarSign, basePath: '/financeiro' },
+  { title: 'Pedidos', url: '/pedidos', icon: Package, basePath: '/pedidos' },
+  { title: 'Catálogo', url: '/pricing', icon: Calculator, basePath: '/pricing' },
+
+  // MARKETING
+  { title: 'AD Lab', url: '/adlab', icon: PlayCircle, basePath: '/adlab', section: 'MARKETING' },
+  { title: 'Ads Neua', url: '/ads-neua', icon: BarChart3, basePath: '/ads-neua' },
+  { title: 'KPIs', url: '/kpis', icon: BarChart2, basePath: '/kpis', hasSubmenu: true },
+  { title: 'UTM Builder', url: '/utm', icon: Link2, basePath: '/utm' },
+
+  // DADOS
+  { title: 'MindOs', url: '/mindos', icon: Brain, basePath: '/mindos', section: 'DADOS' },
+  { title: 'Metas', url: '/dashboard', icon: Target, basePath: '/dashboard', hasSubmenu: true },
+
+  // CONTEÚDO
+  { title: 'Planner', url: '/planner', icon: Rocket, basePath: '/planner', section: 'CONTEÚDO' },
+  { title: 'Creators', url: '/creators', icon: Users, basePath: '/creators', hasSubmenu: true },
 ];
 
 export function AppSidebar() {
