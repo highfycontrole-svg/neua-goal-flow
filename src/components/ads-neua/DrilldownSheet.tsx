@@ -1,4 +1,4 @@
-import { MetaInsight, getActionValue } from "@/hooks/useMetaInsights";
+import { MetaInsight, getActionValue, getPurchaseValue } from "@/hooks/useMetaInsights";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 
