@@ -319,6 +319,28 @@
   .flex-responsive-wrap {
     @apply flex flex-wrap gap-2 sm:gap-3;
   }
+
+  /* Status color utilities */
+  .bg-success { background-color: hsl(var(--success)); }
+  .text-success { color: hsl(var(--success)); }
+  .border-success { border-color: hsl(var(--success)); }
+  .bg-warning { background-color: hsl(var(--warning)); }
+  .text-warning { color: hsl(var(--warning)); }
+  .border-warning { border-color: hsl(var(--warning)); }
+  .bg-info { background-color: hsl(var(--info)); }
+  .text-info { color: hsl(var(--info)); }
+
+  /* Highlighted cards with colored left border */
+  .card-highlight-blue { border-left: 3px solid hsl(var(--primary)); }
+  .card-highlight-green { border-left: 3px solid hsl(var(--success)); }
+  .card-highlight-red { border-left: 3px solid hsl(var(--destructive)); }
+  .card-highlight-amber { border-left: 3px solid hsl(var(--warning)); }
+
+  /* Glow effects */
+  .glow-blue { box-shadow: 0 0 20px hsl(217 95% 62% / 0.25), 0 4px 16px hsl(0 0% 0% / 0.4); }
+  .glow-green { box-shadow: 0 0 20px hsl(142 71% 45% / 0.25), 0 4px 16px hsl(0 0% 0% / 0.4); }
+  .glow-red { box-shadow: 0 0 20px hsl(0 85% 55% / 0.25), 0 4px 16px hsl(0 0% 0% / 0.4); }
+  .glow-amber { box-shadow: 0 0 20px hsl(38 92% 50% / 0.25), 0 4px 16px hsl(0 0% 0% / 0.4); }
 }
 
 /* Dialog/Modal Mobile Optimization */
