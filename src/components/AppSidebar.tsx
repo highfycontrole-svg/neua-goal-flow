@@ -314,63 +314,6 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
                   )}
                 </AnimatePresence>
               </motion.button>
-          const active = isActive(item.basePath);
-          const isWorkspaceItem = item.basePath === '/workspace';
-          const isMetasItem = item.basePath === '/dashboard';
-          const isCreatorsItem = item.basePath === '/creators';
-          const isKpisItem = item.basePath === '/kpis';
-          const showSubmenu = item.hasSubmenu && open && (
-            (isWorkspaceItem && workspaceMenuOpen) || (isMetasItem && metasMenuOpen) || (isCreatorsItem && creatorsMenuOpen) || (isKpisItem && kpisMenuOpen)
-          );
-          const submenuOpen = isWorkspaceItem ? workspaceMenuOpen : isMetasItem ? metasMenuOpen : isCreatorsItem ? creatorsMenuOpen : isKpisItem ? kpisMenuOpen : false;
-          
-          return (
-            <div key={item.url}>
-              <motion.button
-                onClick={() => handleMenuClick(item)}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className={`
-                  w-full h-12 rounded-xl flex items-center gap-3 transition-all duration-300
-                  ${active 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-                  }
-                  ${open ? 'px-4 justify-start' : 'px-0 justify-center'}
-                `}
-                style={{
-                  boxShadow: active ? '0 0 25px hsl(217 91% 60% / 0.4)' : undefined,
-                }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <item.icon className="h-5 w-5 flex-shrink-0" />
-                <AnimatePresence mode="wait">
-                  {open && (
-                    <>
-                      <motion.span
-                        initial={{ opacity: 0, width: 0 }}
-                        animate={{ opacity: 1, width: 'auto' }}
-                        exit={{ opacity: 0, width: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="font-medium text-sm whitespace-nowrap overflow-hidden flex-1 text-left"
-                      >
-                        {item.title}
-                      </motion.span>
-                      {item.hasSubmenu && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1, rotate: submenuOpen ? 0 : -90 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <ChevronDown className="h-4 w-4" />
-                        </motion.div>
-                      )}
-                    </>
-                  )}
-                </AnimatePresence>
-              </motion.button>
               
               {/* Workspace Submenu */}
               {isWorkspaceItem && (
