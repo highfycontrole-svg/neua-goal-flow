@@ -16,91 +16,32 @@ interface MenuItem {
   icon: React.ElementType;
   basePath: string;
   hasSubmenu?: boolean;
+  section?: string;
 }
 
 const menuItems: MenuItem[] = [
-  {
-    title: 'Geral',
-    url: '/geral',
-    icon: Home,
-    basePath: '/geral',
-  },
-  {
-    title: 'Workspace',
-    url: '/workspace',
-    icon: LayoutGrid,
-    basePath: '/workspace',
-    hasSubmenu: true,
-  },
-  {
-    title: 'Financeiro',
-    url: '/financeiro',
-    icon: DollarSign,
-    basePath: '/financeiro',
-  },
-  {
-    title: 'Pedidos',
-    url: '/pedidos',
-    icon: Package,
-    basePath: '/pedidos',
-  },
-  {
-    title: 'Catálogo',
-    url: '/pricing',
-    icon: Calculator,
-    basePath: '/pricing',
-  },
-  {
-    title: 'AD Lab',
-    url: '/adlab',
-    icon: PlayCircle,
-    basePath: '/adlab',
-  },
-  {
-    title: 'Ads Neua',
-    url: '/ads-neua',
-    icon: BarChart3,
-    basePath: '/ads-neua',
-  },
-  {
-    title: 'KPIs',
-    url: '/kpis',
-    icon: BarChart2,
-    basePath: '/kpis',
-    hasSubmenu: true,
-  },
-  {
-    title: 'MindOs',
-    url: '/mindos',
-    icon: Brain,
-    basePath: '/mindos',
-  },
-  {
-    title: 'UTM Builder',
-    url: '/utm',
-    icon: Link2,
-    basePath: '/utm',
-  },
-  {
-    title: 'Metas',
-    url: '/dashboard',
-    icon: Target,
-    basePath: '/dashboard',
-    hasSubmenu: true,
-  },
-  {
-    title: 'Planner',
-    url: '/planner',
-    icon: Rocket,
-    basePath: '/planner',
-  },
-  {
-    title: 'Creators',
-    url: '/creators',
-    icon: Users,
-    basePath: '/creators',
-    hasSubmenu: true,
-  },
+  // GERAL
+  { title: 'Geral', url: '/geral', icon: Home, basePath: '/geral', section: 'GERAL' },
+
+  // OPERACIONAL
+  { title: 'Workspace', url: '/workspace', icon: LayoutGrid, basePath: '/workspace', hasSubmenu: true, section: 'OPERACIONAL' },
+  { title: 'Financeiro', url: '/financeiro', icon: DollarSign, basePath: '/financeiro' },
+  { title: 'Pedidos', url: '/pedidos', icon: Package, basePath: '/pedidos' },
+  { title: 'Catálogo', url: '/pricing', icon: Calculator, basePath: '/pricing' },
+
+  // MARKETING
+  { title: 'AD Lab', url: '/adlab', icon: PlayCircle, basePath: '/adlab', section: 'MARKETING' },
+  { title: 'Ads Neua', url: '/ads-neua', icon: BarChart3, basePath: '/ads-neua' },
+  { title: 'KPIs', url: '/kpis', icon: BarChart2, basePath: '/kpis', hasSubmenu: true },
+  { title: 'UTM Builder', url: '/utm', icon: Link2, basePath: '/utm' },
+
+  // DADOS
+  { title: 'MindOs', url: '/mindos', icon: Brain, basePath: '/mindos', section: 'DADOS' },
+  { title: 'Metas', url: '/dashboard', icon: Target, basePath: '/dashboard', hasSubmenu: true },
+
+  // CONTEÚDO
+  { title: 'Planner', url: '/planner', icon: Rocket, basePath: '/planner', section: 'CONTEÚDO' },
+  { title: 'Creators', url: '/creators', icon: Users, basePath: '/creators', hasSubmenu: true },
 ];
 
 export function AppSidebar() {
@@ -320,29 +261,34 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
             (isWorkspaceItem && workspaceMenuOpen) || (isMetasItem && metasMenuOpen) || (isCreatorsItem && creatorsMenuOpen) || (isKpisItem && kpisMenuOpen)
           );
           const submenuOpen = isWorkspaceItem ? workspaceMenuOpen : isMetasItem ? metasMenuOpen : isCreatorsItem ? creatorsMenuOpen : isKpisItem ? kpisMenuOpen : false;
-          
+
           return (
             <div key={item.url}>
+              {item.section && open && (
+                <div className="px-3 pt-3 pb-1 text-[10px] font-semibold tracking-widest text-foreground/40">
+                  {item.section}
+                </div>
+              )}
+              {item.section && !open && index > 0 && (
+                <div className="my-2 mx-2 h-px bg-border/40" />
+              )}
               <motion.button
                 onClick={() => handleMenuClick(item)}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
+                transition={{ delay: index * 0.03 }}
                 className={`
-                  w-full h-12 rounded-xl flex items-center gap-3 transition-all duration-300
-                  ${active 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                  w-full h-11 rounded-[10px] flex items-center gap-3 transition-all duration-150
+                  ${active
+                    ? 'bg-primary text-primary-foreground shadow-[0_4px_20px_hsl(217_95%_62%/0.4)]'
+                    : 'text-foreground/65 hover:bg-secondary hover:text-foreground'
                   }
-                  ${open ? 'px-4 justify-start' : 'px-0 justify-center'}
+                  ${open ? 'px-3 justify-start' : 'px-0 justify-center'}
                 `}
-                style={{
-                  boxShadow: active ? '0 0 25px hsl(217 91% 60% / 0.4)' : undefined,
-                }}
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <item.icon className="h-5 w-5 flex-shrink-0" />
+                <item.icon className="h-[18px] w-[18px] flex-shrink-0" />
                 <AnimatePresence mode="wait">
                   {open && (
                     <>
@@ -350,7 +296,7 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
                         initial={{ opacity: 0, width: 0 }}
                         animate={{ opacity: 1, width: 'auto' }}
                         exit={{ opacity: 0, width: 0 }}
-                        transition={{ duration: 0.2 }}
+                        transition={{ duration: 0.15 }}
                         className="font-medium text-sm whitespace-nowrap overflow-hidden flex-1 text-left"
                       >
                         {item.title}
@@ -506,35 +452,39 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
         })}
       </nav>
 
-      {/* Footer - Logout */}
+      {/* Footer - User Card */}
       <div className="mt-auto pt-4">
-        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mb-4" />
-        <motion.button
-          onClick={signOut}
-          className={`
-            w-full h-12 rounded-xl bg-secondary text-foreground
-            flex items-center gap-3 transition-all duration-300
-            hover:bg-destructive hover:text-destructive-foreground
-            ${open ? 'px-4 justify-start' : 'px-0 justify-center'}
-          `}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <LogOut className="h-5 w-5 flex-shrink-0" />
-          <AnimatePresence mode="wait">
-            {open && (
-              <motion.span
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.2 }}
-                className="font-medium text-sm whitespace-nowrap overflow-hidden"
-              >
-                Sair
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </motion.button>
+        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mb-3" />
+        {open ? (
+          <div className="rounded-xl bg-secondary border border-border/50 p-2.5 flex items-center gap-2.5">
+            <div className="h-9 w-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-display font-bold text-sm flex-shrink-0">
+              N
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">Neua</p>
+              <p className="text-[11px] text-foreground/55 truncate">@neua.co</p>
+            </div>
+            <motion.button
+              onClick={signOut}
+              className="h-8 w-8 rounded-lg flex items-center justify-center text-foreground/60 hover:bg-destructive hover:text-destructive-foreground transition-all"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              title="Sair"
+            >
+              <LogOut className="h-4 w-4" />
+            </motion.button>
+          </div>
+        ) : (
+          <motion.button
+            onClick={signOut}
+            className="w-full h-11 rounded-xl bg-secondary text-foreground/70 flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-all"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="Sair"
+          >
+            <LogOut className="h-5 w-5" />
+          </motion.button>
+        )}
       </div>
     </div>
   );

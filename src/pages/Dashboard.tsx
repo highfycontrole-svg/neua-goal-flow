@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import { format, startOfMonth, endOfMonth, startOfWeek } from 'date-fns';
 import { getWeekStart } from '@/lib/weekUtils';
 import { useMetaConnection } from '@/hooks/useMetaConnection';
-import { useMetaInsights, getActionValue } from '@/hooks/useMetaInsights';
+import { useMetaInsights, getActionValue, getPurchaseValue } from '@/hooks/useMetaInsights';
 import { Link } from 'react-router-dom';
 interface DashboardStats {
   totalSuperMetas: number;
@@ -268,7 +268,7 @@ export default function Dashboard() {
   const metaSemanal = metaFatVal / 4;
   const pctFatSemana = metaSemanal > 0 ? (fatSemana / metaSemanal) * 100 : 0;
   const weekSpend = insights.reduce((a, i) => a + Number(i.spend || 0), 0);
-  const weekRevenue = insights.reduce((a, i) => a + getActionValue(i.action_values, 'purchase') + getActionValue(i.action_values, 'omni_purchase'), 0);
+  const weekRevenue = insights.reduce((a, i) => a + getPurchaseValue(i.action_values), 0);
   const weekRoas = weekSpend > 0 ? weekRevenue / weekSpend : 0;
   const roasBadge = weekRoas >= 3 ? 'bg-green-500/20 text-green-400' : weekRoas >= 1.5 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400';
   const roasLabel = weekRoas >= 3 ? 'Ótimo' : weekRoas >= 1.5 ? 'Regular' : 'Baixo';

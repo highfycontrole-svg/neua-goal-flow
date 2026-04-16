@@ -1,4 +1,4 @@
-import { MetaInsight, getActionValue } from "@/hooks/useMetaInsights";
+import { MetaInsight, getActionValue, getPurchaseValue } from "@/hooks/useMetaInsights";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 
@@ -19,8 +19,8 @@ export function DrilldownSheet({ insight, open, onOpenChange }: DrilldownSheetPr
 
   const name = insight.ad_name || insight.adset_name || insight.campaign_name || "Detalhe";
   const spend = Number(insight.spend || 0);
-  const purchases = getActionValue(insight.actions, "purchase") + getActionValue(insight.actions, "omni_purchase");
-  const revenue = getActionValue(insight.action_values, "purchase") + getActionValue(insight.action_values, "omni_purchase");
+  const purchases = getPurchaseValue(insight.actions);
+  const revenue = getPurchaseValue(insight.action_values);
   const roas = spend > 0 ? revenue / spend : 0;
   const costPerPurchase = purchases > 0 ? spend / purchases : 0;
 

@@ -15,71 +15,79 @@
 
 @layer base {
   :root {
-    /* Core Colors - Premium Dark Theme */
-    --background: 0 0% 9%; /* #161616 */
-    --foreground: 0 0% 95%; /* #f2f2f2 */
-    
-    /* Floating Content Block - #292929 */
-    --card: 0 0% 16%; /* #292929 */
-    --card-foreground: 0 0% 95%;
-    
+    /* Core Colors - High Contrast Premium Dark */
+    --background: 0 0% 6%;        /* #0f0f0f */
+    --foreground: 0 0% 98%;       /* #fafafa */
+
+    /* Floating Card Block */
+    --card: 0 0% 11%;             /* #1c1c1c */
+    --card-foreground: 0 0% 98%;
+
     /* Popover/Dialog */
-    --popover: 0 0% 15%;
-    --popover-foreground: 0 0% 95%;
-    
-    /* Primary - Neua Blue */
-    --primary: 217 91% 60%; /* #3b82f6 */
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Primary - Electric Blue */
+    --primary: 217 95% 62%;       /* #3b83f8 */
     --primary-foreground: 0 0% 100%;
-    
+
     /* Secondary */
-    --secondary: 0 0% 17%; /* #2b2b2b */
+    --secondary: 0 0% 14%;
     --secondary-foreground: 0 0% 95%;
-    
+
     /* Muted */
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
-    
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
+
     /* Accent */
-    --accent: 0 0% 22%;
-    --accent-foreground: 0 0% 95%;
-    
+    --accent: 0 0% 18%;
+    --accent-foreground: 0 0% 98%;
+
     /* Destructive */
-    --destructive: 0 72% 51%;
+    --destructive: 0 85% 55%;
     --destructive-foreground: 0 0% 100%;
-    
+
+    /* Status tokens */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+
     /* Borders & Inputs */
-    --border: 0 0% 25%;
-    --input: 0 0% 22%;
-    --ring: 217 91% 60%;
-    
+    --border: 0 0% 20%;
+    --input: 0 0% 16%;
+    --ring: 217 95% 62%;
+
     /* Radius */
     --radius: 0.75rem;
-    --radius-lg: 1.125rem; /* 18px */
-    
+    --radius-lg: 1.125rem;
+
     /* Chart Colors */
-    --chart-1: 217 91% 60%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
+    --chart-1: 217 95% 62%;
+    --chart-2: 142 71% 45%;
+    --chart-3: 38 92% 50%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    
+
     /* Sidebar */
-    --sidebar-background: 0 0% 9%; /* #161616 */
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-background: 0 0% 7%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 217 95% 62%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 91% 60%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 217 91% 60%;
-    
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 217 95% 62%;
+
     /* Custom Design Tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(217 91% 70%) 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 19%) 0%, hsl(0 0% 15%) 100%);
-    --gradient-glow: linear-gradient(135deg, hsl(217 91% 60% / 0.2) 0%, transparent 100%);
-    --shadow-elegant: 0 10px 40px -15px hsl(0 0% 0% / 0.5);
-    --shadow-glow: 0 0 30px hsl(217 91% 60% / 0.15);
-    --shadow-card: 0 8px 32px -8px hsl(0 0% 0% / 0.4);
+    --gradient-primary: linear-gradient(135deg, hsl(217 95% 62%) 0%, hsl(217 95% 72%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 13%) 0%, hsl(0 0% 9%) 100%);
+    --gradient-glow: linear-gradient(135deg, hsl(217 95% 62% / 0.25) 0%, transparent 100%);
+    --shadow-elegant: 0 10px 40px -15px hsl(0 0% 0% / 0.6);
+    --shadow-glow: 0 0 30px hsl(217 95% 62% / 0.2);
+    --shadow-card: 0 8px 32px -8px hsl(0 0% 0% / 0.5);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -311,6 +319,28 @@
   .flex-responsive-wrap {
     @apply flex flex-wrap gap-2 sm:gap-3;
   }
+
+  /* Status color utilities */
+  .bg-success { background-color: hsl(var(--success)); }
+  .text-success { color: hsl(var(--success)); }
+  .border-success { border-color: hsl(var(--success)); }
+  .bg-warning { background-color: hsl(var(--warning)); }
+  .text-warning { color: hsl(var(--warning)); }
+  .border-warning { border-color: hsl(var(--warning)); }
+  .bg-info { background-color: hsl(var(--info)); }
+  .text-info { color: hsl(var(--info)); }
+
+  /* Highlighted cards with colored left border */
+  .card-highlight-blue { border-left: 3px solid hsl(var(--primary)); }
+  .card-highlight-green { border-left: 3px solid hsl(var(--success)); }
+  .card-highlight-red { border-left: 3px solid hsl(var(--destructive)); }
+  .card-highlight-amber { border-left: 3px solid hsl(var(--warning)); }
+
+  /* Glow effects */
+  .glow-blue { box-shadow: 0 0 20px hsl(217 95% 62% / 0.25), 0 4px 16px hsl(0 0% 0% / 0.4); }
+  .glow-green { box-shadow: 0 0 20px hsl(142 71% 45% / 0.25), 0 4px 16px hsl(0 0% 0% / 0.4); }
+  .glow-red { box-shadow: 0 0 20px hsl(0 85% 55% / 0.25), 0 4px 16px hsl(0 0% 0% / 0.4); }
+  .glow-amber { box-shadow: 0 0 20px hsl(38 92% 50% / 0.25), 0 4px 16px hsl(0 0% 0% / 0.4); }
 }
 
 /* Dialog/Modal Mobile Optimization */

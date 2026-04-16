@@ -21,12 +21,22 @@ function getName(insight: MetaInsight, level: InsightLevel) {
   return insight.ad_name || "-";
 }
 
+// Prioriza o evento exato do Pixel (offsite_conversion.fb_pixel_purchase) e cai para fallbacks
+// somente quando o pixel específico não está disponível, para evitar dupla contagem com omni_purchase.
 function getPurchases(i: MetaInsight) {
-  return getActionValue(i.actions, "purchase") + getActionValue(i.actions, "omni_purchase");
+  const pixel = getActionValue(i.actions, "offsite_conversion.fb_pixel_purchase");
+  if (pixel > 0) return pixel;
+  const purchase = getActionValue(i.actions, "purchase");
+  if (purchase > 0) return purchase;
+  return getActionValue(i.actions, "omni_purchase");
 }
 
 function getRevenue(i: MetaInsight) {
-  return getActionValue(i.action_values, "purchase") + getActionValue(i.action_values, "omni_purchase");
+  const pixel = getActionValue(i.action_values, "offsite_conversion.fb_pixel_purchase");
+  if (pixel > 0) return pixel;
+  const purchase = getActionValue(i.action_values, "purchase");
+  if (purchase > 0) return purchase;
+  return getActionValue(i.action_values, "omni_purchase");
 }
 
 function getCostPerPurchase(i: MetaInsight) {

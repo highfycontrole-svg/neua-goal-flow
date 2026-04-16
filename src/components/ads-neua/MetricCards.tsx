@@ -14,14 +14,18 @@ function fmt(value: number, type: "currency" | "percent" | "number" = "number"):
 }
 
 export function MetricCards({ insights, loading }: MetricCardsProps) {
+  const pickPurchase = (arr?: Array<{ action_type: string; value: string }>) => {
+    const pixel = getActionValue(arr, "offsite_conversion.fb_pixel_purchase");
+    if (pixel > 0) return pixel;
+    const purchase = getActionValue(arr, "purchase");
+    if (purchase > 0) return purchase;
+    return getActionValue(arr, "omni_purchase");
+  };
+
   const totalSpend = insights.reduce((s, i) => s + Number(i.spend || 0), 0);
-  const totalRevenue = insights.reduce((s, i) => {
-    return s + getActionValue(i.action_values, "purchase") + getActionValue(i.action_values, "omni_purchase");
-  }, 0);
+  const totalRevenue = insights.reduce((s, i) => s + pickPurchase(i.action_values), 0);
   const roas = totalSpend > 0 ? totalRevenue / totalSpend : 0;
-  const totalPurchases = insights.reduce((s, i) => {
-    return s + getActionValue(i.actions, "purchase") + getActionValue(i.actions, "omni_purchase");
-  }, 0);
+  const totalPurchases = insights.reduce((s, i) => s + pickPurchase(i.actions), 0);
   const cac = totalPurchases > 0 ? totalSpend / totalPurchases : 0;
   const avgCtr = insights.length > 0 ? insights.reduce((s, i) => s + Number(i.ctr || 0), 0) / insights.length : 0;
 
