@@ -261,6 +261,68 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
             (isWorkspaceItem && workspaceMenuOpen) || (isMetasItem && metasMenuOpen) || (isCreatorsItem && creatorsMenuOpen) || (isKpisItem && kpisMenuOpen)
           );
           const submenuOpen = isWorkspaceItem ? workspaceMenuOpen : isMetasItem ? metasMenuOpen : isCreatorsItem ? creatorsMenuOpen : isKpisItem ? kpisMenuOpen : false;
+
+          return (
+            <div key={item.url}>
+              {item.section && open && (
+                <div className="px-3 pt-3 pb-1 text-[10px] font-semibold tracking-widest text-foreground/40">
+                  {item.section}
+                </div>
+              )}
+              {item.section && !open && index > 0 && (
+                <div className="my-2 mx-2 h-px bg-border/40" />
+              )}
+              <motion.button
+                onClick={() => handleMenuClick(item)}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.03 }}
+                className={`
+                  w-full h-11 rounded-[10px] flex items-center gap-3 transition-all duration-150
+                  ${active
+                    ? 'bg-primary text-primary-foreground shadow-[0_4px_20px_hsl(217_95%_62%/0.4)]'
+                    : 'text-foreground/65 hover:bg-secondary hover:text-foreground'
+                  }
+                  ${open ? 'px-3 justify-start' : 'px-0 justify-center'}
+                `}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <item.icon className="h-[18px] w-[18px] flex-shrink-0" />
+                <AnimatePresence mode="wait">
+                  {open && (
+                    <>
+                      <motion.span
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: 'auto' }}
+                        exit={{ opacity: 0, width: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="font-medium text-sm whitespace-nowrap overflow-hidden flex-1 text-left"
+                      >
+                        {item.title}
+                      </motion.span>
+                      {item.hasSubmenu && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1, rotate: submenuOpen ? 0 : -90 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <ChevronDown className="h-4 w-4" />
+                        </motion.div>
+                      )}
+                    </>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+          const active = isActive(item.basePath);
+          const isWorkspaceItem = item.basePath === '/workspace';
+          const isMetasItem = item.basePath === '/dashboard';
+          const isCreatorsItem = item.basePath === '/creators';
+          const isKpisItem = item.basePath === '/kpis';
+          const showSubmenu = item.hasSubmenu && open && (
+            (isWorkspaceItem && workspaceMenuOpen) || (isMetasItem && metasMenuOpen) || (isCreatorsItem && creatorsMenuOpen) || (isKpisItem && kpisMenuOpen)
+          );
+          const submenuOpen = isWorkspaceItem ? workspaceMenuOpen : isMetasItem ? metasMenuOpen : isCreatorsItem ? creatorsMenuOpen : isKpisItem ? kpisMenuOpen : false;
           
           return (
             <div key={item.url}>
