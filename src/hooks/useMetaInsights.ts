@@ -79,3 +79,15 @@ export function getActionValue(actions: Array<{ action_type: string; value: stri
   const a = actions.find(a => a.action_type === actionType);
   return a ? Number(a.value) : 0;
 }
+
+/**
+ * Retorna o valor de compras priorizando o evento exato do Pixel.
+ * Evita dupla contagem com omni_purchase quando o pixel já reporta o número.
+ */
+export function getPurchaseValue(actions: Array<{ action_type: string; value: string }> | undefined): number {
+  const pixel = getActionValue(actions, "offsite_conversion.fb_pixel_purchase");
+  if (pixel > 0) return pixel;
+  const purchase = getActionValue(actions, "purchase");
+  if (purchase > 0) return purchase;
+  return getActionValue(actions, "omni_purchase");
+}
