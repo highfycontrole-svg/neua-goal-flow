@@ -452,35 +452,39 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
         })}
       </nav>
 
-      {/* Footer - Logout */}
+      {/* Footer - User Card */}
       <div className="mt-auto pt-4">
-        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mb-4" />
-        <motion.button
-          onClick={signOut}
-          className={`
-            w-full h-12 rounded-xl bg-secondary text-foreground
-            flex items-center gap-3 transition-all duration-300
-            hover:bg-destructive hover:text-destructive-foreground
-            ${open ? 'px-4 justify-start' : 'px-0 justify-center'}
-          `}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <LogOut className="h-5 w-5 flex-shrink-0" />
-          <AnimatePresence mode="wait">
-            {open && (
-              <motion.span
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.2 }}
-                className="font-medium text-sm whitespace-nowrap overflow-hidden"
-              >
-                Sair
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </motion.button>
+        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mb-3" />
+        {open ? (
+          <div className="rounded-xl bg-secondary border border-border/50 p-2.5 flex items-center gap-2.5">
+            <div className="h-9 w-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-display font-bold text-sm flex-shrink-0">
+              N
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">Neua</p>
+              <p className="text-[11px] text-foreground/55 truncate">@neua.co</p>
+            </div>
+            <motion.button
+              onClick={signOut}
+              className="h-8 w-8 rounded-lg flex items-center justify-center text-foreground/60 hover:bg-destructive hover:text-destructive-foreground transition-all"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              title="Sair"
+            >
+              <LogOut className="h-4 w-4" />
+            </motion.button>
+          </div>
+        ) : (
+          <motion.button
+            onClick={signOut}
+            className="w-full h-11 rounded-xl bg-secondary text-foreground/70 flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-all"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="Sair"
+          >
+            <LogOut className="h-5 w-5" />
+          </motion.button>
+        )}
       </div>
     </div>
   );
