@@ -21,7 +21,12 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [slowConnection, setSlowConnection] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user, loading } = useAuth();
+
+  // Se já estiver autenticado, redireciona direto pro app
+  if (!loading && user) {
+    return <Navigate to="/geral" replace />;
+  }
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
