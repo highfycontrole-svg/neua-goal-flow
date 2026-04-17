@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +19,18 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [slowConnection, setSlowConnection] = useState(false);
   const { signIn, signUp } = useAuth();
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    if (isLoading) {
+      timer = setTimeout(() => setSlowConnection(true), 2000);
+    } else {
+      setSlowConnection(false);
+    }
+    return () => clearTimeout(timer);
+  }, [isLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,21 +38,15 @@ export default function Auth() {
 
     try {
       const validatedData = authSchema.parse({ email, password });
-      
-      const { error } = isLogin
-        ? await signIn(validatedData.email, validatedData.password)
-        : await signUp(validatedData.email, validatedData.password);
-
-      if (error) {
-        toast.error(error.message || 'Erro ao autenticar');
+      if (isLogin) {
+        await signIn(validatedData.email, validatedData.password);
       } else {
-        toast.success(isLogin ? 'Login realizado com sucesso!' : 'Conta criada com sucesso!');
+        await signUp(validatedData.email, validatedData.password);
       }
+      // Toasts de erro/sucesso já são disparados dentro de signIn/signUp
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
-      } else {
-        toast.error('Erro ao processar sua solicitação');
       }
     } finally {
       setIsLoading(false);
@@ -113,6 +118,12 @@ export default function Auth() {
               >
                 {isLoading ? 'Carregando...' : (isLogin ? 'Entrar' : 'Criar conta')}
               </Button>
+
+              {slowConnection && (
+                <p className="text-xs text-muted-foreground text-center pt-1">
+                  Conectando ao servidor... Isso pode levar alguns segundos.
+                </p>
+              )}
             </form>
           </div>
 

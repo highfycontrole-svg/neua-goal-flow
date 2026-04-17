@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
@@ -21,60 +22,76 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Set up auth state listener
+    // Use APENAS onAuthStateChange como fonte de verdade.
+    // O evento INITIAL_SESSION é disparado no primeiro registro com a sessão atual,
+    // eliminando a race condition entre getSession() e onAuthStateChange().
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+      (_event, currentSession) => {
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
         setLoading(false);
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    // Timeout de segurança: se o Supabase não responder em 8s,
+    // libera a UI para evitar tela branca infinita.
+    const timeout = setTimeout(() => {
       setLoading(false);
-    });
+    }, 8000);
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
-    if (!error) {
-      navigate('/dashboard');
-    }
-    
-    return { error };
-  };
-
-  const signUp = async (email: string, password: string) => {
-    const redirectUrl = `${window.location.origin}/dashboard`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl
+  const signIn = useCallback(async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (!error) {
+        navigate('/geral');
+      } else {
+        const msg = error.message.includes('Invalid login credentials')
+          ? 'Email ou senha incorretos'
+          : error.message.includes('Email not confirmed')
+          ? 'Confirme seu email antes de entrar'
+          : error.message.includes('Too many requests')
+          ? 'Muitas tentativas. Aguarde alguns minutos'
+          : 'Erro ao fazer login. Tente novamente';
+        toast.error(msg);
       }
-    });
-    
-    if (!error) {
-      navigate('/dashboard');
+      return { error };
+    } catch (e: any) {
+      const msg = e?.message?.includes('fetch')
+        ? 'Erro de conexão. Verifique sua internet e tente novamente'
+        : 'Erro inesperado. Tente novamente';
+      toast.error(msg);
+      return { error: e };
     }
-    
-    return { error };
-  };
+  }, [navigate]);
 
-  const signOut = async () => {
+  const signUp = useCallback(async (email: string, password: string) => {
+    try {
+      const redirectUrl = `${window.location.origin}/geral`;
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: redirectUrl }
+      });
+      if (!error) {
+        toast.success('Conta criada! Verifique seu email para confirmar.');
+      }
+      return { error };
+    } catch (e: any) {
+      toast.error('Erro ao criar conta. Tente novamente.');
+      return { error: e };
+    }
+  }, []);
+
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     navigate('/auth');
-  };
+  }, [navigate]);
 
   return (
     <AuthContext.Provider value={{ user, session, signIn, signUp, signOut, loading }}>
