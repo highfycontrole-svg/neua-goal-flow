@@ -48,12 +48,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = useCallback(async (email: string, password: string) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (!error) {
-        // Atualiza estado imediatamente para evitar race com ProtectedRoute
+      if (!error && data.session) {
+        // Atualiza estado imediatamente; navegação é feita no Auth.tsx via useEffect
         setSession(data.session);
-        setUser(data.user);
-        navigate('/geral');
-      } else {
+        setUser(data.session.user);
+      } else if (error) {
         const msg = error.message.includes('Invalid login credentials')
           ? 'Email ou senha incorretos'
           : error.message.includes('Email not confirmed')
