@@ -115,12 +115,6 @@ export default function Auth() {
               >
                 {isLoading ? 'Carregando...' : (isLogin ? 'Entrar' : 'Criar conta')}
               </Button>
-
-              {slowConnection && (
-                <p className="text-xs text-muted-foreground text-center pt-1">
-                  Conectando ao servidor... Isso pode levar alguns segundos.
-                </p>
-              )}
             </form>
           </div>
 
