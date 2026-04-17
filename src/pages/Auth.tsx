@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,23 +20,15 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [slowConnection, setSlowConnection] = useState(false);
   const { signIn, signUp, user, loading } = useAuth();
+  const navigate = useNavigate();
 
+  // Redireciona quando user mudar (suporta multi-login simultâneo em vários dispositivos)
   useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
-    if (isLoading) {
-      timer = setTimeout(() => setSlowConnection(true), 2000);
-    } else {
-      setSlowConnection(false);
+    if (user && !loading) {
+      navigate('/geral', { replace: true });
     }
-    return () => clearTimeout(timer);
-  }, [isLoading]);
-
-  // Se já estiver autenticado, redireciona direto pro app
-  if (!loading && user) {
-    return <Navigate to="/geral" replace />;
-  }
+  }, [user, loading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +41,6 @@ export default function Auth() {
       } else {
         await signUp(validatedData.email, validatedData.password);
       }
-      // Toasts de erro/sucesso já são disparados dentro de signIn/signUp
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
@@ -124,12 +115,6 @@ export default function Auth() {
               >
                 {isLoading ? 'Carregando...' : (isLogin ? 'Entrar' : 'Criar conta')}
               </Button>
-
-              {slowConnection && (
-                <p className="text-xs text-muted-foreground text-center pt-1">
-                  Conectando ao servidor... Isso pode levar alguns segundos.
-                </p>
-              )}
             </form>
           </div>
 
