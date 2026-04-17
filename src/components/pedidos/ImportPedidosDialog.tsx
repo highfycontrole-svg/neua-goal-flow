@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Upload, FileSpreadsheet, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import * as XLSX from "xlsx";
+// xlsx is dynamically imported on demand to keep it out of the main bundle
 
 interface ImportPedidosDialogProps {
   open: boolean;
@@ -50,6 +50,7 @@ export function ImportPedidosDialog({ open, onOpenChange }: ImportPedidosDialogP
     setFile(selectedFile);
 
     try {
+      const XLSX = await import("xlsx");
       const data = await selectedFile.arrayBuffer();
       const workbook = XLSX.read(data);
       const sheetName = workbook.SheetNames[0];
@@ -73,6 +74,7 @@ export function ImportPedidosDialog({ open, onOpenChange }: ImportPedidosDialogP
     }
 
     try {
+      const XLSX = await import("xlsx");
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
       const sheetName = workbook.SheetNames[0];
