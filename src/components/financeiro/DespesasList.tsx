@@ -15,7 +15,6 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import * as XLSX from "xlsx";
 import { FinanceiroExportButton } from "./FinanceiroExportButton";
 
 const CATEGORIAS = [

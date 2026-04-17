@@ -1,9 +1,6 @@
-import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Download, FileText, Image, FileJson } from 'lucide-react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { toast } from 'sonner';
 
 interface PedidosMetricasExportProps {
@@ -26,16 +23,17 @@ export function PedidosMetricasExport({ containerRef, data }: PedidosMetricasExp
 
     try {
       toast.loading('Gerando imagem...');
+      const { default: html2canvas } = await import('html2canvas');
       const canvas = await html2canvas(containerRef.current, {
         backgroundColor: '#0a0a0a',
         scale: 2,
       });
-      
+
       const link = document.createElement('a');
       link.download = `metricas-pedidos-${new Date().toISOString().split('T')[0]}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
-      
+
       toast.dismiss();
       toast.success('Imagem exportada com sucesso!');
     } catch (error) {
@@ -49,21 +47,25 @@ export function PedidosMetricasExport({ containerRef, data }: PedidosMetricasExp
 
     try {
       toast.loading('Gerando PDF...');
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
       const canvas = await html2canvas(containerRef.current, {
         backgroundColor: '#0a0a0a',
         scale: 2,
       });
-      
+
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'px',
         format: [canvas.width, canvas.height],
       });
-      
+
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
       pdf.save(`metricas-pedidos-${new Date().toISOString().split('T')[0]}.pdf`);
-      
+
       toast.dismiss();
       toast.success('PDF exportado com sucesso!');
     } catch (error) {
@@ -120,7 +122,6 @@ export function PedidosMetricasExport({ containerRef, data }: PedidosMetricasExp
     text += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
     text += `✅ Relatório gerado pelo App Neua`;
 
-    // Copy to clipboard
     navigator.clipboard.writeText(text);
     toast.success('Relatório copiado para a área de transferência!');
   };

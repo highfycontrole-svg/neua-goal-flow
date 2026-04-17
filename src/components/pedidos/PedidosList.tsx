@@ -15,7 +15,7 @@ import { CreatePedidoDialog } from "./CreatePedidoDialog";
 import { EditPedidoDialog } from "./EditPedidoDialog";
 import { ImportPedidosDialog } from "./ImportPedidosDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import * as XLSX from "xlsx";
+
 
 interface Pedido {
   id: string;
@@ -157,7 +157,7 @@ export function PedidosList() {
     return matchesStatus && matchesTransportadora && matchesSearch;
   });
 
-  const handleExport = (format: "csv" | "xlsx") => {
+  const handleExport = async (format: "csv" | "xlsx") => {
     const exportData = filteredPedidos.map((p) => ({
       "Nº Pedido": p.numero_pedido,
       "Status": p.status,
@@ -169,6 +169,7 @@ export function PedidosList() {
       "Códigos de Rastreio": p.codigos_rastreio.join(", "),
     }));
 
+    const XLSX = await import("xlsx");
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Pedidos");
