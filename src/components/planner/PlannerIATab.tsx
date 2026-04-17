@@ -10,7 +10,7 @@ import { PlannerSidebar } from '@/components/planner/PlannerSidebar';
 import { PlannerProgressIndicator } from '@/components/planner/PlannerProgressIndicator';
 import { PlannerSummary } from '@/components/planner/PlannerSummary';
 import { motion, AnimatePresence } from 'framer-motion';
-import jsPDF from 'jspdf';
+// jsPDF is dynamically imported when the user clicks "Export PDF"
 
 type Message = {
   id?: string;
@@ -440,12 +440,13 @@ export function PlannerIATab() {
     }
   };
 
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
     if (!currentPlannerData || messages.length === 0) {
       toast.error('Nenhum conteúdo para exportar');
       return;
     }
 
+    const { default: jsPDF } = await import('jspdf');
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 20;
