@@ -23,11 +23,6 @@ export default function Auth() {
   const [slowConnection, setSlowConnection] = useState(false);
   const { signIn, signUp, user, loading } = useAuth();
 
-  // Se já estiver autenticado, redireciona direto pro app
-  if (!loading && user) {
-    return <Navigate to="/geral" replace />;
-  }
-
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
     if (isLoading) {
@@ -37,6 +32,11 @@ export default function Auth() {
     }
     return () => clearTimeout(timer);
   }, [isLoading]);
+
+  // Se já estiver autenticado, redireciona direto pro app
+  if (!loading && user) {
+    return <Navigate to="/geral" replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
