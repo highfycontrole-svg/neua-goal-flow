@@ -47,8 +47,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (!error) {
+        // Atualiza estado imediatamente para evitar race com ProtectedRoute
+        setSession(data.session);
+        setUser(data.user);
         navigate('/geral');
       } else {
         const msg = error.message.includes('Invalid login credentials')

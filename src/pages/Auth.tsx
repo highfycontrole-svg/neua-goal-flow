@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,7 +21,7 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [slowConnection, setSlowConnection] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user, loading } = useAuth();
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
@@ -31,6 +32,11 @@ export default function Auth() {
     }
     return () => clearTimeout(timer);
   }, [isLoading]);
+
+  // Se já estiver autenticado, redireciona direto pro app
+  if (!loading && user) {
+    return <Navigate to="/geral" replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
