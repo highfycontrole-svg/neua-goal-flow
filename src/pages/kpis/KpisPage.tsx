@@ -22,11 +22,9 @@ import {
   Users, MessageSquare, MousePointerClick, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 import {
+import { formatCurrency } from "@/lib/utils";
   LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
-
-const formatCurrency = (v: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
 function parseMeta(val: string | undefined | null): number {
   if (!val) return 0;

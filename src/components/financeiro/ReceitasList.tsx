@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { FinanceiroExportButton } from "./FinanceiroExportButton";
+import { formatCurrency } from "@/lib/utils";
 
 const ORIGENS = ["E-commerce Neua", "Marketplace", "Venda Direta", "Outros"];
 const FORMAS_RECEBIMENTO = ["PIX", "Cartão de Crédito", "Cartão de Débito", "Boleto", "Transferência"];
@@ -148,10 +149,6 @@ export function ReceitasList() {
 
   const totalBruto = filteredReceitas.reduce((acc, r) => acc + Number(r.valor_bruto), 0);
   const totalLiquido = filteredReceitas.reduce((acc, r) => acc + Number(r.valor_liquido), 0);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
-  };
 
   const generateTextReport = () => {
     const dateStr = new Date().toLocaleDateString('pt-BR');

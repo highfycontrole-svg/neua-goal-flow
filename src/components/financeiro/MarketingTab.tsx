@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { FinanceiroExportButton } from "./FinanceiroExportButton";
+import { formatCurrency } from "@/lib/utils";
 
 const PLATAFORMAS = ["Meta Ads", "Google Ads", "TikTok Ads", "Pinterest Ads", "LinkedIn Ads", "Outros"];
 const PLATAFORMAS_INFLUENCER = ["Instagram", "TikTok", "YouTube", "Twitter/X", "Pinterest", "Outros"];
@@ -260,8 +261,6 @@ export function MarketingTab() {
     });
     setInfluenciadorDialogOpen(true);
   };
-
-  const formatCurrency = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
   // Summary metrics
   const totalInvestido = campanhas.reduce((acc, c) => acc + Number(c.investimento), 0);

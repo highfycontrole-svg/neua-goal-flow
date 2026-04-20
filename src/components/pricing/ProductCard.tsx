@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+import { formatCurrency } from "@/lib/utils";
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -39,13 +40,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ produto, onDelete, onEdit }: ProductCardProps) {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
-
   const getRankingIcon = (ranking: string) => {
     switch (ranking) {
       case 'campeao':

@@ -26,7 +26,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 interface KPICardProps {
   title: string;
@@ -283,13 +283,6 @@ export default function GeralPage() {
     const isCompleted = statusName === 'concluído' || statusName === 'concluida' || statusName === 'done';
     return taskDate < hoje && !isCompleted;
   }).length;
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  };
 
   const periodOptions = [
     { value: '7d', label: '7 dias' },
