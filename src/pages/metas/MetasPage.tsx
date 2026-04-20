@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { KPICard } from '@/components/KPICard';
+import { EmptyState } from '@/components/EmptyState';
 import { CreateMetaDialog } from '@/components/CreateMetaDialog';
 import { EditMetaDialog } from '@/components/EditMetaDialog';
 import { Target, TrendingUp, Award, CheckCircle } from 'lucide-react';
