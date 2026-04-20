@@ -43,7 +43,7 @@ export default function MindOsPage() {
 
           {/* Tabs Navigation */}
           <Tabs value={currentTab} onValueChange={handleTabChange} className="mt-6">
-            <TabsList className="bg-surface-1 p-1">
+            <TabsList className="bg-card border border-border/30 p-1 rounded-xl gap-1 h-auto">
               <TabsTrigger 
                 value="mindmap" 
                 className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
