@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { AdLabDashboard } from '@/components/adlab/AdLabDashboard';
+import { PageHeader } from '@/components/PageHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreateCampaignDialog } from '@/components/adlab/CreateCampaignDialog';
 import { EditCampaignDialog } from '@/components/adlab/EditCampaignDialog';
@@ -348,18 +349,12 @@ export default function AdLabPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <PlayCircle className="h-7 w-7 text-primary" />
-            AD Lab
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Laboratório de criação e gestão de anúncios por produto
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
+      <PageHeader
+        title="AD Lab"
+        description="Laboratório de criação e gestão de anúncios por produto"
+        icon={PlayCircle}
+        actions={
+          <div className="flex items-center gap-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -385,8 +380,9 @@ export default function AdLabPage() {
               <List className="h-4 w-4" />
             </Button>
           </div>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       {/* Dashboard */}
       <AdLabDashboard />
