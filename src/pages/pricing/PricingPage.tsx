@@ -197,21 +197,12 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 md:space-y-8 p-3 sm:p-4 md:p-6">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col gap-2"
-      >
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2 sm:gap-3">
-          <Calculator className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-          Precificação & Produtos Neua
-        </h1>
-        <p className="text-xs sm:text-sm text-muted-foreground">
-          Calcule preços de venda e gerencie seu catálogo de produtos
-        </p>
-      </motion.div>
+    <div className="space-y-4 sm:space-y-6 md:space-y-8">
+      <PageHeader
+        icon={Calculator}
+        title="Precificação & Produtos Neua"
+        description="Calcule preços de venda e gerencie seu catálogo de produtos"
+      />
 
       {/* DOBRA 1 - Calculadora de Precificação */}
       <motion.div
