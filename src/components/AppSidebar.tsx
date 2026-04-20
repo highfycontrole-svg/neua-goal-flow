@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign, Home, PlayCircle, Brain, Link2, BarChart3, BarChart2 } from 'lucide-react';
+import { LogOut, PanelLeftClose, PanelLeft, Calendar, ChevronDown } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
@@ -9,40 +9,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSidebar } from '@/components/ui/sidebar';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-
-interface MenuItem {
-  title: string;
-  url: string;
-  icon: React.ElementType;
-  basePath: string;
-  hasSubmenu?: boolean;
-  section?: string;
-}
-
-const menuItems: MenuItem[] = [
-  // GERAL
-  { title: 'Geral', url: '/geral', icon: Home, basePath: '/geral', section: 'GERAL' },
-
-  // OPERACIONAL
-  { title: 'Workspace', url: '/workspace', icon: LayoutGrid, basePath: '/workspace', hasSubmenu: true, section: 'OPERACIONAL' },
-  { title: 'Financeiro', url: '/financeiro', icon: DollarSign, basePath: '/financeiro' },
-  { title: 'Pedidos', url: '/pedidos', icon: Package, basePath: '/pedidos' },
-  { title: 'Catálogo', url: '/pricing', icon: Calculator, basePath: '/pricing' },
-
-  // MARKETING
-  { title: 'AD Lab', url: '/adlab', icon: PlayCircle, basePath: '/adlab', section: 'MARKETING' },
-  { title: 'Ads Neua', url: '/ads-neua', icon: BarChart3, basePath: '/ads-neua' },
-  { title: 'KPIs', url: '/kpis', icon: BarChart2, basePath: '/kpis', hasSubmenu: true },
-  { title: 'UTM Builder', url: '/utm', icon: Link2, basePath: '/utm' },
-
-  // DADOS
-  { title: 'MindOs', url: '/mindos', icon: Brain, basePath: '/mindos', section: 'DADOS' },
-  { title: 'Metas', url: '/dashboard', icon: Target, basePath: '/dashboard', hasSubmenu: true },
-
-  // CONTEÚDO
-  { title: 'Planner', url: '/planner', icon: Rocket, basePath: '/planner', section: 'CONTEÚDO' },
-  { title: 'Creators', url: '/creators', icon: Users, basePath: '/creators', hasSubmenu: true },
-];
+import { menuItems, metasSubmenu, creatorsSubmenu, kpisSubmenu, type MenuItem } from '@/config/sidebarMenu';
+import { SidebarSubmenu } from '@/components/sidebar/SidebarSubmenu';
 
 export function AppSidebar() {
   const location = useLocation();
