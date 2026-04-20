@@ -25,7 +25,7 @@ export function PlannerProgressIndicator({ etapaAtual }: PlannerProgressIndicato
       </div>
       
       {/* Progress bar */}
-      <div className="h-2 bg-[#242424] rounded-full overflow-hidden mb-4">
+      <div className="h-2 bg-surface-3 rounded-full overflow-hidden mb-4">
         <div
           className="h-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-500 ease-out"
           style={{ width: `${(etapaAtual / 8) * 100}%` }}
@@ -45,7 +45,7 @@ export function PlannerProgressIndicator({ etapaAtual }: PlannerProgressIndicato
                   'w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-300',
                   isCompleted && 'bg-primary text-primary-foreground',
                   isCurrent && 'bg-primary/30 text-primary ring-2 ring-primary',
-                  !isCompleted && !isCurrent && 'bg-[#242424] text-muted-foreground'
+                  !isCompleted && !isCurrent && 'bg-surface-3 text-muted-foreground'
                 )}
               >
                 {isCompleted ? <Check className="h-3 w-3" /> : etapa.id}

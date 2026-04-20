@@ -252,7 +252,7 @@ export default function CreatorsResumo() {
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Vendas por Creator */}
-        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: '#161616' }}>
+        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: 'hsl(var(--surface-1))' }}>
           <h3 className="text-lg sm:text-xl font-display font-bold mb-4">Vendas por Creator</h3>
           <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
             <BarChart data={vendasPorCreator}>
@@ -261,7 +261,7 @@ export default function CreatorsResumo() {
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: '#1a1a1a', 
+                  backgroundColor: 'hsl(var(--surface-2))', 
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '8px'
                 }}
@@ -272,7 +272,7 @@ export default function CreatorsResumo() {
         </div>
 
         {/* Evolução de Creators */}
-        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: '#161616' }}>
+        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: 'hsl(var(--surface-1))' }}>
           <h3 className="text-lg sm:text-xl font-display font-bold mb-4">Evolução de Creators Ativos</h3>
           <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
             <LineChart data={evolucaoCreators}>
@@ -281,7 +281,7 @@ export default function CreatorsResumo() {
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: '#1a1a1a', 
+                  backgroundColor: 'hsl(var(--surface-2))', 
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '8px'
                 }}
@@ -292,7 +292,7 @@ export default function CreatorsResumo() {
         </div>
 
         {/* Distribuição por Tier */}
-        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: '#161616' }}>
+        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: 'hsl(var(--surface-1))' }}>
           <h3 className="text-lg sm:text-xl font-display font-bold mb-4">Distribuição por Tier</h3>
           <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
             <PieChart>
@@ -313,7 +313,7 @@ export default function CreatorsResumo() {
               </Pie>
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: '#1a1a1a', 
+                  backgroundColor: 'hsl(var(--surface-2))', 
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '8px'
                 }}
@@ -323,7 +323,7 @@ export default function CreatorsResumo() {
         </div>
 
         {/* Status de Conteúdo */}
-        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: '#161616' }}>
+        <div className="p-4 sm:p-6 rounded-2xl border border-border/30" style={{ backgroundColor: 'hsl(var(--surface-1))' }}>
           <h3 className="text-lg sm:text-xl font-display font-bold mb-4">Status de Entrega de Conteúdo</h3>
           <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
             <BarChart data={conteudoStatus}>
@@ -332,7 +332,7 @@ export default function CreatorsResumo() {
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: '#1a1a1a', 
+                  backgroundColor: 'hsl(var(--surface-2))', 
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '8px'
                 }}

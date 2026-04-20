@@ -113,9 +113,9 @@ export function ManualPlannerList() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#161616] rounded-2xl overflow-hidden">
+    <div className="h-full flex flex-col bg-surface-1 rounded-2xl overflow-hidden">
       {/* Header */}
-      <div className="flex-shrink-0 p-4 sm:p-6 border-b border-border/30 bg-[#1a1a1a]">
+      <div className="flex-shrink-0 p-4 sm:p-6 border-b border-border/30 bg-surface-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-foreground">Planner Manual</h2>

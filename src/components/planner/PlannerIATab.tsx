@@ -511,11 +511,11 @@ export function PlannerIATab() {
       />
 
       {/* Main Area */}
-      <div className="flex-1 flex flex-col min-h-0 bg-[#161616] rounded-2xl overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0 bg-surface-1 rounded-2xl overflow-hidden">
         {currentPlannerId ? (
           <>
             {/* Header */}
-            <div className="flex-shrink-0 p-3 sm:p-4 border-b border-border/30 bg-[#1a1a1a]">
+            <div className="flex-shrink-0 p-3 sm:p-4 border-b border-border/30 bg-surface-2">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                   <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
@@ -616,7 +616,7 @@ export function PlannerIATab() {
             </div>
 
             {/* Input */}
-            <div className="flex-shrink-0 p-3 sm:p-4 border-t border-border/30 bg-[#1a1a1a]">
+            <div className="flex-shrink-0 p-3 sm:p-4 border-t border-border/30 bg-surface-2">
               <div className="flex gap-2 max-w-4xl mx-auto">
                 <Textarea
                   ref={textareaRef}
@@ -625,7 +625,7 @@ export function PlannerIATab() {
                   onKeyDown={handleKeyDown}
                   placeholder="Digite sua mensagem... (Shift+Enter para nova linha)"
                   disabled={isLoading}
-                  className="flex-1 bg-[#242424] border-border/30 min-h-[40px] max-h-[120px] resize-none text-sm"
+                  className="flex-1 bg-surface-3 border-border/30 min-h-[40px] max-h-[120px] resize-none text-sm"
                   rows={1}
                 />
                 <Button 

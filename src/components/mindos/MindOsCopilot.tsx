@@ -96,7 +96,7 @@ export function MindOsCopilot({ open, onOpenChange, nodes, projectType, onAddNod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#242424] border-border/30 max-w-2xl h-[600px] flex flex-col">
+      <DialogContent className="bg-surface-3 border-border/30 max-w-2xl h-[600px] flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-purple-400" />
@@ -124,7 +124,7 @@ export function MindOsCopilot({ open, onOpenChange, nodes, projectType, onAddNod
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
                       onClick={() => handleSuggestedPrompt(prompt.prompt)}
-                      className="flex items-center gap-2 p-3 rounded-lg bg-[#161616] hover:bg-primary/10 transition-colors text-left group"
+                      className="flex items-center gap-2 p-3 rounded-lg bg-surface-1 hover:bg-primary/10 transition-colors text-left group"
                     >
                       <prompt.icon className="h-4 w-4 text-purple-400 group-hover:text-primary" />
                       <span className="text-sm text-muted-foreground group-hover:text-foreground">
@@ -148,7 +148,7 @@ export function MindOsCopilot({ open, onOpenChange, nodes, projectType, onAddNod
                         className={`max-w-[80%] rounded-lg px-4 py-2 ${
                           message.role === 'user'
                             ? 'bg-primary text-primary-foreground'
-                            : 'bg-[#161616] text-foreground'
+                            : 'bg-surface-1 text-foreground'
                         }`}
                       >
                         {message.role === 'assistant' ? (
@@ -169,7 +169,7 @@ export function MindOsCopilot({ open, onOpenChange, nodes, projectType, onAddNod
                     animate={{ opacity: 1 }}
                     className="flex justify-start"
                   >
-                    <div className="bg-[#161616] rounded-lg px-4 py-2">
+                    <div className="bg-surface-1 rounded-lg px-4 py-2">
                       <Loader2 className="h-4 w-4 animate-spin text-purple-400" />
                     </div>
                   </motion.div>
@@ -191,7 +191,7 @@ export function MindOsCopilot({ open, onOpenChange, nodes, projectType, onAddNod
                   }
                 }}
                 placeholder="Pergunte algo sobre seu mapa..."
-                className="flex-1 bg-[#161616] border-border/30 resize-none min-h-[44px] max-h-[120px]"
+                className="flex-1 bg-surface-1 border-border/30 resize-none min-h-[44px] max-h-[120px]"
                 rows={1}
               />
               <Button 

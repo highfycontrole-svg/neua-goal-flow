@@ -15,7 +15,7 @@ export function EdgeContextMenu({ x, y, edgeId, onClose, onChangeType }: EdgeCon
       className="fixed z-[100]"
       style={{ top: y, left: x }}
     >
-      <div className="bg-[#242424] border border-border/30 rounded-lg shadow-xl p-1 min-w-[160px]">
+      <div className="bg-surface-3 border border-border/30 rounded-lg shadow-xl p-1 min-w-[160px]">
         <button
           className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-secondary rounded-md transition-colors"
           onClick={() => { onChangeType(edgeId, 'straight'); onClose(); }}

@@ -12,7 +12,7 @@ export function GlobalContextMenu() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.92 }}
           transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
-          className="fixed z-[9999] min-w-[200px] max-w-[280px] rounded-xl border border-border/40 bg-[#1e1e1e] shadow-2xl shadow-black/50 py-1.5 overflow-hidden"
+          className="fixed z-[9999] min-w-[200px] max-w-[280px] rounded-xl border border-border/40 bg-surface-2 shadow-2xl shadow-black/50 py-1.5 overflow-hidden"
           style={{ left: menu.x, top: menu.y }}
           onClick={(e) => e.stopPropagation()}
           onContextMenu={(e) => e.preventDefault()}

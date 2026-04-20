@@ -426,13 +426,13 @@ function FlowchartEditorInner() {
         fitView
         snapToGrid
         snapGrid={[15, 15]}
-        className="bg-[#161616]"
+        className="bg-surface-1"
         proOptions={{ hideAttribution: true }}
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#333" />
-        <Controls className="bg-[#242424] border-border/30" />
+        <Controls className="bg-surface-3 border-border/30" />
         <MiniMap 
-          className="!bg-[#242424] !border-border/30"
+          className="!bg-surface-3 !border-border/30"
           nodeColor="#22c55e"
           maskColor="rgba(0, 0, 0, 0.5)"
         />
@@ -442,7 +442,7 @@ function FlowchartEditorInner() {
             variant="outline" 
             size="sm" 
             onClick={() => navigate('/mindos/flowchart')}
-            className="bg-[#242424] border-border/30"
+            className="bg-surface-3 border-border/30"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
@@ -458,11 +458,11 @@ function FlowchartEditorInner() {
                 Adicionar Bloco
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-[#242424] border-border/30 w-56">
+            <DropdownMenuContent className="bg-surface-3 border-border/30 w-56">
               {Object.entries(iconCategories).map(([category, icons]) => (
                 <DropdownMenuSub key={category}>
                   <DropdownMenuSubTrigger>{category}</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent className="bg-[#242424] border-border/30">
+                  <DropdownMenuSubContent className="bg-surface-3 border-border/30">
                     {icons.map((iconName) => {
                       const config = flowchartIcons[iconName];
                       const Icon = config.icon;

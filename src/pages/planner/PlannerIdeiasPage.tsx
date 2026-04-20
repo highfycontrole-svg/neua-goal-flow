@@ -149,7 +149,7 @@ export default function PlannerIdeiasPage() {
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mt-4">
           <Select value={filterTipo} onValueChange={setFilterTipo}>
-            <SelectTrigger className="w-[140px] bg-[#1a1a1a] border-border/50">
+            <SelectTrigger className="w-[140px] bg-surface-2 border-border/50">
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
             <SelectContent>
@@ -161,7 +161,7 @@ export default function PlannerIdeiasPage() {
           </Select>
           
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-[140px] bg-[#1a1a1a] border-border/50">
+            <SelectTrigger className="w-[140px] bg-surface-2 border-border/50">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -172,7 +172,7 @@ export default function PlannerIdeiasPage() {
           </Select>
           
           <Select value={filterQualidade} onValueChange={setFilterQualidade}>
-            <SelectTrigger className="w-[140px] bg-[#1a1a1a] border-border/50">
+            <SelectTrigger className="w-[140px] bg-surface-2 border-border/50">
               <SelectValue placeholder="Qualidade" />
             </SelectTrigger>
             <SelectContent>
@@ -229,7 +229,7 @@ export default function PlannerIdeiasPage() {
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: index * 0.05 }}
                     onClick={() => setSelectedIdeia(ideia)}
-                    className="group p-4 rounded-xl border border-border/50 bg-[#1a1a1a] hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all cursor-pointer"
+                    className="group p-4 rounded-xl border border-border/50 bg-surface-2 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all cursor-pointer"
                   >
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <div className="flex items-start gap-3 min-w-0 flex-1">

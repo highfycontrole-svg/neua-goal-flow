@@ -37,7 +37,7 @@ export function PlannerSidebar({
       {/* Mobile toggle */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="lg:hidden w-full flex items-center justify-between p-3 bg-[#161616] rounded-xl mb-2"
+        className="lg:hidden w-full flex items-center justify-between p-3 bg-surface-1 rounded-xl mb-2"
       >
         <div className="flex items-center gap-2">
           <FileText className="h-4 w-4 text-primary" />
@@ -54,7 +54,7 @@ export function PlannerSidebar({
 
       {/* Desktop always visible, mobile collapsible */}
       <div className={cn(
-        "bg-[#161616] rounded-2xl overflow-hidden transition-all duration-300",
+        "bg-surface-1 rounded-2xl overflow-hidden transition-all duration-300",
         isCollapsed ? "hidden lg:block" : "block"
       )}>
         <div className="p-3 sm:p-4 flex flex-col max-h-[350px] lg:max-h-[calc(100vh-220px)]">
@@ -95,7 +95,7 @@ export function PlannerSidebar({
                     'group p-2.5 sm:p-3 rounded-xl cursor-pointer transition-all duration-200',
                     currentPlannerId === planner.id
                       ? 'bg-primary/20 border border-primary/30'
-                      : 'bg-[#1a1a1a] hover:bg-[#242424] border border-transparent'
+                      : 'bg-surface-2 hover:bg-surface-3 border border-transparent'
                   )}
                   onClick={() => {
                     onSelectPlanner(planner.id);
@@ -122,7 +122,7 @@ export function PlannerSidebar({
                   
                   {/* Meta info */}
                   <div className="flex items-center gap-2 mt-1.5 text-[10px] sm:text-[11px] text-muted-foreground">
-                    <span className="bg-[#242424] px-1.5 py-0.5 rounded">
+                    <span className="bg-surface-3 px-1.5 py-0.5 rounded">
                       Etapa {planner.etapa_atual}/8
                     </span>
                     <span>
@@ -131,7 +131,7 @@ export function PlannerSidebar({
                   </div>
                   
                   {/* Progress bar */}
-                  <div className="mt-2 h-1 bg-[#242424] rounded-full overflow-hidden">
+                  <div className="mt-2 h-1 bg-surface-3 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-500"
                       style={{ width: `${(planner.etapa_atual / 8) * 100}%` }}

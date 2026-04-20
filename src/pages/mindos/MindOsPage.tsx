@@ -16,8 +16,8 @@ export default function MindOsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#161616]">
-      <div className="floating-content bg-[#242424] rounded-[18px] min-h-[calc(100vh-60px)]">
+    <div className="min-h-screen bg-surface-1">
+      <div className="floating-content bg-surface-3 rounded-[18px] min-h-[calc(100vh-60px)]">
         {/* Header */}
         <div className="p-6 border-b border-border/30">
           <div className="flex items-center justify-between">
@@ -43,7 +43,7 @@ export default function MindOsPage() {
 
           {/* Tabs Navigation */}
           <Tabs value={currentTab} onValueChange={handleTabChange} className="mt-6">
-            <TabsList className="bg-[#161616] p-1">
+            <TabsList className="bg-surface-1 p-1">
               <TabsTrigger 
                 value="mindmap" 
                 className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"

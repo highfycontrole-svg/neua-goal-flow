@@ -219,7 +219,7 @@ export default function PricingPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <Card className="border-border/30 backdrop-blur-xl" style={{ backgroundColor: 'rgba(22, 22, 22, 0.85)' }}>
+        <Card className="border-border/30 backdrop-blur-xl" style={{ backgroundColor: 'hsl(var(--surface-1) / 0.85)' }}>
           <CardHeader className="p-4 sm:p-6">
             <CardTitle className="text-lg sm:text-xl text-foreground flex items-center gap-2">
               <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -366,7 +366,7 @@ export default function PricingPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <Card className="border-border/30" style={{ backgroundColor: '#161616' }}>
+        <Card className="border-border/30" style={{ backgroundColor: 'hsl(var(--surface-1))' }}>
           <CardHeader>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <CardTitle className="text-xl text-foreground flex items-center gap-2">
@@ -447,7 +447,7 @@ export default function PricingPage() {
                   ))}
                 </div>
               ) : (
-                <div className="overflow-x-auto rounded-lg border border-border/30" style={{ backgroundColor: '#1a1a1a' }}>
+                <div className="overflow-x-auto rounded-lg border border-border/30" style={{ backgroundColor: 'hsl(var(--surface-2))' }}>
                   <Table>
                     <TableHeader>
                       <TableRow>

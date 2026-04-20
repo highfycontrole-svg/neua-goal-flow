@@ -524,13 +524,13 @@ function MindMapEditorInner() {
         fitView
         snapToGrid
         snapGrid={[15, 15]}
-        className="bg-[#161616]"
+        className="bg-surface-1"
         proOptions={{ hideAttribution: true }}
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#333" />
-        <Controls className="bg-[#242424] border-border/30" />
+        <Controls className="bg-surface-3 border-border/30" />
         <MiniMap 
-          className="!bg-[#242424] !border-border/30"
+          className="!bg-surface-3 !border-border/30"
           nodeColor="#3b82f6"
           maskColor="rgba(0, 0, 0, 0.5)"
         />
@@ -540,7 +540,7 @@ function MindMapEditorInner() {
             variant="outline" 
             size="sm" 
             onClick={() => navigate('/mindos/mindmap')}
-            className="bg-[#242424] border-border/30"
+            className="bg-surface-3 border-border/30"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
@@ -551,12 +551,12 @@ function MindMapEditorInner() {
         <Panel position="top-right" className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 bg-[#242424] border-border/30">
+              <Button variant="outline" size="sm" className="gap-2 bg-surface-3 border-border/30">
                 <LayoutTemplate className="h-4 w-4" />
                 Layout
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-[#242424] border-border/30">
+            <DropdownMenuContent className="bg-surface-3 border-border/30">
               <DropdownMenuItem onClick={() => applyLayout('radial')}>
                 Mapa Mental (Radial)
               </DropdownMenuItem>
@@ -579,7 +579,7 @@ function MindMapEditorInner() {
                 Adicionar Nó
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-[#242424] border-border/30">
+            <DropdownMenuContent className="bg-surface-3 border-border/30">
               <DropdownMenuItem onClick={() => addNode('idea')}>
                 <Lightbulb className="h-4 w-4 mr-2 text-yellow-400" />
                 Ideia

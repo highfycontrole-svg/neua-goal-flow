@@ -119,7 +119,7 @@ export default function PlannerCalendarioPage() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="bg-[#1a1a1a] rounded-2xl border border-border/30 overflow-hidden h-full flex flex-col"
+        className="bg-surface-2 rounded-2xl border border-border/30 overflow-hidden h-full flex flex-col"
       >
         <div className="grid grid-cols-7 border-b border-border/30 flex-shrink-0">
           {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(day => (
@@ -130,7 +130,7 @@ export default function PlannerCalendarioPage() {
         </div>
         <div className="grid grid-cols-7 flex-1" style={{ gridTemplateRows: `repeat(${rows}, 1fr)` }}>
           {Array.from({ length: startDayOfWeek }).map((_, i) => (
-            <div key={`empty-${i}`} className="border-b border-r border-border/10 bg-[#161616]" />
+            <div key={`empty-${i}`} className="border-b border-r border-border/10 bg-surface-1" />
           ))}
           {days.map(day => {
             const dayEventos = getEventosForDate(day);
@@ -198,7 +198,7 @@ export default function PlannerCalendarioPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.03 }}
-              className="bg-[#1a1a1a] rounded-xl border border-border/30 overflow-hidden flex flex-col"
+              className="bg-surface-2 rounded-xl border border-border/30 overflow-hidden flex flex-col"
             >
               <div 
                 className="p-3 border-b border-border/30 flex items-center justify-between cursor-pointer hover:bg-primary/10 transition-colors flex-shrink-0"
@@ -282,7 +282,7 @@ export default function PlannerCalendarioPage() {
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-            <div className="flex items-center gap-1 bg-[#1a1a1a] p-1 rounded-lg border border-border/30">
+            <div className="flex items-center gap-1 bg-surface-2 p-1 rounded-lg border border-border/30">
               <Button
                 variant={viewMode === 'anual' ? 'default' : 'ghost'}
                 size="sm"
