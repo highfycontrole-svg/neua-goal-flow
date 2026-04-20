@@ -22,9 +22,9 @@ import {
   Users, MessageSquare, MousePointerClick, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 import {
-import { formatCurrency } from "@/lib/utils";
   LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
+import { formatCurrency } from "@/lib/utils";
 
 function parseMeta(val: string | undefined | null): number {
   if (!val) return 0;

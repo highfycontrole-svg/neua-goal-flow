@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-import { formatCurrency } from "@/lib/utils";
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -15,6 +14,7 @@ import { formatCurrency } from "@/lib/utils";
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { formatCurrency } from "@/lib/utils";
 
 interface Produto {
   id: string;
