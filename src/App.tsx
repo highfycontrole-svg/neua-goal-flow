@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 // Eager — entry & auth (small, needed immediately)
 import Index from "./pages/Index";
@@ -61,7 +62,7 @@ const queryClient = new QueryClient({
 
 const PageFallback = () => (
   <div className="flex items-center justify-center h-64">
-    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+    <LoadingSpinner size="md" />
   </div>
 );
 
