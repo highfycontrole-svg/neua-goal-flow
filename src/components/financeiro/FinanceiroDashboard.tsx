@@ -38,6 +38,9 @@ import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn, formatCurrency } from "@/lib/utils";
 import { FinanceiroExportButton } from "./FinanceiroExportButton";
+import { KPICard } from "@/components/KPICard";
+
+type KPIAccent = 'primary' | 'success' | 'warning' | 'destructive' | 'info';
 
 const CATEGORY_COLORS: Record<string, string> = {
   "Marketing": "#3b82f6",
@@ -203,51 +206,51 @@ export function FinanceiroDashboard() {
   // Ticket Médio
   const ticketMedio = receitas.length > 0 ? receitaLiquida / receitas.length : 0;
 
-  const kpis = [
+  const kpis: Array<{
+    title: string;
+    displayValue: string;
+    icon: typeof DollarSign;
+    accent: KPIAccent;
+    trend?: { value: number; isPositive: boolean; label?: string };
+  }> = [
     {
       title: "Faturamento Bruto",
-      value: faturamentoBruto,
+      displayValue: formatCurrency(faturamentoBruto),
       icon: DollarSign,
-      color: "text-blue-400",
-      bgColor: "bg-blue-500/10",
-      change: variacaoFaturamento,
+      accent: 'info',
+      trend: variacaoFaturamento !== undefined
+        ? { value: Math.abs(variacaoFaturamento), isPositive: variacaoFaturamento >= 0, label: 'vs período anterior' }
+        : undefined,
     },
     {
       title: "Receita Líquida",
-      value: receitaLiquida,
+      displayValue: formatCurrency(receitaLiquida),
       icon: TrendingUp,
-      color: "text-green-400",
-      bgColor: "bg-green-500/10",
+      accent: 'success',
     },
     {
       title: "Custos Totais",
-      value: custosTotal,
+      displayValue: formatCurrency(custosTotal),
       icon: TrendingDown,
-      color: "text-red-400",
-      bgColor: "bg-red-500/10",
+      accent: 'destructive',
     },
     {
       title: lucro >= 0 ? "Lucro" : "Prejuízo",
-      value: Math.abs(lucro),
+      displayValue: `${lucro < 0 ? '-' : ''}${formatCurrency(Math.abs(lucro))}`,
       icon: lucro >= 0 ? Wallet : AlertTriangle,
-      color: lucro >= 0 ? "text-emerald-400" : "text-red-400",
-      bgColor: lucro >= 0 ? "bg-emerald-500/10" : "bg-red-500/10",
-      isNegative: lucro < 0,
+      accent: lucro >= 0 ? 'success' : 'destructive',
     },
     {
       title: "Margem",
-      value: margem,
-      isPercentage: true,
+      displayValue: `${margem.toFixed(1)}%`,
       icon: Target,
-      color: margem >= 20 ? "text-emerald-400" : margem >= 10 ? "text-yellow-400" : "text-red-400",
-      bgColor: margem >= 20 ? "bg-emerald-500/10" : margem >= 10 ? "bg-yellow-500/10" : "bg-red-500/10",
+      accent: margem >= 20 ? 'success' : margem >= 10 ? 'warning' : 'destructive',
     },
     {
       title: "Ticket Médio",
-      value: ticketMedio,
+      displayValue: formatCurrency(ticketMedio),
       icon: DollarSign,
-      color: "text-purple-400",
-      bgColor: "bg-purple-500/10",
+      accent: 'primary',
     },
   ];
 
@@ -374,29 +377,15 @@ export function FinanceiroDashboard() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        {kpis.map((kpi, index) => (
-          <motion.div
+        {kpis.map((kpi) => (
+          <KPICard
             key={kpi.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className={`p-6 rounded-xl bg-card border border-border ${kpi.bgColor}`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <kpi.icon className={`h-5 w-5 ${kpi.color}`} />
-              {kpi.change !== undefined && (
-                <div className={`flex items-center text-xs ${kpi.change >= 0 ? "text-green-400" : "text-red-400"}`}>
-                  {kpi.change >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                  {Math.abs(kpi.change).toFixed(1)}%
-                </div>
-              )}
-            </div>
-            <p className="text-sm text-muted-foreground mb-1">{kpi.title}</p>
-            <p className={`text-2xl font-bold ${kpi.color}`}>
-              {kpi.isNegative && "-"}
-              {kpi.isPercentage ? `${kpi.value.toFixed(1)}%` : formatCurrency(kpi.value)}
-            </p>
-          </motion.div>
+            title={kpi.title}
+            value={kpi.displayValue}
+            icon={kpi.icon}
+            accent={kpi.accent}
+            trend={kpi.trend}
+          />
         ))}
       </div>
 
