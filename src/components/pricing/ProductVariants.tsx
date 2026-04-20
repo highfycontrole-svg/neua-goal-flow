@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { formatCurrency } from "@/lib/utils";
 
 interface Variant {
   id: string;
@@ -151,13 +152,6 @@ export function ProductVariants({ productId }: ProductVariantsProps) {
       };
       reader.readAsDataURL(file);
     }
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
   };
 
   const handleAddVariant = (e: React.MouseEvent<HTMLButtonElement>) => {

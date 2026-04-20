@@ -19,6 +19,7 @@ import {
 import { format, addDays, subDays, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { FinanceiroExportButton } from "./FinanceiroExportButton";
+import { formatCurrency } from "@/lib/utils";
 
 export function FluxoCaixaTab() {
   const { user } = useAuth();
@@ -105,13 +106,6 @@ export function FluxoCaixaTab() {
       saldo: runningBalance,
     });
   }
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
-  };
 
   const kpis = [
     {

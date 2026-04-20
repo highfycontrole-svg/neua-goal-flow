@@ -19,6 +19,7 @@ import { getWeekStart } from '@/lib/weekUtils';
 import { useMetaConnection } from '@/hooks/useMetaConnection';
 import { useMetaInsights, getActionValue, getPurchaseValue } from '@/hooks/useMetaInsights';
 import { Link } from 'react-router-dom';
+import { formatCurrency } from "@/lib/utils";
 interface DashboardStats {
   totalSuperMetas: number;
   totalMetas: number;
@@ -272,8 +273,6 @@ export default function Dashboard() {
   const weekRoas = weekSpend > 0 ? weekRevenue / weekSpend : 0;
   const roasBadge = weekRoas >= 3 ? 'bg-green-500/20 text-green-400' : weekRoas >= 1.5 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400';
   const roasLabel = weekRoas >= 3 ? 'Ótimo' : weekRoas >= 1.5 ? 'Regular' : 'Baixo';
-  const formatCurrency = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">

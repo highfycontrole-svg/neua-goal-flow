@@ -32,6 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import AddProductDialog from "@/components/pricing/AddProductDialog";
 import EditProductDialog from "@/components/pricing/EditProductDialog";
 import ProductCard from "@/components/pricing/ProductCard";
+import { formatCurrency } from "@/lib/utils";
 
 const TAXA_GATEWAY = 5.69;
 const TAXA_CHECKOUT = 1.69;
@@ -157,13 +158,6 @@ export default function PricingPage() {
       toast.error('Erro ao excluir produto');
     }
   });
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
 
   const handleEditProduct = (produto: Produto) => {
     setSelectedProduct(produto);

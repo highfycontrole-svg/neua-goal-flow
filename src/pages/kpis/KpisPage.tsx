@@ -24,9 +24,7 @@ import {
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
-
-const formatCurrency = (v: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+import { formatCurrency } from "@/lib/utils";
 
 function parseMeta(val: string | undefined | null): number {
   if (!val) return 0;

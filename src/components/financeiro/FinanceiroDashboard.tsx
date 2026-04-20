@@ -36,7 +36,7 @@ import {
 } from "recharts";
 import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { FinanceiroExportButton } from "./FinanceiroExportButton";
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -250,13 +250,6 @@ export function FinanceiroDashboard() {
       bgColor: "bg-purple-500/10",
     },
   ];
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
-  };
 
   const handlePeriodChange = (value: string) => {
     setPeriodo(value);

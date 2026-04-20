@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { ProductVariants } from "./ProductVariants";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { formatCurrency } from "@/lib/utils";
 
 const TAXA_GATEWAY = 5.69;
 const TAXA_CHECKOUT = 1.69;
@@ -97,10 +98,6 @@ export default function EditProductDialog({ open, onOpenChange, produto }: EditP
       setImageFile(null);
     }
   }, [produto]);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

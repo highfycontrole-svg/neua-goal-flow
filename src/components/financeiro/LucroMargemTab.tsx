@@ -30,6 +30,7 @@ import {
 } from "recharts";
 import { format, subDays } from "date-fns";
 import { FinanceiroExportButton } from "./FinanceiroExportButton";
+import { formatCurrency } from "@/lib/utils";
 
 const COLORS = ["#3b82f6", "#8b5cf6", "#ec4899", "#f97316", "#22c55e", "#06b6d4", "#eab308", "#ef4444"];
 
@@ -169,13 +170,6 @@ export function LucroMargemTab() {
     week,
     margem: data.receita > 0 ? ((data.receita - data.despesa) / data.receita) * 100 : 0,
   }));
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
-  };
 
   const generateTextReport = () => {
     const dateStr = new Date().toLocaleDateString('pt-BR');

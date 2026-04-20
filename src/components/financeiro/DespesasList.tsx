@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { FinanceiroExportButton } from "./FinanceiroExportButton";
+import { formatCurrency } from "@/lib/utils";
 
 const CATEGORIAS = [
   "Marketing",
@@ -169,10 +170,6 @@ export function DespesasList() {
 
   const totalDespesas = filteredDespesas.reduce((acc, d) => acc + Number(d.valor), 0);
   const despesasRecorrentes = filteredDespesas.filter(d => d.recorrente).reduce((acc, d) => acc + Number(d.valor), 0);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
-  };
 
   const generateTextReport = () => {
     const dateStr = new Date().toLocaleDateString('pt-BR');

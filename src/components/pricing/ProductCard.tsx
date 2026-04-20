@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { formatCurrency } from "@/lib/utils";
 
 interface Produto {
   id: string;
@@ -39,13 +40,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ produto, onDelete, onEdit }: ProductCardProps) {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
-
   const getRankingIcon = (ranking: string) => {
     switch (ranking) {
       case 'campeao':
