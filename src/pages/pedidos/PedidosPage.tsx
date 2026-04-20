@@ -4,6 +4,7 @@ import { Package, BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
 import { PedidosList } from "@/components/pedidos/PedidosList";
 import { PedidosMetricas } from "@/components/pedidos/PedidosMetricas";
+import { PageHeader } from "@/components/PageHeader";
 
 const PedidosPage = () => {
   const [activeTab, setActiveTab] = useState("lista");
@@ -12,14 +13,12 @@ const PedidosPage = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6 p-4 md:p-6"
+      className="space-y-6"
     >
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Pedidos</h1>
-        <p className="text-muted-foreground">
-          Acompanhamento e gestão de pedidos
-        </p>
-      </div>
+      <PageHeader
+        title="Pedidos"
+        description="Acompanhamento e gestão de pedidos"
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="bg-card border border-border/30 p-1 rounded-xl gap-1 h-auto w-full max-w-md grid grid-cols-2">
