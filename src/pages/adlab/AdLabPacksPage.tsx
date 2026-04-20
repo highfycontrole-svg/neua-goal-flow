@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -239,8 +240,7 @@ export default function AdLabPacksPage() {
       {/* Packs Grid */}
       {isLoading ? (
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-        </div>
+          <LoadingSpinner size="sm" />
       ) : packs.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 text-center bg-card rounded-xl border border-border">
           <Layers className="h-12 w-12 text-muted-foreground mb-4" />

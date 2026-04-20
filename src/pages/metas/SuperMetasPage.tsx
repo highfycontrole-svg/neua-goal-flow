@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { KPICard } from '@/components/KPICard';
 import { CreateMetaDialog } from '@/components/CreateMetaDialog';
 import { EditMetaDialog } from '@/components/EditMetaDialog';
@@ -144,7 +145,7 @@ export default function SuperMetasPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
