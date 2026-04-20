@@ -241,6 +241,7 @@ export default function AdLabPacksPage() {
       {isLoading ? (
         <div className="flex items-center justify-center h-64">
           <LoadingSpinner size="sm" />
+        </div>
       ) : packs.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 text-center bg-card rounded-xl border border-border">
           <Layers className="h-12 w-12 text-muted-foreground mb-4" />

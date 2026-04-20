@@ -541,6 +541,7 @@ export default function AdLabPage() {
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
             <LoadingSpinner size="sm" />
+          </div>
         ) : filteredProdutos.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-center">
             <Package className="h-12 w-12 text-muted-foreground mb-4" />
