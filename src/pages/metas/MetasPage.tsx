@@ -369,11 +369,11 @@ export default function MetasPage() {
             </Table>
           </div>
         ) : (
-          <div className="text-center py-12 text-muted-foreground">
-            <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Nenhuma meta encontrada</p>
-            <p className="text-sm">Crie sua primeira meta usando o botão acima</p>
-          </div>
+          <EmptyState
+            icon={Target}
+            title="Nenhuma meta encontrada"
+            description="Crie sua primeira meta usando o botão acima"
+          />
         )}
       </div>
 

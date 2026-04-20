@@ -348,11 +348,11 @@ export default function SuperMetasPage() {
             </Table>
           </div>
         ) : (
-          <div className="text-center py-12 text-muted-foreground">
-            <Star className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Nenhuma super meta encontrada</p>
-            <p className="text-sm">Crie sua primeira super meta usando o botão acima</p>
-          </div>
+          <EmptyState
+            icon={Star}
+            title="Nenhuma super meta encontrada"
+            description="Crie sua primeira super meta usando o botão acima"
+          />
         )}
       </div>
 
