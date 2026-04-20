@@ -22,51 +22,12 @@ import {
   AlertTriangle,
   CalendarIcon
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn, formatCurrency } from '@/lib/utils';
-
-interface KPICardProps {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-  color: string;
-  subtitle?: string;
-}
-
-function KPICard({ title, value, icon, color, subtitle }: KPICardProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card className="bg-card border-border transition-all duration-300">
-        <CardContent className="p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <p className="text-sm text-muted-foreground mb-1">{title}</p>
-              <p className="text-2xl font-bold text-foreground">{value}</p>
-              {subtitle && (
-                <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
-              )}
-            </div>
-            <div 
-              className="p-3 rounded-xl"
-              style={{ backgroundColor: `${color}20` }}
-            >
-              <div style={{ color }}>
-                {icon}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-}
+import { KPICard } from '@/components/KPICard';
+import { PageHeader } from '@/components/PageHeader';
 
 type PeriodType = '7d' | '30d' | 'mes' | 'ano' | 'todos' | 'custom';
 
