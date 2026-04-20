@@ -426,7 +426,7 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="ml-4 mt-1 space-y-1 overflow-hidden border-l border-border/30 pl-3"
+                      className="ml-4 mt-1 space-y-1 overflow-hidden"
                     >
                       {[
                         { label: 'Visão Geral', path: '/kpis' },
