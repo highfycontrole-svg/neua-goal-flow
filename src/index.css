@@ -19,6 +19,15 @@
     --card: 0 0% 11%;             /* #1c1c1c */
     --card-foreground: 0 0% 98%;
 
+    /* Surface Tokens — Layered backgrounds for nested elements
+       surface-1 = container background (was #161616)
+       surface-2 = subtle elevation (was #1a1a1a / #1e1e1e)
+       surface-3 = elevated content (was #242424)
+    */
+    --surface-1: 0 0% 9%;          /* #161616 */
+    --surface-2: 0 0% 11%;         /* #1c1c1c — close to #1a1a1a/#1e1e1e */
+    --surface-3: 0 0% 14%;         /* #242424 */
+
     /* Popover/Dialog */
     --popover: 0 0% 10%;
     --popover-foreground: 0 0% 98%;
