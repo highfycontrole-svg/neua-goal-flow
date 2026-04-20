@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Target, Users, LayoutGrid, Calculator, LogOut, PanelLeftClose, PanelLeft, Calendar, Rocket, ChevronDown, ChevronRight, Package, DollarSign, Home, PlayCircle, Brain, Link2, BarChart3, BarChart2 } from 'lucide-react';
+import { LogOut, PanelLeftClose, PanelLeft, Calendar, ChevronDown } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
@@ -9,40 +9,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSidebar } from '@/components/ui/sidebar';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-
-interface MenuItem {
-  title: string;
-  url: string;
-  icon: React.ElementType;
-  basePath: string;
-  hasSubmenu?: boolean;
-  section?: string;
-}
-
-const menuItems: MenuItem[] = [
-  // GERAL
-  { title: 'Geral', url: '/geral', icon: Home, basePath: '/geral', section: 'GERAL' },
-
-  // OPERACIONAL
-  { title: 'Workspace', url: '/workspace', icon: LayoutGrid, basePath: '/workspace', hasSubmenu: true, section: 'OPERACIONAL' },
-  { title: 'Financeiro', url: '/financeiro', icon: DollarSign, basePath: '/financeiro' },
-  { title: 'Pedidos', url: '/pedidos', icon: Package, basePath: '/pedidos' },
-  { title: 'Catálogo', url: '/pricing', icon: Calculator, basePath: '/pricing' },
-
-  // MARKETING
-  { title: 'AD Lab', url: '/adlab', icon: PlayCircle, basePath: '/adlab', section: 'MARKETING' },
-  { title: 'Ads Neua', url: '/ads-neua', icon: BarChart3, basePath: '/ads-neua' },
-  { title: 'KPIs', url: '/kpis', icon: BarChart2, basePath: '/kpis', hasSubmenu: true },
-  { title: 'UTM Builder', url: '/utm', icon: Link2, basePath: '/utm' },
-
-  // DADOS
-  { title: 'MindOs', url: '/mindos', icon: Brain, basePath: '/mindos', section: 'DADOS' },
-  { title: 'Metas', url: '/dashboard', icon: Target, basePath: '/dashboard', hasSubmenu: true },
-
-  // CONTEÚDO
-  { title: 'Planner', url: '/planner', icon: Rocket, basePath: '/planner', section: 'CONTEÚDO' },
-  { title: 'Creators', url: '/creators', icon: Users, basePath: '/creators', hasSubmenu: true },
-];
+import { menuItems, metasSubmenu, creatorsSubmenu, kpisSubmenu, type MenuItem } from '@/config/sidebarMenu';
+import { SidebarSubmenu } from '@/components/sidebar/SidebarSubmenu';
 
 export function AppSidebar() {
   const location = useLocation();
@@ -317,135 +285,42 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
               
               {/* Workspace Submenu */}
               {isWorkspaceItem && (
-                <AnimatePresence>
-                  {showSubmenu && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="ml-4 mt-1 space-y-1 overflow-hidden"
-                    >
-                      <motion.button
-                        onClick={() => { navigate('/workspace'); if (isMobile) setOpen(false); }}
-                        className={`w-full h-9 rounded-lg flex items-center gap-2 px-3 text-sm transition-all ${location.pathname === '/workspace' ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
-                        whileHover={{ x: 4 }}
-                      >
-                        <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
-                        <span>Resumo</span>
-                      </motion.button>
-                      {workspaces.map((workspace) => (
-                        <motion.button
-                          key={workspace.id}
-                          onClick={() => { navigate(`/workspace/${workspace.id}`); if (isMobile) setOpen(false); }}
-                          className={`w-full h-9 rounded-lg flex items-center gap-2 px-3 text-sm transition-all ${location.pathname === `/workspace/${workspace.id}` ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
-                          whileHover={{ x: 4 }}
-                        >
-                          <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
-                          <span className="truncate">{workspace.name}</span>
-                        </motion.button>
-                      ))}
-                      {workspaces.length === 0 && (
-                        <div className="px-3 py-2 text-xs text-muted-foreground italic">Nenhum workspace criado</div>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <SidebarSubmenu
+                  open={!!showSubmenu}
+                  items={[
+                    { label: 'Resumo', path: '/workspace' },
+                    ...workspaces.map((w) => ({ label: w.name, path: `/workspace/${w.id}` })),
+                  ]}
+                  onNavigate={(p) => { navigate(p); if (isMobile) setOpen(false); }}
+                  emptyMessage="Nenhum workspace criado"
+                />
               )}
 
               {/* Metas Submenu */}
               {isMetasItem && (
-                <AnimatePresence>
-                  {showSubmenu && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="ml-4 mt-1 space-y-1 overflow-hidden"
-                    >
-                      {[
-                        { label: 'Resumo', path: '/dashboard' },
-                        { label: 'Metas', path: '/dashboard/metas' },
-                        { label: 'Super Metas', path: '/dashboard/super-metas' },
-                      ].map((sub) => (
-                        <motion.button
-                          key={sub.path}
-                          onClick={() => { navigate(sub.path); if (isMobile) setOpen(false); }}
-                          className={`w-full h-9 rounded-lg flex items-center gap-2 px-3 text-sm transition-all ${location.pathname === sub.path ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
-                          whileHover={{ x: 4 }}
-                        >
-                          <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
-                          <span>{sub.label}</span>
-                        </motion.button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <SidebarSubmenu
+                  open={!!showSubmenu}
+                  items={metasSubmenu}
+                  onNavigate={(p) => { navigate(p); if (isMobile) setOpen(false); }}
+                />
               )}
 
               {/* Creators Submenu */}
               {isCreatorsItem && (
-                <AnimatePresence>
-                  {showSubmenu && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="ml-4 mt-1 space-y-1 overflow-hidden"
-                    >
-                      {[
-                        { label: 'Resumo', path: '/creators' },
-                        { label: 'Registro', path: '/creators/registro' },
-                        { label: 'Desempenho', path: '/creators/desempenho' },
-                        { label: 'Logística', path: '/creators/logistica' },
-                        { label: 'Interações', path: '/creators/interacoes' },
-                      ].map((sub) => (
-                        <motion.button
-                          key={sub.path}
-                          onClick={() => { navigate(sub.path); if (isMobile) setOpen(false); }}
-                          className={`w-full h-9 rounded-lg flex items-center gap-2 px-3 text-sm transition-all ${location.pathname === sub.path ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
-                          whileHover={{ x: 4 }}
-                        >
-                          <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
-                          <span>{sub.label}</span>
-                        </motion.button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <SidebarSubmenu
+                  open={!!showSubmenu}
+                  items={creatorsSubmenu}
+                  onNavigate={(p) => { navigate(p); if (isMobile) setOpen(false); }}
+                />
               )}
 
               {/* KPIs Submenu */}
               {isKpisItem && (
-                <AnimatePresence>
-                  {showSubmenu && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="ml-4 mt-1 space-y-1 overflow-hidden"
-                    >
-                      {[
-                        { label: 'Visão Geral', path: '/kpis' },
-                        { label: 'ManyChat', path: '/kpis/manychat' },
-                        { label: 'Grupo VIP', path: '/kpis/grupo-vip' },
-                      ].map((sub) => (
-                        <motion.button
-                          key={sub.path}
-                          onClick={() => { navigate(sub.path); if (isMobile) setOpen(false); }}
-                          className={`w-full h-9 rounded-lg flex items-center gap-2 px-3 text-sm transition-all ${location.pathname === sub.path ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
-                          whileHover={{ x: 4 }}
-                        >
-                          <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
-                          <span>{sub.label}</span>
-                        </motion.button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <SidebarSubmenu
+                  open={!!showSubmenu}
+                  items={kpisSubmenu}
+                  onNavigate={(p) => { navigate(p); if (isMobile) setOpen(false); }}
+                />
               )}
             </div>
           );

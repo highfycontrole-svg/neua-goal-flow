@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -264,7 +265,7 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
           <div className="flex items-center justify-center h-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <LoadingSpinner size="sm" />
           </div>
         </SheetContent>
       </Sheet>

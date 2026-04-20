@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -151,7 +152,7 @@ export default function WorkspaceDetalhe() {
   if (loadingWorkspace) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }

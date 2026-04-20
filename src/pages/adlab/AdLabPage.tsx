@@ -1,4 +1,6 @@
+import { EmptyState } from '@/components/EmptyState';
 import { useState } from 'react';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { AdLabDashboard } from '@/components/adlab/AdLabDashboard';
+import { PageHeader } from '@/components/PageHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreateCampaignDialog } from '@/components/adlab/CreateCampaignDialog';
 import { EditCampaignDialog } from '@/components/adlab/EditCampaignDialog';
@@ -347,18 +350,12 @@ export default function AdLabPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <PlayCircle className="h-7 w-7 text-primary" />
-            AD Lab
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Laboratório de criação e gestão de anúncios por produto
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
+      <PageHeader
+        title="AD Lab"
+        description="Laboratório de criação e gestão de anúncios por produto"
+        icon={PlayCircle}
+        actions={
+          <div className="flex items-center gap-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -384,8 +381,9 @@ export default function AdLabPage() {
               <List className="h-4 w-4" />
             </Button>
           </div>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       {/* Dashboard */}
       <AdLabDashboard />
@@ -539,19 +537,15 @@ export default function AdLabPage() {
         </h2>
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            <LoadingSpinner size="sm" />
           </div>
         ) : filteredProdutos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 text-center">
-            <Package className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium text-foreground">Nenhum produto encontrado</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Adicione produtos no Catálogo para começar a criar anúncios
-            </p>
-            <Button className="mt-4" onClick={() => navigate('/pricing')}>
-              Ir para Catálogo
-            </Button>
-          </div>
+          <EmptyState
+            icon={Package}
+            title="Nenhum produto encontrado"
+            description="Adicione produtos no Catálogo para começar a criar anúncios"
+            action={{ label: 'Ir para Catálogo', onClick: () => navigate('/pricing') }}
+          />
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredProdutos.map((produto, index) => renderProductCard(produto, index))}

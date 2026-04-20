@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useMetaConnection } from "@/hooks/useMetaConnection";
 import { toast } from "sonner";
@@ -34,7 +35,7 @@ export default function AdsNeuaCallback() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+        <LoadingSpinner size="lg" />
         <p className="text-muted-foreground">Conectando com a Meta...</p>
       </div>
     </div>
