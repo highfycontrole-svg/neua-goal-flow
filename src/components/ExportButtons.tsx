@@ -174,7 +174,7 @@ export function ExportButtons({ metas, superMetas, dashboardRef }: ExportButtons
       const { default: html2canvas } = await import('html2canvas');
 
       const canvas = await html2canvas(dashboardRef.current, {
-        backgroundColor: '#161616',
+        backgroundColor: 'hsl(var(--surface-1))',
         scale: 2,
         logging: false,
         useCORS: true,

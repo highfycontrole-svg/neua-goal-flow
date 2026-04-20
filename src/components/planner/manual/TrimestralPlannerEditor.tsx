@@ -60,7 +60,7 @@ export function TrimestralPlannerEditor({ content, onContentChange }: Trimestral
     <div className="flex-1 flex flex-col min-h-0">
       {/* Quarter Tabs */}
       <div className="flex-shrink-0 px-4 sm:px-6 pt-4">
-        <div className="flex gap-2 p-1 bg-[#161616] rounded-xl border border-border/30">
+        <div className="flex gap-2 p-1 bg-surface-1 rounded-xl border border-border/30">
           {QUARTERS.map((q) => (
             <button
               key={q.id}
@@ -89,7 +89,7 @@ export function TrimestralPlannerEditor({ content, onContentChange }: Trimestral
                   value={getVal('prioridade_1')}
                   onChange={e => setVal('prioridade_1', e.target.value)}
                   placeholder="Ex: Atingir R$50k de faturamento"
-                  className="bg-[#161616] border-border/30 focus:border-primary/50"
+                  className="bg-surface-1 border-border/30 focus:border-primary/50"
                 />
               </SectionCard>
               <SectionCard icon={Zap} label={`O ${currentQ.label} é tempo de:`}>
@@ -97,7 +97,7 @@ export function TrimestralPlannerEditor({ content, onContentChange }: Trimestral
                   value={getVal('tempo_de')}
                   onChange={e => setVal('tempo_de', e.target.value)}
                   placeholder="Ex: Escala, consolidação, experimentação..."
-                  className="bg-[#161616] border-border/30 focus:border-primary/50"
+                  className="bg-surface-1 border-border/30 focus:border-primary/50"
                 />
               </SectionCard>
             </div>
@@ -110,7 +110,7 @@ export function TrimestralPlannerEditor({ content, onContentChange }: Trimestral
                 value={getVal('definicao_sucesso')}
                 onChange={e => setVal('definicao_sucesso', e.target.value)}
                 placeholder="Descreva os resultados e marcos que, ao final do trimestre, representariam sucesso real..."
-                className="min-h-[100px] bg-[#161616] border-border/30 focus:border-primary/50 resize-none"
+                className="min-h-[100px] bg-surface-1 border-border/30 focus:border-primary/50 resize-none"
               />
             </SectionCard>
           </Section>
@@ -126,7 +126,7 @@ export function TrimestralPlannerEditor({ content, onContentChange }: Trimestral
                       value={getVal(`calendario_${m.key}`)}
                       onChange={e => setVal(`calendario_${m.key}`, e.target.value)}
                       placeholder="Principais eventos, lançamentos e marcos..."
-                      className="min-h-[80px] bg-[#161616] border-border/30 focus:border-primary/50 resize-none text-sm"
+                      className="min-h-[80px] bg-surface-1 border-border/30 focus:border-primary/50 resize-none text-sm"
                     />
                   </div>
                 ))}
@@ -141,7 +141,7 @@ export function TrimestralPlannerEditor({ content, onContentChange }: Trimestral
                 value={getVal('kpis')}
                 onChange={e => setVal('kpis', e.target.value)}
                 placeholder={"Liste os KPIs principais:\n• Faturamento: R$ ___\n• ROI: ___\n• Novos clientes: ___\n• CAC: R$ ___\n• Taxa de conversão: ___"}
-                className="min-h-[120px] bg-[#161616] border-border/30 focus:border-primary/50 resize-none"
+                className="min-h-[120px] bg-surface-1 border-border/30 focus:border-primary/50 resize-none"
               />
             </SectionCard>
           </Section>
@@ -154,10 +154,10 @@ export function TrimestralPlannerEditor({ content, onContentChange }: Trimestral
                   value={getVal('metas')}
                   onChange={e => setVal('metas', e.target.value)}
                   placeholder="Metas mensuráveis para o trimestre..."
-                  className="min-h-[120px] bg-[#161616] border-border/30 focus:border-primary/50 resize-none"
+                  className="min-h-[120px] bg-surface-1 border-border/30 focus:border-primary/50 resize-none"
                 />
               </SectionCard>
-              <div className="rounded-xl border border-yellow-500/30 bg-[#1a1a1a] p-4 sm:p-5 space-y-3">
+              <div className="rounded-xl border border-yellow-500/30 bg-surface-2 p-4 sm:p-5 space-y-3">
                 <div className="flex items-center gap-2">
                   <Trophy className="h-4 w-4 text-yellow-400" />
                   <span className="text-sm font-semibold text-foreground">Super Meta {currentQ.label}</span>
@@ -166,7 +166,7 @@ export function TrimestralPlannerEditor({ content, onContentChange }: Trimestral
                   value={getVal('super_meta')}
                   onChange={e => setVal('super_meta', e.target.value)}
                   placeholder="A super meta que, se atingida, muda o jogo. Seja audacioso."
-                  className="min-h-[120px] bg-[#161616] border-border/30 focus:border-primary/50 resize-none"
+                  className="min-h-[120px] bg-surface-1 border-border/30 focus:border-primary/50 resize-none"
                 />
               </div>
             </div>
@@ -174,7 +174,7 @@ export function TrimestralPlannerEditor({ content, onContentChange }: Trimestral
 
           {/* S6 - Riscos */}
           <Section index={5} title={`Riscos e Contingência ${currentQ.label}`}>
-            <div className="rounded-xl border border-orange-500/20 bg-[#1a1a1a] p-4 sm:p-5 space-y-3">
+            <div className="rounded-xl border border-orange-500/20 bg-surface-2 p-4 sm:p-5 space-y-3">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-orange-400" />
                 <span className="text-sm font-semibold text-foreground">Riscos e Contingência</span>
@@ -183,7 +183,7 @@ export function TrimestralPlannerEditor({ content, onContentChange }: Trimestral
                 value={getVal('riscos')}
                 onChange={e => setVal('riscos', e.target.value)}
                 placeholder="Identifique os principais riscos do trimestre e os planos de contingência para cada um..."
-                className="min-h-[120px] bg-[#161616] border-border/30 focus:border-primary/50 resize-none"
+                className="min-h-[120px] bg-surface-1 border-border/30 focus:border-primary/50 resize-none"
               />
             </div>
           </Section>
@@ -197,7 +197,7 @@ export function TrimestralPlannerEditor({ content, onContentChange }: Trimestral
                     value={getVal(`acao_${area.key}`)}
                     onChange={e => setVal(`acao_${area.key}`, e.target.value)}
                     placeholder={area.placeholder}
-                    className="min-h-[100px] bg-[#161616] border-border/30 focus:border-primary/50 resize-none text-sm"
+                    className="min-h-[100px] bg-surface-1 border-border/30 focus:border-primary/50 resize-none text-sm"
                   />
                   <div className="flex items-center gap-2 mt-2">
                     <User className="h-3.5 w-3.5 text-muted-foreground" />
@@ -205,7 +205,7 @@ export function TrimestralPlannerEditor({ content, onContentChange }: Trimestral
                       value={getVal(`resp_${area.key}`)}
                       onChange={e => setVal(`resp_${area.key}`, e.target.value)}
                       placeholder="Responsável"
-                      className="bg-[#161616] border-border/30 focus:border-primary/50 h-8 text-sm"
+                      className="bg-surface-1 border-border/30 focus:border-primary/50 h-8 text-sm"
                     />
                   </div>
                 </SectionCard>
@@ -257,7 +257,7 @@ function Section({ children, index, title, icon: Icon }: { children: React.React
 
 function SectionCard({ children, icon: Icon, label }: { children: React.ReactNode; icon: any; label: string }) {
   return (
-    <div className="rounded-xl border border-border/40 bg-[#1a1a1a] p-4 sm:p-5 space-y-3">
+    <div className="rounded-xl border border-border/40 bg-surface-2 p-4 sm:p-5 space-y-3">
       <div className="flex items-center gap-2">
         <Icon className="h-4 w-4 text-primary" />
         <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{label}</span>

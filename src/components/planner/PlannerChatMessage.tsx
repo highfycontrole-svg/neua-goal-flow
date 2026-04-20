@@ -19,7 +19,7 @@ export function PlannerChatMessage({ message }: PlannerChatMessageProps) {
       <div
         className={cn(
           'h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0',
-          isUser ? 'bg-primary text-primary-foreground' : 'bg-[#242424]'
+          isUser ? 'bg-primary text-primary-foreground' : 'bg-surface-3'
         )}
       >
         {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4 text-primary" />}
@@ -29,7 +29,7 @@ export function PlannerChatMessage({ message }: PlannerChatMessageProps) {
           'rounded-2xl px-4 py-3 max-w-[85%]',
           isUser
             ? 'bg-primary text-primary-foreground'
-            : 'bg-[#242424] text-foreground'
+            : 'bg-surface-3 text-foreground'
         )}
       >
         {isUser ? (
@@ -44,7 +44,7 @@ export function PlannerChatMessage({ message }: PlannerChatMessageProps) {
                   </div>
                 ),
                 thead: ({ children }) => (
-                  <thead className="bg-[#1a1a1a]">{children}</thead>
+                  <thead className="bg-surface-2">{children}</thead>
                 ),
                 th: ({ children }) => (
                   <th className="border border-border/30 px-3 py-2 text-left font-semibold">{children}</th>

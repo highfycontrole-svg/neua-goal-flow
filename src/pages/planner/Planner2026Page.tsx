@@ -41,7 +41,7 @@ export default function Planner2026Page() {
         animate={{ opacity: 1, y: 0 }}
         className="flex-shrink-0 mb-4"
       >
-        <div className="flex items-center gap-1 bg-[#1a1a1a] p-1 rounded-xl border border-border/30 w-fit overflow-x-auto">
+        <div className="flex items-center gap-1 bg-surface-2 p-1 rounded-xl border border-border/30 w-fit overflow-x-auto">
           {SUB_PAGES.map((page) => {
             const Icon = page.icon;
             const isActive = activeSubPage === page.id;

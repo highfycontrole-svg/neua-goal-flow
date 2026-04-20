@@ -47,7 +47,7 @@ export function KanbanCard({ task, onClick, isDragging, isCompleted }: KanbanCar
         className={`p-3 cursor-pointer transition-all duration-200 border-border/30 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 ${
           isDragging ? 'shadow-lg shadow-primary/20 border-primary' : ''
         } ${isCompleted ? 'opacity-50' : ''}`}
-        style={{ backgroundColor: '#1a1a1a' }}
+        style={{ backgroundColor: 'hsl(var(--surface-2))' }}
         data-context-type="task"
         data-context-id={task.id}
         data-context-name={task.title}

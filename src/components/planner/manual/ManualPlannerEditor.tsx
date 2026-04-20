@@ -132,7 +132,7 @@ export function ManualPlannerEditor({ plannerId, onBack }: ManualPlannerEditorPr
   return (
     <div className="flex-1 flex flex-col min-h-0">
       {/* Header */}
-      <div className="flex-shrink-0 p-4 border-b border-border/30 bg-[#1a1a1a]">
+      <div className="flex-shrink-0 p-4 border-b border-border/30 bg-surface-2">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={onBack}>
@@ -178,7 +178,7 @@ export function ManualPlannerEditor({ plannerId, onBack }: ManualPlannerEditorPr
       ) : (
         <div className="flex-1 flex min-h-0">
           {/* Sidebar Navigation */}
-          <div className="w-48 lg:w-56 flex-shrink-0 border-r border-border/30 bg-[#161616]">
+          <div className="w-48 lg:w-56 flex-shrink-0 border-r border-border/30 bg-surface-1">
             <ScrollArea className="h-full">
               <div className="p-2 space-y-1">
                 {sections.map((section, index) => (
@@ -229,7 +229,7 @@ export function ManualPlannerEditor({ plannerId, onBack }: ManualPlannerEditorPr
                               value={content[section.key] || ''}
                               onChange={(e) => handleContentChange(section.key, e.target.value)}
                               placeholder={section.placeholder}
-                              className="min-h-[300px] bg-[#1a1a1a] border-border/30 resize-none"
+                              className="min-h-[300px] bg-surface-2 border-border/30 resize-none"
                             />
                           </>
                         );

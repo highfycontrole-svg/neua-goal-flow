@@ -227,7 +227,7 @@ export default function WorkspaceResumo() {
                   </Pie>
                   <Tooltip 
                     contentStyle={{ 
-                      backgroundColor: '#1a1a1a', 
+                      backgroundColor: 'hsl(var(--surface-2))', 
                       border: '1px solid rgba(255,255,255,0.1)',
                       borderRadius: '8px'
                     }}
@@ -257,7 +257,7 @@ export default function WorkspaceResumo() {
                   <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
                   <Tooltip 
                     contentStyle={{ 
-                      backgroundColor: '#1a1a1a', 
+                      backgroundColor: 'hsl(var(--surface-2))', 
                       border: '1px solid rgba(255,255,255,0.1)',
                       borderRadius: '8px'
                     }}

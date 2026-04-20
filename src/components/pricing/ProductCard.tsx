@@ -69,7 +69,7 @@ export default function ProductCard({ produto, onDelete, onEdit }: ProductCardPr
       <Card 
         className="border-border/30 overflow-hidden group cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
         onClick={onEdit}
-        style={{ backgroundColor: '#242424' }}
+        style={{ backgroundColor: 'hsl(var(--surface-3))' }}
       >
         {/* Image */}
         <div className="relative h-40 bg-muted/30">

@@ -8,6 +8,7 @@ import { MarketingTab } from "@/components/financeiro/MarketingTab";
 import { FluxoCaixaTab } from "@/components/financeiro/FluxoCaixaTab";
 import { LucroMargemTab } from "@/components/financeiro/LucroMargemTab";
 import { AnimatedGradientBackground } from "@/components/AnimatedGradientBackground";
+import { PageHeader } from "@/components/PageHeader";
 import { 
   LayoutDashboard, 
   TrendingUp, 
@@ -30,18 +31,15 @@ export default function FinanceiroPage() {
   ];
 
   return (
-    <div>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-6 p-6"
-      >
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Financeiro</h1>
-          <p className="text-muted-foreground">
-            Gestão financeira completa do seu e-commerce
-          </p>
-        </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6"
+    >
+      <PageHeader
+        title="Financeiro"
+        description="Gestão financeira completa do seu e-commerce"
+      />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-card border border-border/30 p-1 rounded-xl gap-1 h-auto grid grid-cols-3 lg:grid-cols-6">
@@ -81,7 +79,6 @@ export default function FinanceiroPage() {
             <LucroMargemTab />
           </TabsContent>
         </Tabs>
-      </motion.div>
-    </div>
+    </motion.div>
   );
 }

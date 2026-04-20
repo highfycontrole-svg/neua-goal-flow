@@ -22,51 +22,12 @@ import {
   AlertTriangle,
   CalendarIcon
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn, formatCurrency } from '@/lib/utils';
-
-interface KPICardProps {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-  color: string;
-  subtitle?: string;
-}
-
-function KPICard({ title, value, icon, color, subtitle }: KPICardProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card className="bg-card border-border transition-all duration-300">
-        <CardContent className="p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <p className="text-sm text-muted-foreground mb-1">{title}</p>
-              <p className="text-2xl font-bold text-foreground">{value}</p>
-              {subtitle && (
-                <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
-              )}
-            </div>
-            <div 
-              className="p-3 rounded-xl"
-              style={{ backgroundColor: `${color}20` }}
-            >
-              <div style={{ color }}>
-                {icon}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-}
+import { KPICard } from '@/components/KPICard';
+import { PageHeader } from '@/components/PageHeader';
 
 type PeriodType = '7d' | '30d' | 'mes' | 'ano' | 'todos' | 'custom';
 
@@ -293,118 +254,40 @@ export default function GeralPage() {
     { value: 'custom', label: 'Personalizado' },
   ];
 
-  const kpis = [
-    {
-      title: 'Produtos Catalogados',
-      value: produtosCatalogados,
-      icon: <Package className="h-6 w-6" />,
-      color: '#3B82F6',
-      subtitle: 'Total no catálogo',
-    },
-    {
-      title: 'Produtos Campeões',
-      value: produtosCampeoes,
-      icon: <Trophy className="h-6 w-6" />,
-      color: '#F59E0B',
-      subtitle: 'Ranking campeão',
-    },
-    {
-      title: 'Faturamento',
-      value: formatCurrency(faturamento),
-      icon: <DollarSign className="h-6 w-6" />,
-      color: '#10B981',
-      subtitle: 'Receita bruta total',
-    },
-    {
-      title: 'Custos',
-      value: formatCurrency(custos),
-      icon: <TrendingDown className="h-6 w-6" />,
-      color: '#EF4444',
-      subtitle: 'Despesas totais',
-    },
-    {
-      title: 'Lucro',
-      value: formatCurrency(lucro),
-      icon: <TrendingUp className="h-6 w-6" />,
-      color: lucro >= 0 ? '#10B981' : '#EF4444',
-      subtitle: 'Faturamento - Custos',
-    },
-    {
-      title: 'Margem',
-      value: `${margem}%`,
-      icon: <Percent className="h-6 w-6" />,
-      color: '#8B5CF6',
-      subtitle: 'Margem de lucro',
-    },
-    {
-      title: 'Pedidos Entregues',
-      value: pedidosEntregues,
-      icon: <CheckCircle2 className="h-6 w-6" />,
-      color: '#10B981',
-      subtitle: 'Status: Entregue',
-    },
-    {
-      title: 'Taxa de Entrega',
-      value: `${taxaEntrega}%`,
-      icon: <Truck className="h-6 w-6" />,
-      color: '#06B6D4',
-      subtitle: 'Pedidos entregues / Total',
-    },
-    {
-      title: 'Pedidos em Trânsito',
-      value: pedidosEmTransito,
-      icon: <Clock className="h-6 w-6" />,
-      color: '#F59E0B',
-      subtitle: 'Em rota de entrega',
-    },
-    {
-      title: 'Metas Concluídas',
-      value: metasConcluidas,
-      icon: <Target className="h-6 w-6" />,
-      color: '#10B981',
-      subtitle: `De ${metas.length} metas`,
-    },
-    {
-      title: 'Investimento em Anúncios',
-      value: formatCurrency(investimentoAnuncios),
-      icon: <Megaphone className="h-6 w-6" />,
-      color: '#EC4899',
-      subtitle: 'Campanhas de marketing',
-    },
-    {
-      title: 'Tarefas Concluídas',
-      value: tarefasConcluidas,
-      icon: <ListChecks className="h-6 w-6" />,
-      color: '#10B981',
-      subtitle: 'No workspace',
-    },
-    {
-      title: 'Tarefas Atrasadas',
-      value: tarefasAtrasadas,
-      icon: <AlertTriangle className="h-6 w-6" />,
-      color: '#EF4444',
-      subtitle: 'Pendentes com prazo vencido',
-    },
+  type KPIAccent = 'primary' | 'success' | 'warning' | 'destructive' | 'info';
+  const kpis: Array<{
+    title: string;
+    value: string | number;
+    icon: typeof Package;
+    accent: KPIAccent;
+    description: string;
+  }> = [
+    { title: 'Produtos Catalogados', value: produtosCatalogados, icon: Package, accent: 'primary', description: 'Total no catálogo' },
+    { title: 'Produtos Campeões', value: produtosCampeoes, icon: Trophy, accent: 'warning', description: 'Ranking campeão' },
+    { title: 'Faturamento', value: formatCurrency(faturamento), icon: DollarSign, accent: 'success', description: 'Receita bruta total' },
+    { title: 'Custos', value: formatCurrency(custos), icon: TrendingDown, accent: 'destructive', description: 'Despesas totais' },
+    { title: 'Lucro', value: formatCurrency(lucro), icon: TrendingUp, accent: lucro >= 0 ? 'success' : 'destructive', description: 'Faturamento - Custos' },
+    { title: 'Margem', value: `${margem}%`, icon: Percent, accent: 'primary', description: 'Margem de lucro' },
+    { title: 'Pedidos Entregues', value: pedidosEntregues, icon: CheckCircle2, accent: 'success', description: 'Status: Entregue' },
+    { title: 'Taxa de Entrega', value: `${taxaEntrega}%`, icon: Truck, accent: 'info', description: 'Pedidos entregues / Total' },
+    { title: 'Pedidos em Trânsito', value: pedidosEmTransito, icon: Clock, accent: 'warning', description: 'Em rota de entrega' },
+    { title: 'Metas Concluídas', value: metasConcluidas, icon: Target, accent: 'success', description: `De ${metas.length} metas` },
+    { title: 'Investimento em Anúncios', value: formatCurrency(investimentoAnuncios), icon: Megaphone, accent: 'primary', description: 'Campanhas de marketing' },
+    { title: 'Tarefas Concluídas', value: tarefasConcluidas, icon: ListChecks, accent: 'success', description: 'No workspace' },
+    { title: 'Tarefas Atrasadas', value: tarefasAtrasadas, icon: AlertTriangle, accent: 'destructive', description: 'Pendentes com prazo vencido' },
   ];
 
   return (
-    <div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="p-6 space-y-6"
-      >
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Visão Geral</h1>
-            <p className="text-muted-foreground mt-1">
-              Resumo consolidado de todas as áreas do sistema
-            </p>
-          </div>
-
-          {/* Period Filter */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-6"
+    >
+      <PageHeader
+        title="Visão Geral"
+        description="Resumo consolidado de todas as áreas do sistema"
+        actions={
           <div className="flex flex-wrap items-center gap-2">
             {periodOptions.map((option) => (
               <Button
@@ -418,7 +301,8 @@ export default function GeralPage() {
               </Button>
             ))}
           </div>
-        </div>
+        }
+      />
 
         {/* Custom Date Range */}
         {period === 'custom' && (
@@ -490,7 +374,6 @@ export default function GeralPage() {
             </motion.div>
           ))}
         </div>
-      </motion.div>
-    </div>
+    </motion.div>
   );
 }

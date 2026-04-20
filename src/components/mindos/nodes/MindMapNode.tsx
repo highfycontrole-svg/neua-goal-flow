@@ -187,7 +187,7 @@ function MindMapNodeComponent({ id, data, selected }: NodeProps) {
                 <Palette className="h-3 w-3" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-64 bg-[#242424] border-border/30" align="end">
+            <PopoverContent className="w-64 bg-surface-3 border-border/30" align="end">
               <div className="space-y-3">
                 {/* Font Size */}
                 <div>

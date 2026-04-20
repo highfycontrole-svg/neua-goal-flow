@@ -29,6 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/PageHeader";
 import AddProductDialog from "@/components/pricing/AddProductDialog";
 import EditProductDialog from "@/components/pricing/EditProductDialog";
 import ProductCard from "@/components/pricing/ProductCard";
@@ -197,21 +198,12 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 md:space-y-8 p-3 sm:p-4 md:p-6">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col gap-2"
-      >
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2 sm:gap-3">
-          <Calculator className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-          Precificação & Produtos Neua
-        </h1>
-        <p className="text-xs sm:text-sm text-muted-foreground">
-          Calcule preços de venda e gerencie seu catálogo de produtos
-        </p>
-      </motion.div>
+    <div className="space-y-4 sm:space-y-6 md:space-y-8">
+      <PageHeader
+        icon={Calculator}
+        title="Precificação & Produtos Neua"
+        description="Calcule preços de venda e gerencie seu catálogo de produtos"
+      />
 
       {/* DOBRA 1 - Calculadora de Precificação */}
       <motion.div
@@ -219,7 +211,7 @@ export default function PricingPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <Card className="border-border/30 backdrop-blur-xl" style={{ backgroundColor: 'rgba(22, 22, 22, 0.85)' }}>
+        <Card className="border-border/30 backdrop-blur-xl" style={{ backgroundColor: 'hsl(var(--surface-1) / 0.85)' }}>
           <CardHeader className="p-4 sm:p-6">
             <CardTitle className="text-lg sm:text-xl text-foreground flex items-center gap-2">
               <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -366,7 +358,7 @@ export default function PricingPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <Card className="border-border/30" style={{ backgroundColor: '#161616' }}>
+        <Card className="border-border/30" style={{ backgroundColor: 'hsl(var(--surface-1))' }}>
           <CardHeader>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <CardTitle className="text-xl text-foreground flex items-center gap-2">
@@ -447,7 +439,7 @@ export default function PricingPage() {
                   ))}
                 </div>
               ) : (
-                <div className="overflow-x-auto rounded-lg border border-border/30" style={{ backgroundColor: '#1a1a1a' }}>
+                <div className="rounded-xl border border-border bg-card overflow-hidden overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>

@@ -80,10 +80,10 @@ export function MetasTable({ metas, superMetas, setores, allMetas = [], onUpdate
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="p-3 sm:p-4 md:p-6 mb-4 sm:mb-6 rounded-xl border border-border/30"
-      style={{ backgroundColor: '#1a1a1a' }}
+      style={{ backgroundColor: 'hsl(var(--surface-2))' }}
     >
       <h3 className="text-lg sm:text-xl font-display font-semibold mb-3 sm:mb-4">{title}</h3>
-      <div className="rounded-xl border border-border/30 overflow-x-auto" style={{ backgroundColor: '#161616' }}>
+      <div className="rounded-xl border border-border/30 overflow-x-auto" style={{ backgroundColor: 'hsl(var(--surface-1))' }}>
         <Table>
           <TableHeader>
             <TableRow className="bg-white/5">

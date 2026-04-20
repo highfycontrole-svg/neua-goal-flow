@@ -247,7 +247,7 @@ export function WorkspaceCalendar({ workspaceId, filterFn }: WorkspaceCalendarPr
         </div>
 
         {/* Calendar Grid */}
-        <Card className="p-4 border-border/50" style={{ backgroundColor: '#161616' }}>
+        <Card className="p-4 border-border/50" style={{ backgroundColor: 'hsl(var(--surface-1))' }}>
           <DndContext
             sensors={sensors}
             onDragStart={(event) => setActiveTaskId(event.active.id as string)}

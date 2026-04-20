@@ -103,7 +103,7 @@ export function PlannerSummary({ data }: PlannerSummaryProps) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="bg-[#1a1a1a] rounded-xl p-3 border border-border/20"
+            className="bg-surface-2 rounded-xl p-3 border border-border/20"
           >
             <div className={`h-8 w-8 rounded-lg ${card.bgColor} flex items-center justify-center mb-2`}>
               <card.icon className={`h-4 w-4 ${card.color}`} />
@@ -122,7 +122,7 @@ export function PlannerSummary({ data }: PlannerSummaryProps) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4 + index * 0.1 }}
-            className="bg-[#1a1a1a] rounded-xl p-3 text-center border border-border/20"
+            className="bg-surface-2 rounded-xl p-3 text-center border border-border/20"
           >
             <div className={`h-6 w-6 rounded-lg ${card.bgColor} flex items-center justify-center mx-auto mb-1.5`}>
               <card.icon className={`h-3 w-3 ${card.color}`} />

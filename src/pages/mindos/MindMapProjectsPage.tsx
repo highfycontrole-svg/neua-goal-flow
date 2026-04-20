@@ -269,7 +269,7 @@ export default function MindMapProjectsPage() {
                 exit={{ opacity: 0, scale: 0.9 }}
               >
                 <Card 
-                  className="bg-[#161616] border-border/30 hover:border-primary/50 transition-all cursor-pointer group"
+                  className="bg-surface-1 border-border/30 hover:border-primary/50 transition-all cursor-pointer group"
                   onClick={() => navigate(`/mindos/mindmap/${project.id}`)}
                   data-context-type="project"
                   data-context-id={project.id}
@@ -297,7 +297,7 @@ export default function MindMapProjectsPage() {
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-[#242424] border-border/30">
+                          <DropdownMenuContent align="end" className="bg-surface-3 border-border/30">
                             <DropdownMenuItem 
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -357,7 +357,7 @@ export default function MindMapProjectsPage() {
 
       {/* Create Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="bg-[#242424] border-border/30">
+        <DialogContent className="bg-surface-3 border-border/30">
           <DialogHeader>
             <DialogTitle>Novo Mapa Mental</DialogTitle>
           </DialogHeader>
@@ -367,7 +367,7 @@ export default function MindMapProjectsPage() {
               value={newProjectName}
               onChange={(e) => setNewProjectName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-              className="bg-[#161616] border-border/30"
+              className="bg-surface-1 border-border/30"
             />
           </div>
           <DialogFooter>
@@ -383,7 +383,7 @@ export default function MindMapProjectsPage() {
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="bg-[#242424] border-border/30">
+        <DialogContent className="bg-surface-3 border-border/30">
           <DialogHeader>
             <DialogTitle>Renomear Projeto</DialogTitle>
           </DialogHeader>
@@ -393,7 +393,7 @@ export default function MindMapProjectsPage() {
               value={editingProject?.name || ''}
               onChange={(e) => setEditingProject(prev => prev ? { ...prev, name: e.target.value } : null)}
               onKeyDown={(e) => e.key === 'Enter' && handleEdit()}
-              className="bg-[#161616] border-border/30"
+              className="bg-surface-1 border-border/30"
             />
           </div>
           <DialogFooter>

@@ -176,7 +176,7 @@ function FlowchartNodeComponent({ id, data, selected }: NodeProps) {
                 <Palette className="h-3 w-3" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-48 bg-[#242424] border-border/30" align="end">
+            <PopoverContent className="w-48 bg-surface-3 border-border/30" align="end">
               <div>
                 <label className="text-xs text-muted-foreground mb-2 block">Cor</label>
                 <div className="flex gap-1 flex-wrap">
@@ -228,7 +228,7 @@ function FlowchartNodeComponent({ id, data, selected }: NodeProps) {
               onFocus={handleInputFocus}
               onKeyDown={handleKeyDown}
               autoFocus
-              className="w-full bg-[#161616] border border-border/30 rounded px-2 py-1 text-sm text-center text-foreground outline-none focus:border-primary"
+              className="w-full bg-surface-1 border border-border/30 rounded px-2 py-1 text-sm text-center text-foreground outline-none focus:border-primary"
               placeholder="Nome..."
             />
             <input
@@ -237,7 +237,7 @@ function FlowchartNodeComponent({ id, data, selected }: NodeProps) {
               onBlur={handleInputBlur}
               onFocus={handleInputFocus}
               onKeyDown={handleKeyDown}
-              className="w-full bg-[#161616] border border-border/30 rounded px-2 py-0.5 text-xs text-center text-foreground outline-none focus:border-primary"
+              className="w-full bg-surface-1 border border-border/30 rounded px-2 py-0.5 text-xs text-center text-foreground outline-none focus:border-primary"
               placeholder="Descrição..."
             />
           </div>

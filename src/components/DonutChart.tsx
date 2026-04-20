@@ -48,7 +48,7 @@ export function DonutChart({ data, onSectorClick }: DonutChartProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="p-4 sm:p-6 rounded-2xl border border-border/30"
-        style={{ backgroundColor: '#161616' }}
+        style={{ backgroundColor: 'hsl(var(--surface-1))' }}
       >
         <h3 className="text-lg sm:text-xl font-display font-semibold mb-4">Distribuição por Setor</h3>
         <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
@@ -70,7 +70,7 @@ export function DonutChart({ data, onSectorClick }: DonutChartProps) {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: '#1a1a1a',
+                backgroundColor: 'hsl(var(--surface-2))',
                 border: '1px solid rgba(255,255,255,0.1)',
                 borderRadius: '0.75rem',
               }}
@@ -85,7 +85,7 @@ export function DonutChart({ data, onSectorClick }: DonutChartProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
         className="p-4 sm:p-6 rounded-2xl border border-border/30"
-        style={{ backgroundColor: '#161616' }}
+        style={{ backgroundColor: 'hsl(var(--surface-1))' }}
       >
         <h3 className="text-lg sm:text-xl font-display font-semibold mb-4">Status das Metas</h3>
         <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
@@ -104,7 +104,7 @@ export function DonutChart({ data, onSectorClick }: DonutChartProps) {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: '#1a1a1a',
+                backgroundColor: 'hsl(var(--surface-2))',
                 border: '1px solid rgba(255,255,255,0.1)',
                 borderRadius: '0.75rem',
               }}
