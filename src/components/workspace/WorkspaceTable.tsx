@@ -221,7 +221,7 @@ export function WorkspaceTable({ workspaceId, filterFn }: WorkspaceTableProps) {
           </Button>
         </div>
 
-        <div className="rounded-lg border border-border/50 overflow-x-auto" style={{ backgroundColor: 'hsl(var(--surface-1))' }}>
+        <div className="rounded-xl border border-border bg-card overflow-hidden overflow-x-auto">
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={filteredTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
               <Table>
