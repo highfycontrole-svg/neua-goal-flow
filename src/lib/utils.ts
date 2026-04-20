@@ -6,6 +6,17 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Format a number as Brazilian currency (BRL).
+ * Centralized helper — do not redefine locally in components.
+ */
+export function formatCurrency(value: number): string {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
+}
+
+/**
  * Parse a date string (yyyy-MM-dd) to a Date object in local timezone.
  * This prevents the common issue where dates are shifted one day earlier
  * due to UTC interpretation.
