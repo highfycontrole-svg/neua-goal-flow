@@ -278,23 +278,16 @@ export default function GeralPage() {
   ];
 
   return (
-    <div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="p-6 space-y-6"
-      >
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Visão Geral</h1>
-            <p className="text-muted-foreground mt-1">
-              Resumo consolidado de todas as áreas do sistema
-            </p>
-          </div>
-
-          {/* Period Filter */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-6"
+    >
+      <PageHeader
+        title="Visão Geral"
+        description="Resumo consolidado de todas as áreas do sistema"
+        actions={
           <div className="flex flex-wrap items-center gap-2">
             {periodOptions.map((option) => (
               <Button
@@ -308,7 +301,8 @@ export default function GeralPage() {
               </Button>
             ))}
           </div>
-        </div>
+        }
+      />
 
         {/* Custom Date Range */}
         {period === 'custom' && (
@@ -380,7 +374,6 @@ export default function GeralPage() {
             </motion.div>
           ))}
         </div>
-      </motion.div>
-    </div>
+    </motion.div>
   );
 }
