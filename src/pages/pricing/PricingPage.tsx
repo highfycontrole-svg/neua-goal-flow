@@ -29,6 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/PageHeader";
 import AddProductDialog from "@/components/pricing/AddProductDialog";
 import EditProductDialog from "@/components/pricing/EditProductDialog";
 import ProductCard from "@/components/pricing/ProductCard";
