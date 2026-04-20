@@ -231,16 +231,13 @@ export default function AdLabAnunciosPage() {
           <LoadingSpinner size="sm" />
         </div>
       ) : anuncios.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 text-center bg-card rounded-xl border border-border">
-          <PlayCircle className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium text-foreground">Nenhum anúncio criado</h3>
-          <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-            Crie anúncios para este pack e acompanhe sua performance
-          </p>
-          <Button className="mt-4" onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Criar Primeiro Anúncio
-          </Button>
+        <div className="bg-card rounded-xl border border-border">
+          <EmptyState
+            icon={PlayCircle}
+            title="Nenhum anúncio criado"
+            description="Crie anúncios para este pack e acompanhe sua performance"
+            action={{ label: 'Criar Primeiro Anúncio', onClick: () => setCreateDialogOpen(true) }}
+          />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

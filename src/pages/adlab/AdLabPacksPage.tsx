@@ -243,16 +243,13 @@ export default function AdLabPacksPage() {
           <LoadingSpinner size="sm" />
         </div>
       ) : packs.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 text-center bg-card rounded-xl border border-border">
-          <Layers className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium text-foreground">Nenhum pack criado</h3>
-          <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-            Crie packs (narrativas/ângulos criativos) para organizar seus anúncios
-          </p>
-          <Button className="mt-4" onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Criar Primeiro Pack
-          </Button>
+        <div className="bg-card rounded-xl border border-border">
+          <EmptyState
+            icon={Layers}
+            title="Nenhum pack criado"
+            description="Crie packs (narrativas/ângulos criativos) para organizar seus anúncios"
+            action={{ label: 'Criar Primeiro Pack', onClick: () => setCreateDialogOpen(true) }}
+          />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

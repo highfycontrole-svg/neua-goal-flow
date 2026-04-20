@@ -539,16 +539,12 @@ export default function AdLabPage() {
             <LoadingSpinner size="sm" />
           </div>
         ) : filteredProdutos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 text-center">
-            <Package className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium text-foreground">Nenhum produto encontrado</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Adicione produtos no Catálogo para começar a criar anúncios
-            </p>
-            <Button className="mt-4" onClick={() => navigate('/pricing')}>
-              Ir para Catálogo
-            </Button>
-          </div>
+          <EmptyState
+            icon={Package}
+            title="Nenhum produto encontrado"
+            description="Adicione produtos no Catálogo para começar a criar anúncios"
+            action={{ label: 'Ir para Catálogo', onClick: () => navigate('/pricing') }}
+          />
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredProdutos.map((produto, index) => renderProductCard(produto, index))}
