@@ -447,7 +447,7 @@ export default function PricingPage() {
                   ))}
                 </div>
               ) : (
-                <div className="overflow-x-auto rounded-lg border border-border/30" style={{ backgroundColor: 'hsl(var(--surface-2))' }}>
+                <div className="rounded-xl border border-border bg-card overflow-hidden overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
