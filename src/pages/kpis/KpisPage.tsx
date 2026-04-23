@@ -520,6 +520,93 @@ function MetricCard({ label, value }: { label: string; value: string }) {
   );
 }
 
+// Card showing current value with editable target and color indicator
+function MetricVsTargetCard({ label, value, target, format, higherIsBetter, integer, onSave }: {
+  label: string; value: string; target: number | null | undefined;
+  format: (v: number) => string;
+  higherIsBetter?: boolean; integer?: boolean;
+  onSave: (value: number | null) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<string>(target != null ? String(target) : '');
+
+  useEffect(() => {
+    setDraft(target != null ? String(target) : '');
+  }, [target]);
+
+  const currentNum = parseFloat(value.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+  const targetNum = target != null ? Number(target) : null;
+
+  const hit = targetNum != null && targetNum > 0
+    ? (higherIsBetter ? currentNum >= targetNum : currentNum <= targetNum)
+    : null;
+
+  const indicator = hit === null
+    ? 'border-border/30'
+    : hit ? 'border-success/40 bg-success/5' : 'border-destructive/40 bg-destructive/5';
+
+  const handleSave = () => {
+    const trimmed = draft.trim();
+    if (trimmed === '') {
+      onSave(null);
+    } else {
+      const parsed = integer ? parseInt(trimmed, 10) : parseFloat(trimmed.replace(',', '.'));
+      if (!isNaN(parsed)) onSave(parsed);
+    }
+    setEditing(false);
+  };
+
+  return (
+    <div className={`p-4 rounded-2xl bg-card border ${indicator} transition-colors`}>
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        {hit !== null && (
+          <Badge className={`text-[9px] ${hit ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive'}`}>
+            {hit ? 'Atingiu' : 'Abaixo'}
+          </Badge>
+        )}
+      </div>
+      <p className="text-xl font-bold">{value}</p>
+      <div className="mt-2 flex items-center gap-1.5 text-[11px]">
+        <span className="text-muted-foreground">Meta:</span>
+        {editing ? (
+          <>
+            <Input
+              type="number"
+              step={integer ? '1' : '0.01'}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              className="h-6 px-1.5 text-[11px] w-20"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSave();
+                if (e.key === 'Escape') { setEditing(false); setDraft(target != null ? String(target) : ''); }
+              }}
+            />
+            <button onClick={handleSave} className="p-0.5 rounded hover:bg-success/15 text-success">
+              <Check className="h-3 w-3" />
+            </button>
+            <button
+              onClick={() => { setEditing(false); setDraft(target != null ? String(target) : ''); }}
+              className="p-0.5 rounded hover:bg-destructive/15 text-destructive"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => setEditing(true)}
+            className="flex items-center gap-1 text-foreground hover:text-primary transition-colors"
+          >
+            <span className="font-medium">{targetNum != null ? format(targetNum) : 'definir'}</span>
+            <Pencil className="h-2.5 w-2.5 opacity-60" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── MANYCHAT TAB ───────────────────────────────────────────────
 function ManychatTab() {
   const { user } = useAuth();
