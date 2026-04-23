@@ -55,9 +55,15 @@ export function KanbanCard({ task, onClick, isDragging, isCompleted, isBacklog }
         data-context-actions="edit,---,delete"
       >
         <div className="flex items-start gap-1.5 mb-2">
-          {isBacklog && <RefreshCw className="h-3 w-3 mt-0.5 text-muted-foreground flex-shrink-0" title="Tarefa recorrente" />}
+          {isBacklog && (
+            <span title="Tarefa recorrente">
+              <RefreshCw className="h-3 w-3 mt-0.5 text-muted-foreground flex-shrink-0" />
+            </span>
+          )}
           {task.precisa_gravar === 'precisa_gravar' && (
-            <Video className="h-3 w-3 mt-0.5 text-violet-400 flex-shrink-0" title="Precisa gravar" />
+            <span title="Precisa gravar">
+              <Video className="h-3 w-3 mt-0.5 text-violet-400 flex-shrink-0" />
+            </span>
           )}
           <h4 className={`font-medium text-sm text-foreground ${isCompleted ? 'line-through' : ''}`}>{task.title}</h4>
         </div>
