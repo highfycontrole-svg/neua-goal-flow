@@ -11,42 +11,42 @@
 
 @layer base {
   :root {
-    /* Core Colors - High Contrast Premium Dark */
-    --background: 0 0% 6%;        /* #0f0f0f */
-    --foreground: 0 0% 98%;       /* #fafafa */
+    /* Core Colors - Total Dark with Green Accent */
+    --background: 0 0% 4%;        /* #0a0a0a */
+    --foreground: 0 0% 95%;       /* near white */
 
     /* Floating Card Block */
-    --card: 0 0% 11%;             /* #1c1c1c */
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 7%;              /* #121212 */
+    --card-foreground: 0 0% 95%;
 
     /* Surface Tokens — Layered backgrounds for nested elements
        surface-1 = container background (was #161616)
        surface-2 = subtle elevation (was #1a1a1a / #1e1e1e)
        surface-3 = elevated content (was #242424)
     */
-    --surface-1: 0 0% 9%;          /* #161616 */
-    --surface-2: 0 0% 11%;         /* #1c1c1c — close to #1a1a1a/#1e1e1e */
-    --surface-3: 0 0% 14%;         /* #242424 */
+    --surface-1: 0 0% 7%;          /* #121212 */
+    --surface-2: 0 0% 9%;          /* #171717 */
+    --surface-3: 0 0% 12%;         /* #1f1f1f */
 
     /* Popover/Dialog */
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 95%;
 
-    /* Primary - Electric Blue */
-    --primary: 217 95% 62%;       /* #3b83f8 */
+    /* Primary - Vibrant Green */
+    --primary: 142 76% 45%;       /* hsl(142, 76%, 45%) */
     --primary-foreground: 0 0% 100%;
 
     /* Secondary */
-    --secondary: 0 0% 14%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 0 0% 11%;
+    --secondary-foreground: 0 0% 92%;
 
     /* Muted */
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 50%;
 
     /* Accent */
-    --accent: 0 0% 18%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 95%;
 
     /* Destructive */
     --destructive: 0 85% 55%;
@@ -61,37 +61,37 @@
     --info-foreground: 0 0% 100%;
 
     /* Borders & Inputs */
-    --border: 0 0% 20%;
-    --input: 0 0% 16%;
-    --ring: 217 95% 62%;
+    --border: 0 0% 12%;            /* #1f1f1f */
+    --input: 0 0% 14%;
+    --ring: 142 76% 45%;
 
     /* Radius */
-    --radius: 0.75rem;
-    --radius-lg: 1.125rem;
+    --radius: 1rem;                /* 16px default */
+    --radius-lg: 1.25rem;
 
     /* Chart Colors */
-    --chart-1: 217 95% 62%;
-    --chart-2: 142 71% 45%;
+    --chart-1: 142 76% 45%;
+    --chart-2: 142 50% 65%;
     --chart-3: 38 92% 50%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
 
     /* Sidebar */
-    --sidebar-background: 0 0% 7%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 217 95% 62%;
+    --sidebar-background: 0 0% 4%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 142 76% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 16%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 217 95% 62%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 10%;
+    --sidebar-ring: 142 76% 45%;
 
     /* Custom Design Tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(217 95% 62%) 0%, hsl(217 95% 72%) 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 13%) 0%, hsl(0 0% 9%) 100%);
-    --gradient-glow: linear-gradient(135deg, hsl(217 95% 62% / 0.25) 0%, transparent 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(142 76% 45%) 0%, hsl(142 76% 55%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 9%) 0%, hsl(0 0% 5%) 100%);
+    --gradient-glow: linear-gradient(135deg, hsl(142 76% 45% / 0.25) 0%, transparent 100%);
     --shadow-elegant: 0 10px 40px -15px hsl(0 0% 0% / 0.6);
-    --shadow-glow: 0 0 30px hsl(217 95% 62% / 0.2);
+    --shadow-glow: 0 0 30px hsl(142 76% 45% / 0.2);
     --shadow-card: 0 8px 32px -8px hsl(0 0% 0% / 0.5);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -104,12 +104,18 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-    font-family: 'Inter Tight Variable', sans-serif;
+    @apply text-foreground antialiased;
+    font-family: 'Inter', sans-serif;
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, hsla(142, 76%, 45%, 0.08) 0%, transparent 60%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-attachment: fixed;
+    min-height: 100vh;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Syne', sans-serif;
   }
 }
 
@@ -136,24 +142,29 @@
     @apply border-primary/30;
   }
   
-  /* Premium Card Styles - Updated with proper contrast */
+  /* Premium Card Styles - Neua Green System */
   .card-neua {
-    background-color: #161616;
-    @apply backdrop-blur-sm border border-border/30 rounded-2xl shadow-lg transition-all duration-300;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 16px;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
   }
-  
+
   .card-neua:hover {
-    @apply shadow-xl border-primary/20;
-    transform: translateY(-2px);
+    border-color: hsla(142, 76%, 45%, 0.2);
+    box-shadow: 0 0 0 1px hsla(142, 76%, 45%, 0.05), 0 8px 32px rgba(0, 0, 0, 0.3);
   }
-  
+
   .card-neua-elevated {
-    background-color: #1a1a1a;
-    @apply backdrop-blur-md border border-border/20 rounded-2xl shadow-xl transition-all duration-300;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    transition: border-color 200ms ease, box-shadow 200ms ease;
   }
-  
+
   .card-neua-elevated:hover {
-    @apply shadow-2xl border-primary/30;
+    border-color: hsla(142, 76%, 45%, 0.25);
     box-shadow: var(--shadow-glow), var(--shadow-elegant);
   }
 
@@ -181,18 +192,18 @@
   
   /* Sidebar Menu Item Hover/Active */
   .sidebar-item {
-    @apply relative rounded-xl transition-all duration-300;
+    @apply relative rounded-[10px] transition-colors duration-150;
   }
-  
+
   .sidebar-item:hover {
-    @apply bg-primary text-primary-foreground;
-    transform: scale(1.02);
-    box-shadow: 0 0 20px hsl(217 91% 60% / 0.3);
+    background-color: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.85);
   }
-  
+
   .sidebar-item.active {
-    @apply bg-primary text-primary-foreground;
-    box-shadow: 0 0 25px hsl(217 91% 60% / 0.4);
+    background-color: hsla(142, 76%, 45%, 0.12);
+    color: hsl(142, 76%, 50%);
+    border-left: 2px solid hsl(142, 76%, 45%);
   }
   
   /* Premium Button Hover */
@@ -242,7 +253,7 @@
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(217 91% 60%);
+    background: hsl(142 76% 45%);
   }
   
   /* Animations */
@@ -259,10 +270,10 @@
   
   @keyframes glow-pulse {
     0%, 100% {
-      box-shadow: 0 0 20px hsl(217 91% 60% / 0.3);
+      box-shadow: 0 0 20px hsl(142 76% 45% / 0.3);
     }
     50% {
-      box-shadow: 0 0 30px hsl(217 91% 60% / 0.5);
+      box-shadow: 0 0 30px hsl(142 76% 45% / 0.5);
     }
   }
   
@@ -342,8 +353,8 @@
   .card-highlight-amber { border-left: 3px solid hsl(var(--warning)); }
 
   /* Glow effects */
-  .glow-blue { box-shadow: 0 0 20px hsl(217 95% 62% / 0.25), 0 4px 16px hsl(0 0% 0% / 0.4); }
-  .glow-green { box-shadow: 0 0 20px hsl(142 71% 45% / 0.25), 0 4px 16px hsl(0 0% 0% / 0.4); }
+  .glow-blue { box-shadow: 0 0 20px hsl(142 76% 45% / 0.25), 0 4px 16px hsl(0 0% 0% / 0.4); }
+  .glow-green { box-shadow: 0 0 20px hsl(142 76% 45% / 0.25), 0 4px 16px hsl(0 0% 0% / 0.4); }
   .glow-red { box-shadow: 0 0 20px hsl(0 85% 55% / 0.25), 0 4px 16px hsl(0 0% 0% / 0.4); }
   .glow-amber { box-shadow: 0 0 20px hsl(38 92% 50% / 0.25), 0 4px 16px hsl(0 0% 0% / 0.4); }
 }

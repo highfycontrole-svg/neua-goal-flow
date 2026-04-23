@@ -14,9 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['"Space Grotesk"', 'sans-serif'],
-        body: ['"Inter Tight Variable"', 'sans-serif'],
-        sans: ['"Inter Tight Variable"', 'sans-serif'],
+        display: ['Syne', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -79,16 +79,20 @@ export default {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-        "2xl": "1.125rem",
-        "3xl": "1.5rem",
+        none: '0',
+        sm: '6px',
+        DEFAULT: '10px',
+        md: '12px',
+        lg: '16px',
+        xl: '20px',
+        '2xl': '24px',
+        '3xl': '32px',
+        full: '9999px',
       },
       boxShadow: {
         'card': '0 8px 32px -8px hsl(0 0% 0% / 0.4)',
-        'glow': '0 0 30px hsl(217 91% 60% / 0.15)',
-        'glow-lg': '0 0 40px hsl(217 91% 60% / 0.25)',
+        'glow': '0 0 30px hsl(142 76% 45% / 0.15)',
+        'glow-lg': '0 0 40px hsl(142 76% 45% / 0.25)',
       },
       keyframes: {
         "accordion-down": {
@@ -104,8 +108,8 @@ export default {
           to: { opacity: "1", transform: "translateY(0)" },
         },
         "glow-pulse": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(217 91% 60% / 0.3)" },
-          "50%": { boxShadow: "0 0 30px hsl(217 91% 60% / 0.5)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(142 76% 45% / 0.3)" },
+          "50%": { boxShadow: "0 0 30px hsl(142 76% 45% / 0.5)" },
         },
         "scale-in": {
           from: { opacity: "0", transform: "scale(0.95)" },
