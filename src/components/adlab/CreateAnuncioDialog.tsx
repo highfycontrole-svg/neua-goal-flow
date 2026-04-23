@@ -71,7 +71,7 @@ export function CreateAnuncioDialog({
         cta_final: ctaFinal,
       };
 
-      const { error } = await supabase.from('ad_anuncios').insert({
+      const { data: inserted, error } = await supabase.from('ad_anuncios').insert({
         user_id: user?.id!,
         pack_id: packId,
         titulo,
@@ -84,13 +84,33 @@ export function CreateAnuncioDialog({
         link_anuncio_pronto: linkAnuncioPronto || null,
         observacoes: observacoes || null,
         status_producao: statusProducao,
-      });
+      }).select('id').single();
 
       if (error) throw error;
+
+      // Sync com Gravações
+      if (statusProducao === 'gravacao' && inserted?.id) {
+        const { data: existing } = await supabase
+          .from('gravacoes')
+          .select('id')
+          .eq('origem', 'adlab')
+          .eq('origem_id', inserted.id)
+          .maybeSingle();
+        if (!existing) {
+          await supabase.from('gravacoes').insert({
+            user_id: user!.id,
+            titulo,
+            origem: 'adlab',
+            origem_id: inserted.id,
+            status: 'pendente',
+          });
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['anuncios', packId] });
       queryClient.invalidateQueries({ queryKey: ['anuncio-counts'] });
+      queryClient.invalidateQueries({ queryKey: ['gravacoes'] });
       toast.success('Anúncio criado com sucesso!');
       resetForm();
       onOpenChange(false);
@@ -343,6 +363,7 @@ Use quebras de linha, emojis, formatação...
                     <SelectContent>
                       <SelectItem value="ideia">💡 Ideia</SelectItem>
                       <SelectItem value="para_fazer">📋 Para Fazer</SelectItem>
+                      <SelectItem value="gravacao">🎥 Gravação</SelectItem>
                       <SelectItem value="em_producao">🎬 Em Produção</SelectItem>
                       <SelectItem value="pronto">✅ Pronto</SelectItem>
                       <SelectItem value="rodando">🚀 Rodando</SelectItem>
