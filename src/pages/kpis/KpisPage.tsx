@@ -355,6 +355,8 @@ function KpiProgressCard({ title, value, meta, pct, icon: Icon, crescimento, pro
 function MetaAdsTab() {
   const { connection } = useMetaConnection();
   const { insights, loading, fetchInsights } = useMetaInsights();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (connection?.selected_ad_account_id) {
@@ -366,7 +368,42 @@ function MetaAdsTab() {
     }
   }, [connection?.selected_ad_account_id, fetchInsights]);
 
-  if (!connection?.selected_ad_account_id) {
+  // Most recent kpi_meta_ads row (for fallback values + editable targets)
+  const { data: latestKpi } = useQuery({
+    queryKey: ['kpi-meta-ads-targets', user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from('kpi_meta_ads' as any).select('*')
+        .order('semana_inicio', { ascending: false }).limit(1).maybeSingle();
+      return data as any;
+    },
+    enabled: !!user?.id,
+  });
+
+  const saveTarget = useMutation({
+    mutationFn: async ({ field, value }: { field: string; value: number | null }) => {
+      const today = new Date();
+      const semana = format(getWeekStart(today), 'yyyy-MM-dd');
+      const payload: any = {
+        user_id: user!.id,
+        semana_inicio: latestKpi?.semana_inicio || semana,
+        [field]: value,
+        updated_at: new Date().toISOString(),
+      };
+      const { error } = await supabase.from('kpi_meta_ads' as any).upsert(
+        payload,
+        { onConflict: 'user_id,semana_inicio' } as any
+      );
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success('Meta atualizada!');
+      queryClient.invalidateQueries({ queryKey: ['kpi-meta-ads-targets'] });
+      queryClient.invalidateQueries({ queryKey: ['kpi-meta-ads-latest'] });
+    },
+    onError: () => toast.error('Erro ao salvar meta'),
+  });
+
+  if (!connection?.selected_ad_account_id && !latestKpi) {
     return (
       <div className="text-center py-12 text-muted-foreground">
         <BarChart2 className="h-10 w-10 mx-auto mb-3 opacity-40" />
@@ -377,14 +414,23 @@ function MetaAdsTab() {
 
   const totalSpend = insights.reduce((a, i) => a + Number(i.spend || 0), 0);
   const totalRevenue = insights.reduce((a, i) => a + getPurchaseValue(i.action_values), 0);
-  const roas = totalSpend > 0 ? totalRevenue / totalSpend : 0;
+  const liveRoas = totalSpend > 0 ? totalRevenue / totalSpend : 0;
   const totalPurchases = insights.reduce((a, i) => a + getPurchaseValue(i.actions), 0);
-  const cac = totalPurchases > 0 ? totalSpend / totalPurchases : 0;
-  const avgCtr = insights.length > 0 ? insights.reduce((a, i) => a + Number(i.ctr || 0), 0) / insights.length : 0;
-  const avgCpc = insights.length > 0 ? insights.reduce((a, i) => a + Number(i.cpc || 0), 0) / insights.length : 0;
-  const avgCpm = insights.length > 0 ? insights.reduce((a, i) => a + Number(i.cpm || 0), 0) / insights.length : 0;
+  const liveCac = totalPurchases > 0 ? totalSpend / totalPurchases : 0;
+  const liveAvgCtr = insights.length > 0 ? insights.reduce((a, i) => a + Number(i.ctr || 0), 0) / insights.length : 0;
+  const liveAvgCpc = insights.length > 0 ? insights.reduce((a, i) => a + Number(i.cpc || 0), 0) / insights.length : 0;
+  const liveAvgCpm = insights.length > 0 ? insights.reduce((a, i) => a + Number(i.cpm || 0), 0) / insights.length : 0;
+  const liveCheckouts = insights.reduce((a, i) => a + getActionValue(i.actions, 'initiate_checkout'), 0);
+  const liveCarrinhos = insights.reduce((a, i) => a + getActionValue(i.actions, 'add_to_cart'), 0);
 
-  const roasBadge = roas >= 3 ? 'bg-green-500/20 text-green-400' : roas >= 1.5 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400';
+  // Final values: live first, manual fallback from kpi_meta_ads
+  const ctr = liveAvgCtr || Number(latestKpi?.ctr || 0);
+  const cpc = liveAvgCpc || Number(latestKpi?.cpc || 0);
+  const cpm = liveAvgCpm || Number(latestKpi?.cpm || 0);
+  const roas = liveRoas || Number(latestKpi?.roas || 0);
+  const cac = liveCac || Number(latestKpi?.custo_por_compra || 0);
+  const checkouts = liveCheckouts || Number(latestKpi?.checkouts || 0);
+  const carrinhos = liveCarrinhos || Number(latestKpi?.carrinhos || 0);
 
   const top5 = [...insights].sort((a, b) => {
     const ra = Number(a.spend || 0) > 0 ? getPurchaseValue(a.action_values) / Number(a.spend || 1) : 0;
@@ -400,19 +446,49 @@ function MetaAdsTab() {
       {loading && <div className="text-center py-8 text-muted-foreground">Carregando dados da Meta...</div>}
       {!loading && (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             <MetricCard label="Investimento" value={formatCurrency(totalSpend)} />
             <MetricCard label="Receita" value={formatCurrency(totalRevenue)} />
-            <div className="p-4 rounded-2xl bg-card border border-border/30">
-              <p className="text-xs text-muted-foreground mb-1">ROAS</p>
-              <p className="text-xl font-bold">{roas.toFixed(2)}</p>
-              <Badge className={`mt-1 ${roasBadge}`}>{roas >= 3 ? 'Ótimo' : roas >= 1.5 ? 'Regular' : 'Baixo'}</Badge>
-            </div>
             <MetricCard label="Compras" value={totalPurchases.toString()} />
-            <MetricCard label="CAC" value={formatCurrency(cac)} />
-            <MetricCard label="CTR Médio" value={`${avgCtr.toFixed(2)}%`} />
-            <MetricCard label="CPC" value={formatCurrency(avgCpc)} />
-            <MetricCard label="CPM" value={formatCurrency(avgCpm)} />
+            <MetricVsTargetCard
+              label="ROAS" value={roas.toFixed(2)}
+              target={latestKpi?.meta_roas} format={(v) => v.toFixed(2)}
+              higherIsBetter
+              onSave={(v) => saveTarget.mutate({ field: 'meta_roas', value: v })}
+            />
+            <MetricVsTargetCard
+              label="CTR (%)" value={`${ctr.toFixed(2)}%`}
+              target={latestKpi?.meta_ctr} format={(v) => `${v.toFixed(2)}%`}
+              higherIsBetter
+              onSave={(v) => saveTarget.mutate({ field: 'meta_ctr', value: v })}
+            />
+            <MetricVsTargetCard
+              label="CPC" value={formatCurrency(cpc)}
+              target={latestKpi?.meta_cpc} format={(v) => formatCurrency(v)}
+              onSave={(v) => saveTarget.mutate({ field: 'meta_cpc', value: v })}
+            />
+            <MetricVsTargetCard
+              label="CPM" value={formatCurrency(cpm)}
+              target={latestKpi?.meta_cpm} format={(v) => formatCurrency(v)}
+              onSave={(v) => saveTarget.mutate({ field: 'meta_cpm', value: v })}
+            />
+            <MetricVsTargetCard
+              label="Custo por Compra" value={formatCurrency(cac)}
+              target={latestKpi?.meta_custo_compra} format={(v) => formatCurrency(v)}
+              onSave={(v) => saveTarget.mutate({ field: 'meta_custo_compra', value: v })}
+            />
+            <MetricVsTargetCard
+              label="Checkouts" value={String(checkouts)}
+              target={latestKpi?.meta_checkouts} format={(v) => String(v)}
+              higherIsBetter integer
+              onSave={(v) => saveTarget.mutate({ field: 'meta_checkouts', value: v })}
+            />
+            <MetricVsTargetCard
+              label="Carrinhos" value={String(carrinhos)}
+              target={latestKpi?.meta_carrinhos} format={(v) => String(v)}
+              higherIsBetter integer
+              onSave={(v) => saveTarget.mutate({ field: 'meta_carrinhos', value: v })}
+            />
           </div>
           {top5.length > 0 && (
             <div className="p-5 rounded-2xl bg-card border border-border/30">
