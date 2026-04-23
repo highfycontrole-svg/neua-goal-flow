@@ -48,6 +48,7 @@ const AdsNeuaCallback = lazy(() => import("./pages/ads/AdsNeuaCallback"));
 const KpisPage = lazy(() => import("./pages/kpis/KpisPage"));
 const ManychatKpiPage = lazy(() => import("./pages/kpis/ManychatKpiPage"));
 const GrupoVipKpiPage = lazy(() => import("./pages/kpis/GrupoVipKpiPage"));
+const GravacoesPage = lazy(() => import("./pages/gravacoes/GravacoesPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -113,6 +114,7 @@ const App = () => (
               <Route path="/kpis" element={<ProtectedRoute><AppLayout><KpisPage /></AppLayout></ProtectedRoute>} />
               <Route path="/kpis/manychat" element={<ProtectedRoute><AppLayout><ManychatKpiPage /></AppLayout></ProtectedRoute>} />
               <Route path="/kpis/grupo-vip" element={<ProtectedRoute><AppLayout><GrupoVipKpiPage /></AppLayout></ProtectedRoute>} />
+              <Route path="/gravacoes" element={<ProtectedRoute><AppLayout><GravacoesPage /></AppLayout></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

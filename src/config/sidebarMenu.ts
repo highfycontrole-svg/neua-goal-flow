@@ -1,4 +1,4 @@
-import { Target, Users, LayoutGrid, Calculator, Rocket, Package, DollarSign, Home, PlayCircle, Brain, Link2, BarChart3, BarChart2 } from 'lucide-react';
+import { Target, Users, LayoutGrid, Calculator, Rocket, Package, DollarSign, Home, PlayCircle, Brain, Link2, BarChart3, BarChart2, Video } from 'lucide-react';
 
 export interface MenuItem {
   title: string;
@@ -21,6 +21,7 @@ export const menuItems: MenuItem[] = [
 
   // MARKETING
   { title: 'AD Lab', url: '/adlab', icon: PlayCircle, basePath: '/adlab', section: 'MARKETING' },
+  { title: 'Gravações', url: '/gravacoes', icon: Video, basePath: '/gravacoes' },
   { title: 'Ads Neua', url: '/ads-neua', icon: BarChart3, basePath: '/ads-neua' },
   { title: 'KPIs', url: '/kpis', icon: BarChart2, basePath: '/kpis', hasSubmenu: true },
   { title: 'UTM Builder', url: '/utm', icon: Link2, basePath: '/utm' },
