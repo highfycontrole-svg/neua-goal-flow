@@ -113,6 +113,62 @@ function FinanceiroTab({ selectedMes, selectedAno, setSelectedMes, setSelectedAn
     enabled: !!user?.id,
   });
 
+  // CPA: pull most recent week from kpi_meta_ads as fallback to live API data
+  const { data: latestMetaAdsKpi } = useQuery({
+    queryKey: ['kpi-meta-ads-latest', user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from('kpi_meta_ads' as any).select('*')
+        .order('semana_inicio', { ascending: false }).limit(1).maybeSingle();
+      return data as any;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Live Meta API fallback for CPA
+  const { connection } = useMetaConnection();
+  const { insights: liveInsights, fetchInsights: fetchLiveInsights } = useMetaInsights();
+  useEffect(() => {
+    if (connection?.selected_ad_account_id) {
+      fetchLiveInsights({
+        ad_account_id: connection.selected_ad_account_id,
+        level: 'account',
+        date_preset: 'last_7d',
+      });
+    }
+  }, [connection?.selected_ad_account_id, fetchLiveInsights]);
+
+  const liveSpend = liveInsights.reduce((a, i) => a + Number(i.spend || 0), 0);
+  const livePurchases = liveInsights.reduce((a, i) => a + getPurchaseValue(i.actions), 0);
+  const liveCpa = livePurchases > 0 ? liveSpend / livePurchases : 0;
+
+  const cpaAtual = liveCpa > 0
+    ? liveCpa
+    : Number(latestMetaAdsKpi?.custo_por_compra || 0);
+
+  const CPA_META = 117;
+  const CPA_SUPER_META = 105;
+
+  const cpaBadgeClass = cpaAtual === 0
+    ? 'bg-muted text-muted-foreground'
+    : cpaAtual <= CPA_SUPER_META
+      ? 'bg-success/15 text-success'
+      : cpaAtual <= CPA_META
+        ? 'bg-warning/15 text-warning'
+        : 'bg-destructive/15 text-destructive';
+
+  const cpaLabel = cpaAtual === 0
+    ? 'Sem dados'
+    : cpaAtual <= CPA_SUPER_META
+      ? 'Super meta'
+      : cpaAtual <= CPA_META
+        ? 'Dentro da meta'
+        : 'Acima da meta';
+
+  // Range for progress bar: 0 → 2x META (so target sits at 50%)
+  const cpaPctOfRange = Math.min((cpaAtual / (CPA_META * 2)) * 100, 100);
+  const superMetaPct = (CPA_SUPER_META / (CPA_META * 2)) * 100;
+  const metaPct = (CPA_META / (CPA_META * 2)) * 100;
+
   // CÁLCULOS CORRETOS
   const faturamentoBruto = receitas.reduce((a, r) => a + Number(r.valor_bruto || 0), 0);
   const totalTaxas = receitas.reduce((a, r) => a + Number(r.taxas || 0), 0);
