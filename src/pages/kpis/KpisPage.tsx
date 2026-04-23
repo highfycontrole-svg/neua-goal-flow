@@ -131,7 +131,7 @@ function FinanceiroTab({ selectedMes, selectedAno, setSelectedMes, setSelectedAn
     if (connection?.selected_ad_account_id) {
       fetchLiveInsights({
         ad_account_id: connection.selected_ad_account_id,
-        level: 'account',
+        level: 'campaign',
         date_preset: 'last_7d',
       });
     }
