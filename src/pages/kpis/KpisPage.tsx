@@ -272,6 +272,35 @@ function FinanceiroTab({ selectedMes, selectedAno, setSelectedMes, setSelectedAn
           </div>
           <p className="text-2xl font-bold">{qtdPedidos}</p>
         </div>
+        {/* CPA — Custo por Aquisição */}
+        <div className="p-5 rounded-2xl bg-card border border-border/30 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all sm:col-span-2 lg:col-span-1">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-primary/10"><Crosshair className="h-4 w-4 text-primary" /></div>
+              <span className="text-sm text-muted-foreground">CPA</span>
+            </div>
+            <Badge className={`text-[10px] ${cpaBadgeClass}`}>{cpaLabel}</Badge>
+          </div>
+          <p className="text-2xl font-bold">{cpaAtual > 0 ? formatCurrency(cpaAtual) : '—'}</p>
+          <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+            <span>Super: {formatCurrency(CPA_SUPER_META)}</span>
+            <span>Meta: {formatCurrency(CPA_META)}</span>
+          </div>
+          <div className="relative mt-2 h-2 rounded-full bg-muted overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${
+                cpaAtual === 0 ? 'bg-muted-foreground/30'
+                : cpaAtual <= CPA_SUPER_META ? 'bg-success'
+                : cpaAtual <= CPA_META ? 'bg-warning'
+                : 'bg-destructive'
+              }`}
+              style={{ width: `${cpaPctOfRange}%` }}
+            />
+            {/* Reference lines */}
+            <div className="absolute top-0 h-full w-px bg-success/70" style={{ left: `${superMetaPct}%` }} title="Super meta R$105" />
+            <div className="absolute top-0 h-full w-px bg-warning/70" style={{ left: `${metaPct}%` }} title="Meta R$117" />
+          </div>
+        </div>
       </div>
 
       {/* Weekly chart */}
