@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { DndContext, DragEndEvent, DragOverlay, PointerSensor, useSensor, useSensors, rectIntersection } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { KanbanColumn } from './KanbanColumn';
 import { KanbanCard } from './KanbanCard';
 import { CreateTaskDialog } from './CreateTaskDialog';
@@ -12,6 +13,9 @@ import { CreateStatusDialog } from './CreateStatusDialog';
 import { TaskDetailsPanel } from './TaskDetailsPanel';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
+
+const BACKLOG_ID = '__backlog__';
+const BACKLOG_STATUS = { id: BACKLOG_ID, name: 'Backlog', color: '#6B7280', isBacklog: true } as any;
 
 interface WorkspaceKanbanProps {
   workspaceId: string;
@@ -92,16 +96,18 @@ export function WorkspaceKanban({ workspaceId, filterFn }: WorkspaceKanbanProps)
     const activeTask = tasks.find(t => t.id === taskId);
     if (!activeTask) return;
 
-    // Check if dropping on a status column (column id matches a status id)
-    const targetStatus = statuses.find(s => s.id === overId);
+    // Backlog column treated as null status
+    const isBacklogTarget = overId === BACKLOG_ID;
+    const targetStatus = isBacklogTarget ? BACKLOG_STATUS : statuses.find(s => s.id === overId);
     
     if (targetStatus) {
       // Moving to a different status column
-      if (activeTask.status_id !== targetStatus.id) {
+      const targetStatusId = isBacklogTarget ? null : targetStatus.id;
+      if (activeTask.status_id !== targetStatusId) {
         try {
           await updateTaskMutation.mutateAsync({
             taskId,
-            updates: { status_id: targetStatus.id }
+            updates: { status_id: targetStatusId }
           });
           toast({
             title: 'Tarefa movida',
@@ -162,6 +168,23 @@ export function WorkspaceKanban({ workspaceId, filterFn }: WorkspaceKanbanProps)
 
   const activeTask = tasks.find(t => t.id === activeTaskId);
 
+  const deleteStatusMutation = useMutation({
+    mutationFn: async (statusId: string) => {
+      // Set tasks status_id to null
+      await supabase.from('workspace_tasks').update({ status_id: null }).eq('status_id', statusId);
+      const { error } = await supabase.from('workspace_statuses').delete().eq('id', statusId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workspace-statuses'] });
+      queryClient.invalidateQueries({ queryKey: ['workspace-tasks'] });
+      toast({ title: 'Status excluído', description: 'Tarefas movidas para Backlog.' });
+    },
+    onError: (e: any) => toast({ title: 'Erro', description: e.message, variant: 'destructive' }),
+  });
+
+  const allColumns = [BACKLOG_STATUS, ...statuses];
+
   return (
     <>
       <div className="space-y-4">
@@ -179,8 +202,11 @@ export function WorkspaceKanban({ workspaceId, filterFn }: WorkspaceKanbanProps)
           onDragEnd={handleDragEnd}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-x-auto pb-4">
-            {statuses.map((status) => {
-              const statusTasks = filteredTasks.filter(t => t.status_id === status.id);
+            {allColumns.map((status: any) => {
+              const isBacklog = status.id === BACKLOG_ID;
+              const statusTasks = isBacklog
+                ? filteredTasks.filter(t => !t.status_id)
+                : filteredTasks.filter(t => t.status_id === status.id);
               
               return (
                 <motion.div
@@ -199,9 +225,10 @@ export function WorkspaceKanban({ workspaceId, filterFn }: WorkspaceKanbanProps)
                       tasks={statusTasks}
                       onTaskClick={setSelectedTaskId}
                       onAddTask={() => {
-                        setSelectedStatusForNewTask(status.id);
+                        setSelectedStatusForNewTask(isBacklog ? null : status.id);
                         setIsCreateTaskOpen(true);
                       }}
+                      onDeleteStatus={isBacklog ? undefined : () => deleteStatusMutation.mutate(status.id)}
                     />
                   </SortableContext>
                 </motion.div>

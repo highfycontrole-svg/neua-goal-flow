@@ -3,7 +3,8 @@ import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, CheckCircle2 } from 'lucide-react';
+import { Plus, CheckCircle2, Trash2, RefreshCw } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { KanbanCard } from './KanbanCard';
 
 interface KanbanColumnProps {
@@ -11,11 +12,12 @@ interface KanbanColumnProps {
   tasks: any[];
   onTaskClick: (taskId: string) => void;
   onAddTask: () => void;
+  onDeleteStatus?: () => void;
 }
 
 const COMPLETED_TERMS = ['concluído', 'concluida', 'done', 'finalizado', 'completo'];
 
-export function KanbanColumn({ status, tasks, onTaskClick, onAddTask }: KanbanColumnProps) {
+export function KanbanColumn({ status, tasks, onTaskClick, onAddTask, onDeleteStatus }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: status.id,
   });
@@ -23,6 +25,8 @@ export function KanbanColumn({ status, tasks, onTaskClick, onAddTask }: KanbanCo
   const isCompletedColumn = useMemo(() =>
     COMPLETED_TERMS.some(term => status.name.toLowerCase().includes(term)),
   [status.name]);
+
+  const isBacklog = !!status.isBacklog;
 
   return (
     <Card 
@@ -33,7 +37,9 @@ export function KanbanColumn({ status, tasks, onTaskClick, onAddTask }: KanbanCo
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          {isCompletedColumn ? (
+          {isBacklog ? (
+            <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />
+          ) : isCompletedColumn ? (
             <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
           ) : (
             <div
@@ -44,14 +50,30 @@ export function KanbanColumn({ status, tasks, onTaskClick, onAddTask }: KanbanCo
           <h3 className={`font-semibold ${isCompletedColumn ? 'text-green-400' : 'text-foreground'}`}>{status.name}</h3>
           <span className="text-xs text-muted-foreground">({tasks.length})</span>
         </div>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={onAddTask}
-          className="h-6 w-6"
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          {onDeleteStatus && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="icon" variant="ghost" className="h-6 w-6 text-muted-foreground hover:text-destructive">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Excluir o status "{status.name}"?</AlertDialogTitle>
+                  <AlertDialogDescription>As tarefas com este status ficarão sem status (Backlog).</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={onDeleteStatus} className="bg-destructive">Excluir</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+          <Button size="icon" variant="ghost" onClick={onAddTask} className="h-6 w-6">
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       <div 
@@ -67,6 +89,7 @@ export function KanbanColumn({ status, tasks, onTaskClick, onAddTask }: KanbanCo
               task={task}
               onClick={() => onTaskClick(task.id)}
               isCompleted={isCompletedColumn}
+              isBacklog={isBacklog}
             />
           ))}
         </SortableContext>
