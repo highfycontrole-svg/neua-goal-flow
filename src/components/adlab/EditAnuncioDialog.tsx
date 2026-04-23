@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   Dialog,
   DialogContent,
@@ -61,6 +62,7 @@ export function EditAnuncioDialog({
   packNome 
 }: EditAnuncioDialogProps) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   
   // Parse roteiro_visual
   const parseRoteiro = () => {
@@ -137,9 +139,29 @@ export function EditAnuncioDialog({
         .eq('id', anuncio.id);
 
       if (error) throw error;
+
+      // Sync com Gravações se status virou 'gravacao'
+      if (statusProducao === 'gravacao' && user?.id) {
+        const { data: existing } = await supabase
+          .from('gravacoes')
+          .select('id')
+          .eq('origem', 'adlab')
+          .eq('origem_id', anuncio.id)
+          .maybeSingle();
+        if (!existing) {
+          await supabase.from('gravacoes').insert({
+            user_id: user.id,
+            titulo,
+            origem: 'adlab',
+            origem_id: anuncio.id,
+            status: 'pendente',
+          });
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['anuncios'] });
+      queryClient.invalidateQueries({ queryKey: ['gravacoes'] });
       toast.success('Anúncio atualizado com sucesso!');
       onOpenChange(false);
     },
@@ -347,6 +369,7 @@ export function EditAnuncioDialog({
                       <SelectContent>
                         <SelectItem value="ideia">💡 Ideia</SelectItem>
                         <SelectItem value="para_fazer">📋 Para Fazer</SelectItem>
+                        <SelectItem value="gravacao">🎥 Gravação</SelectItem>
                         <SelectItem value="em_producao">🎬 Em Produção</SelectItem>
                         <SelectItem value="pronto">✅ Pronto</SelectItem>
                         <SelectItem value="rodando">🚀 Rodando</SelectItem>

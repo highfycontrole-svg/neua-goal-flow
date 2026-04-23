@@ -72,6 +72,7 @@ interface Produto {
 const statusProducaoConfig: Record<string, { label: string; color: string }> = {
   ideia: { label: 'Ideia', color: 'bg-gray-500/20 text-gray-400' },
   para_fazer: { label: 'Para Fazer', color: 'bg-yellow-500/20 text-yellow-500' },
+  gravacao: { label: 'Gravação', color: 'bg-violet-500/20 text-violet-400' },
   em_producao: { label: 'Em Produção', color: 'bg-blue-500/20 text-blue-500' },
   pronto: { label: 'Pronto', color: 'bg-purple-500/20 text-purple-500' },
   rodando: { label: 'Rodando', color: 'bg-green-500/20 text-green-500' },

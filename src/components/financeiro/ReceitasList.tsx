@@ -41,6 +41,8 @@ export function ReceitasList() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingReceita, setEditingReceita] = useState<Receita | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   // Form state
   const [formData, setFormData] = useState({
@@ -142,10 +144,14 @@ export function ReceitasList() {
     setDialogOpen(true);
   };
 
-  const filteredReceitas = receitas.filter((r) =>
-    r.origem.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.descricao?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredReceitas = receitas.filter((r) => {
+    const matchesSearch =
+      r.origem.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.descricao?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFrom = !dateFrom || r.data >= dateFrom;
+    const matchesTo = !dateTo || r.data <= dateTo;
+    return matchesSearch && matchesFrom && matchesTo;
+  });
 
   const totalBruto = filteredReceitas.reduce((acc, r) => acc + Number(r.valor_bruto), 0);
   const totalLiquido = filteredReceitas.reduce((acc, r) => acc + Number(r.valor_liquido), 0);
@@ -225,6 +231,23 @@ ${filteredReceitas.slice(0, 5).map(r => `• ${format(new Date(r.data + "T12:00:
             Adicionar Receita
           </Button>
         </div>
+      </div>
+
+      {/* Filtro de Data */}
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1">
+          <Label className="text-xs">De</Label>
+          <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-[160px]" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">Até</Label>
+          <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-[160px]" />
+        </div>
+        {(dateFrom || dateTo) && (
+          <Button variant="outline" size="sm" onClick={() => { setDateFrom(''); setDateTo(''); }}>
+            Limpar
+          </Button>
+        )}
       </div>
 
       {/* Table */}

@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Card } from '@/components/ui/card';
-import { Calendar, CheckCircle2, Circle } from 'lucide-react';
+import { Calendar, CheckCircle2, Circle, RefreshCw, Video } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { motion } from 'framer-motion';
@@ -12,9 +12,10 @@ interface KanbanCardProps {
   onClick?: () => void;
   isDragging?: boolean;
   isCompleted?: boolean;
+  isBacklog?: boolean;
 }
 
-export function KanbanCard({ task, onClick, isDragging, isCompleted }: KanbanCardProps) {
+export function KanbanCard({ task, onClick, isDragging, isCompleted, isBacklog }: KanbanCardProps) {
   const {
     attributes,
     listeners,
@@ -53,7 +54,19 @@ export function KanbanCard({ task, onClick, isDragging, isCompleted }: KanbanCar
         data-context-name={task.title}
         data-context-actions="edit,---,delete"
       >
-        <h4 className={`font-medium text-sm mb-2 text-foreground ${isCompleted ? 'line-through' : ''}`}>{task.title}</h4>
+        <div className="flex items-start gap-1.5 mb-2">
+          {isBacklog && (
+            <span title="Tarefa recorrente">
+              <RefreshCw className="h-3 w-3 mt-0.5 text-muted-foreground flex-shrink-0" />
+            </span>
+          )}
+          {task.precisa_gravar === 'precisa_gravar' && (
+            <span title="Precisa gravar">
+              <Video className="h-3 w-3 mt-0.5 text-violet-400 flex-shrink-0" />
+            </span>
+          )}
+          <h4 className={`font-medium text-sm text-foreground ${isCompleted ? 'line-through' : ''}`}>{task.title}</h4>
+        </div>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
           {task.date && (
