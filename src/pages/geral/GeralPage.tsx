@@ -347,7 +347,7 @@ export default function GeralPage() {
   const pctMetas = metas.length > 0 ? (metasConcluidas / metas.length) * 100 : 0;
   const pctTarefas = filteredTasks.length > 0 ? (tarefasConcluidas / filteredTasks.length) * 100 : 0;
 
-  const SECTOR_COLORS = ['hsl(217 91% 60%)', 'hsl(160 60% 45%)', 'hsl(30 80% 55%)', 'hsl(280 65% 60%)', 'hsl(340 75% 55%)', 'hsl(190 70% 50%)'];
+  const SECTOR_COLORS = ['hsl(142 76% 45%)', 'hsl(160 60% 55%)', 'hsl(30 80% 55%)', 'hsl(280 65% 60%)', 'hsl(340 75% 55%)', 'hsl(190 70% 50%)'];
 
   const periodOptions = [
     { value: '7d', label: '7 dias' },
