@@ -55,6 +55,8 @@ export function DespesasList() {
   const [editingDespesa, setEditingDespesa] = useState<Despesa | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategoria, setFilterCategoria] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   // Form state
   const [formData, setFormData] = useState({
@@ -165,7 +167,9 @@ export function DespesasList() {
       d.descricao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       d.categoria.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategoria = filterCategoria === "all" || d.categoria === filterCategoria;
-    return matchesSearch && matchesCategoria;
+    const matchesFrom = !dateFrom || d.data >= dateFrom;
+    const matchesTo = !dateTo || d.data <= dateTo;
+    return matchesSearch && matchesCategoria && matchesFrom && matchesTo;
   });
 
   const totalDespesas = filteredDespesas.reduce((acc, d) => acc + Number(d.valor), 0);
@@ -273,6 +277,23 @@ ${filteredDespesas.slice(0, 5).map(d => `• ${format(new Date(d.data + "T12:00:
             Adicionar Despesa
           </Button>
         </div>
+      </div>
+
+      {/* Filtro de Data */}
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1">
+          <Label className="text-xs">De</Label>
+          <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-[160px]" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">Até</Label>
+          <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-[160px]" />
+        </div>
+        {(dateFrom || dateTo) && (
+          <Button variant="outline" size="sm" onClick={() => { setDateFrom(''); setDateTo(''); }}>
+            Limpar
+          </Button>
+        )}
       </div>
 
       {/* Table */}
