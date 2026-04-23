@@ -19,7 +19,8 @@ import { ptBR } from 'date-fns/locale';
 import { getWeekOptions, getWeekStart } from '@/lib/weekUtils';
 import {
   DollarSign, TrendingUp, Target, ShoppingCart, Percent, BarChart2,
-  Users, MessageSquare, MousePointerClick, ArrowUpRight, ArrowDownRight
+  Users, MessageSquare, MousePointerClick, ArrowUpRight, ArrowDownRight,
+  Crosshair, Save, Pencil, Check, X
 } from 'lucide-react';
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
