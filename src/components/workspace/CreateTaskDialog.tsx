@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -24,12 +25,14 @@ interface CreateTaskDialogProps {
 
 export function CreateTaskDialog({ open, onOpenChange, workspaceId, defaultStatusId }: CreateTaskDialogProps) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [statusId, setStatusId] = useState(defaultStatusId || '');
   const [date, setDate] = useState<Date | undefined>();
   const [responsible, setResponsible] = useState('');
   const [tags, setTags] = useState('');
+  const [precisaGravar, setPrecisaGravar] = useState('nao_precisa');
   const [isLoading, setIsLoading] = useState(false);
 
   const { data: statuses = [] } = useQuery({
@@ -54,19 +57,41 @@ export function CreateTaskDialog({ open, onOpenChange, workspaceId, defaultStatu
     try {
       const tagsArray = tags.split(',').map(t => t.trim()).filter(Boolean);
 
-      const { error } = await supabase
+      const { data: inserted, error } = await supabase
         .from('workspace_tasks')
         .insert([{
           workspace_id: workspaceId,
           title: title.trim(),
           description: description.trim() || null,
-          status_id: statusId || null,
+          status_id: statusId === '__backlog__' ? null : (statusId || null),
           date: formatDateToString(date),
           responsible: responsible.trim() || null,
           tags: tagsArray.length > 0 ? tagsArray : null,
-        }]);
+          precisa_gravar: precisaGravar,
+        }])
+        .select('id')
+        .single();
 
       if (error) throw error;
+
+      // Sync com Gravações
+      if (precisaGravar === 'precisa_gravar' && inserted?.id && user?.id) {
+        const { data: existing } = await supabase
+          .from('gravacoes')
+          .select('id')
+          .eq('origem', 'workspace')
+          .eq('origem_id', inserted.id)
+          .maybeSingle();
+        if (!existing) {
+          await supabase.from('gravacoes').insert({
+            user_id: user.id,
+            titulo: title.trim(),
+            origem: 'workspace',
+            origem_id: inserted.id,
+            status: 'pendente',
+          });
+        }
+      }
 
       toast({
         title: 'Tarefa criada!',
@@ -74,6 +99,7 @@ export function CreateTaskDialog({ open, onOpenChange, workspaceId, defaultStatu
       });
 
       queryClient.invalidateQueries({ queryKey: ['workspace-tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['gravacoes'] });
       resetForm();
       onOpenChange(false);
     } catch (error: any) {
@@ -94,6 +120,7 @@ export function CreateTaskDialog({ open, onOpenChange, workspaceId, defaultStatu
     setDate(undefined);
     setResponsible('');
     setTags('');
+    setPrecisaGravar('nao_precisa');
   };
 
   return (
@@ -134,6 +161,12 @@ export function CreateTaskDialog({ open, onOpenChange, workspaceId, defaultStatu
                     <SelectValue placeholder="Selecione o status" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="__backlog__">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#6B7280' }} />
+                        Backlog
+                      </div>
+                    </SelectItem>
                     {statuses.map((status) => (
                       <SelectItem key={status.id} value={status.id}>
                         <div className="flex items-center gap-2">
@@ -189,6 +222,18 @@ export function CreateTaskDialog({ open, onOpenChange, workspaceId, defaultStatu
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Precisa Gravar?</Label>
+              <Select value={precisaGravar} onValueChange={setPrecisaGravar}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="nao_precisa">Não precisa gravar</SelectItem>
+                  <SelectItem value="precisa_gravar">Precisa gravar</SelectItem>
+                  <SelectItem value="ja_gravado">Já gravado</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>

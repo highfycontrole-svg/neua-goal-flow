@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
 import { Calendar as CalendarIcon, Plus, Trash2, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -28,6 +29,7 @@ interface TaskDetailsPanelProps {
 
 export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPanelProps) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -38,6 +40,7 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
   const [notes, setNotes] = useState('');
   const [links, setLinks] = useState<string[]>([]);
   const [newSubtask, setNewSubtask] = useState('');
+  const [precisaGravar, setPrecisaGravar] = useState('nao_precisa');
 
   const { data: task, isLoading } = useQuery({
     queryKey: ['workspace-task', taskId],
@@ -79,6 +82,7 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
       setTags(task.tags?.join(', ') || '');
       setNotes(task.notes || '');
       setLinks(task.links || []);
+      setPrecisaGravar((task as any).precisa_gravar || 'nao_precisa');
     }
   }, [task]);
 
@@ -93,16 +97,36 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
         .update({
           title: title.trim(),
           description: description.trim() || null,
-          status_id: statusId || null,
+          status_id: statusId === '__backlog__' ? null : (statusId || null),
           date: formatDateToString(date),
           responsible: responsible.trim() || null,
           tags: tagsArray.length > 0 ? tagsArray : null,
           notes: notes.trim() || null,
           links: links.length > 0 ? links : null,
+          precisa_gravar: precisaGravar,
         })
         .eq('id', taskId);
 
       if (error) throw error;
+
+      // Sync com Gravações
+      if (precisaGravar === 'precisa_gravar' && user?.id) {
+        const { data: existing } = await supabase
+          .from('gravacoes')
+          .select('id')
+          .eq('origem', 'workspace')
+          .eq('origem_id', taskId)
+          .maybeSingle();
+        if (!existing) {
+          await supabase.from('gravacoes').insert({
+            user_id: user.id,
+            titulo: title.trim(),
+            origem: 'workspace',
+            origem_id: taskId,
+            status: 'pendente',
+          });
+        }
+      }
 
       toast({
         title: 'Tarefa atualizada!',
@@ -111,6 +135,7 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
 
       queryClient.invalidateQueries({ queryKey: ['workspace-task'] });
       queryClient.invalidateQueries({ queryKey: ['workspace-tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['gravacoes'] });
       setIsEditing(false);
     } catch (error: any) {
       toast({
@@ -342,6 +367,12 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="__backlog__">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#6B7280' }} />
+                        Backlog
+                      </div>
+                    </SelectItem>
                     {statuses.map((status) => (
                       <SelectItem key={status.id} value={status.id}>
                         <div className="flex items-center gap-2">
@@ -426,6 +457,27 @@ export function TaskDetailsPanel({ taskId, open, onOpenChange }: TaskDetailsPane
                   <span className="text-muted-foreground">Sem tags</span>
                 )}
               </div>
+            )}
+          </div>
+
+          {/* Precisa Gravar */}
+          <div className="space-y-2">
+            <Label>Precisa Gravar?</Label>
+            {isEditing ? (
+              <Select value={precisaGravar} onValueChange={setPrecisaGravar}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="nao_precisa">Não precisa gravar</SelectItem>
+                  <SelectItem value="precisa_gravar">Precisa gravar</SelectItem>
+                  <SelectItem value="ja_gravado">Já gravado</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <p>
+                {(task as any).precisa_gravar === 'precisa_gravar' && '🎥 Precisa gravar'}
+                {(task as any).precisa_gravar === 'ja_gravado' && '✅ Já gravado'}
+                {(!(task as any).precisa_gravar || (task as any).precisa_gravar === 'nao_precisa') && 'Não precisa gravar'}
+              </p>
             )}
           </div>
 
