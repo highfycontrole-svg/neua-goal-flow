@@ -33,7 +33,7 @@
     --popover-foreground: 0 0% 95%;
 
     /* Primary - Vibrant Green */
-    --primary: 142 76% 45%;       /* hsl(142, 76%, 45%) */
+    --primary: 125 91% 32%;       /* #079c13 — darker for white text contrast */
     --primary-foreground: 0 0% 100%;
 
     /* Secondary */
@@ -53,7 +53,7 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Status tokens */
-    --success: 142 71% 45%;
+    --success: 125 91% 32%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
@@ -63,15 +63,15 @@
     /* Borders & Inputs */
     --border: 0 0% 12%;            /* #1f1f1f */
     --input: 0 0% 14%;
-    --ring: 142 76% 45%;
+    --ring: 125 91% 32%;
 
     /* Radius */
     --radius: 1rem;                /* 16px default */
     --radius-lg: 1.25rem;
 
     /* Chart Colors */
-    --chart-1: 142 76% 45%;
-    --chart-2: 142 50% 65%;
+    --chart-1: 125 91% 32%;
+    --chart-2: 125 60% 55%;
     --chart-3: 38 92% 50%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
@@ -79,19 +79,19 @@
     /* Sidebar */
     --sidebar-background: 0 0% 4%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 142 76% 45%;
+    --sidebar-primary: 125 91% 32%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 10%;
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 0 0% 10%;
-    --sidebar-ring: 142 76% 45%;
+    --sidebar-ring: 125 91% 32%;
 
     /* Custom Design Tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(142 76% 45%) 0%, hsl(142 76% 55%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(125 91% 32%) 0%, hsl(125 80% 42%) 100%);
     --gradient-subtle: linear-gradient(180deg, hsl(0 0% 9%) 0%, hsl(0 0% 5%) 100%);
-    --gradient-glow: linear-gradient(135deg, hsl(142 76% 45% / 0.25) 0%, transparent 100%);
+    --gradient-glow: linear-gradient(135deg, hsl(125 91% 32% / 0.25) 0%, transparent 100%);
     --shadow-elegant: 0 10px 40px -15px hsl(0 0% 0% / 0.6);
-    --shadow-glow: 0 0 30px hsl(142 76% 45% / 0.2);
+    --shadow-glow: 0 0 30px hsl(125 91% 32% / 0.2);
     --shadow-card: 0 8px 32px -8px hsl(0 0% 0% / 0.5);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
