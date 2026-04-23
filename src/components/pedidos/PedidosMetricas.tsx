@@ -194,6 +194,47 @@ export function PedidosMetricas() {
         <PedidosMetricasExport containerRef={containerRef} data={exportData} />
       </div>
 
+      {/* Logistic Method Filter */}
+      {transportadoraOptions.length > 0 && (
+        <div className="p-4 rounded-xl bg-card border border-border">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 mr-2">
+              <Truck className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Método logístico:</span>
+            </div>
+            <Button
+              size="sm"
+              variant={transportadoraFiltro === "__todos__" ? "default" : "outline"}
+              onClick={() => setTransportadoraFiltro("__todos__")}
+              className="text-xs h-7"
+            >
+              Todos
+              <Badge variant="secondary" className="ml-1.5 text-[10px] h-4 px-1.5">{pedidos.length}</Badge>
+            </Button>
+            {transportadoraOptions.map((t) => {
+              const count = pedidos.filter((p) => (p.transportadora || "Não informada").trim() === t).length;
+              return (
+                <Button
+                  key={t}
+                  size="sm"
+                  variant={transportadoraFiltro === t ? "default" : "outline"}
+                  onClick={() => setTransportadoraFiltro(t)}
+                  className="text-xs h-7"
+                >
+                  {t}
+                  <Badge variant="secondary" className="ml-1.5 text-[10px] h-4 px-1.5">{count}</Badge>
+                </Button>
+              );
+            })}
+          </div>
+          {transportadoraFiltro !== "__todos__" && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Exibindo métricas de <span className="font-semibold text-foreground">{filteredPedidos.length}</span> pedido(s) via <span className="font-semibold text-foreground">{transportadoraFiltro}</span>.
+            </p>
+          )}
+        </div>
+      )}
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {kpis.map((kpi, index) => (
