@@ -71,7 +71,7 @@ export function AppSidebar() {
       className="fixed left-[30px] top-[30px] z-50 flex flex-col rounded-2xl border border-white/[0.04] backdrop-blur-xl"
       style={{
         height: 'calc(100vh - 60px)',
-        backgroundColor: 'rgba(10, 10, 10, 0.95)',
+        backgroundColor: '#121212',
       }}
     >
       <SidebarContent 
