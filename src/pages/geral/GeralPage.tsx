@@ -3,9 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
-import { format, subDays, startOfMonth, endOfMonth, startOfYear, isWithinInterval, parseISO } from 'date-fns';
+import { format, subDays, startOfMonth, endOfMonth, startOfYear, isWithinInterval, parseISO, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { 
   Package, 
   Trophy,
@@ -20,14 +19,23 @@ import {
   Megaphone, 
   ListChecks, 
   AlertTriangle,
-  CalendarIcon
+  CalendarIcon,
+  Wallet,
+  ShoppingBag,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { cn, formatCurrency } from '@/lib/utils';
 import { KPICard } from '@/components/KPICard';
 import { PageHeader } from '@/components/PageHeader';
+import {
+  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend
+} from 'recharts';
 
 type PeriodType = '7d' | '30d' | 'mes' | 'ano' | 'todos' | 'custom';
 
