@@ -23,7 +23,7 @@ export function AppSidebar() {
   const currentDate = format(new Date(), "dd MMM, yyyy", { locale: ptBR });
 
   // Sidebar dimensions
-  const sidebarWidth = open ? 320 : 80;
+  const sidebarWidth = open ? 260 : 64;
 
   if (isMobile) {
     return (
@@ -67,10 +67,11 @@ export function AppSidebar() {
     <motion.aside
       initial={false}
       animate={{ width: sidebarWidth }}
-      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      className="fixed left-[30px] top-[30px] z-50 flex flex-col bg-background"
-      style={{ 
+      transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+      className="fixed left-[30px] top-[30px] z-50 flex flex-col rounded-2xl border border-white/[0.04] backdrop-blur-xl"
+      style={{
         height: 'calc(100vh - 60px)',
+        backgroundColor: 'rgba(10, 10, 10, 0.95)',
       }}
     >
       <SidebarContent 
@@ -246,14 +247,13 @@ function SidebarContent({ open, setOpen, isActive, navigate, signOut, currentDat
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.03 }}
                 className={`
-                  w-full h-11 rounded-[10px] flex items-center gap-3 transition-all duration-150
+                  w-full h-10 rounded-[10px] flex items-center gap-3 transition-colors duration-150
                   ${active
-                    ? 'bg-primary text-primary-foreground shadow-[0_4px_20px_hsl(217_95%_62%/0.4)]'
-                    : 'text-foreground/65 hover:bg-secondary hover:text-foreground'
+                    ? 'bg-primary/[0.12] text-primary border-l-2 border-primary'
+                    : 'text-foreground/50 hover:bg-white/[0.04] hover:text-foreground/85'
                   }
-                  ${open ? 'px-3 justify-start' : 'px-0 justify-center'}
+                  ${open ? 'px-3 justify-start' : 'px-0 justify-center border-l-0'}
                 `}
-                whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <item.icon className="h-[18px] w-[18px] flex-shrink-0" />
