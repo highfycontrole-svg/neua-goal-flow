@@ -425,6 +425,48 @@ export type Database = {
         }
         Relationships: []
       }
+      gravacoes: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          id: string
+          link_arquivo: string | null
+          origem: string
+          origem_id: string | null
+          status: string
+          tags: string[] | null
+          titulo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          link_arquivo?: string | null
+          origem?: string
+          origem_id?: string | null
+          status?: string
+          tags?: string[] | null
+          titulo: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          link_arquivo?: string | null
+          origem?: string
+          origem_id?: string | null
+          status?: string
+          tags?: string[] | null
+          titulo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       interacoes: {
         Row: {
           arquiteto_id: string
@@ -1900,6 +1942,7 @@ export type Database = {
           links: string[] | null
           notes: string | null
           order_index: number | null
+          precisa_gravar: string | null
           responsible: string | null
           status_id: string | null
           tags: string[] | null
@@ -1915,6 +1958,7 @@ export type Database = {
           links?: string[] | null
           notes?: string | null
           order_index?: number | null
+          precisa_gravar?: string | null
           responsible?: string | null
           status_id?: string | null
           tags?: string[] | null
@@ -1930,6 +1974,7 @@ export type Database = {
           links?: string[] | null
           notes?: string | null
           order_index?: number | null
+          precisa_gravar?: string | null
           responsible?: string | null
           status_id?: string | null
           tags?: string[] | null
