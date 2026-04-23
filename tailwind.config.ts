@@ -91,8 +91,8 @@ export default {
       },
       boxShadow: {
         'card': '0 8px 32px -8px hsl(0 0% 0% / 0.4)',
-        'glow': '0 0 30px hsl(142 76% 45% / 0.15)',
-        'glow-lg': '0 0 40px hsl(142 76% 45% / 0.25)',
+        'glow': '0 0 30px hsl(125 91% 32% / 0.15)',
+        'glow-lg': '0 0 40px hsl(125 91% 32% / 0.25)',
       },
       keyframes: {
         "accordion-down": {
@@ -108,8 +108,8 @@ export default {
           to: { opacity: "1", transform: "translateY(0)" },
         },
         "glow-pulse": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(142 76% 45% / 0.3)" },
-          "50%": { boxShadow: "0 0 30px hsl(142 76% 45% / 0.5)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(125 91% 32% / 0.3)" },
+          "50%": { boxShadow: "0 0 30px hsl(125 91% 32% / 0.5)" },
         },
         "scale-in": {
           from: { opacity: "0", transform: "scale(0.95)" },
