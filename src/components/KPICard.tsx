@@ -48,7 +48,7 @@ export function KPICard({
           <p className="text-[10px] font-medium uppercase tracking-wider text-foreground/55 mb-2 truncate">
             {title}
           </p>
-          <h3 className="font-display font-bold text-2xl sm:text-3xl text-foreground truncate">
+          <h3 className="font-display font-bold text-xl sm:text-2xl text-foreground truncate">
             {value}
           </h3>
         </div>
