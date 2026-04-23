@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import { Package, Truck, CheckCircle, Clock, TrendingUp, AlertCircle, Timer, Star } from "lucide-react";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from "recharts";
 import { PedidosMetricasExport } from "./PedidosMetricasExport";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface Pedido {
   id: string;
@@ -37,6 +39,7 @@ const STATUS_ENTREGA_COLORS: Record<string, string> = {
 export function PedidosMetricas() {
   const { user } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
+  const [transportadoraFiltro, setTransportadoraFiltro] = useState<string>("__todos__");
 
   const { data: pedidos = [], isLoading } = useQuery({
     queryKey: ["pedidos", user?.id],
@@ -52,20 +55,39 @@ export function PedidosMetricas() {
     enabled: !!user?.id,
   });
 
+  // Unique transportadoras for filter buttons
+  const transportadoraOptions = useMemo(() => {
+    const set = new Set<string>();
+    pedidos.forEach((p) => {
+      const t = (p.transportadora || "Não informada").trim();
+      set.add(t);
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "pt-BR"));
+  }, [pedidos]);
+
+  // Apply transportadora filter (client-side)
+  const filteredPedidos = useMemo(() => {
+    if (transportadoraFiltro === "__todos__") return pedidos;
+    return pedidos.filter((p) => {
+      const t = (p.transportadora || "Não informada").trim();
+      return t === transportadoraFiltro;
+    });
+  }, [pedidos, transportadoraFiltro]);
+
   // Calculate metrics
-  const totalPedidos = pedidos.length;
-  const entregues = pedidos.filter((p) => p.status === "Entregue").length;
-  const emTransito = pedidos.filter((p) => ["Em trânsito BR", "Enviado"].includes(p.status)).length;
+  const totalPedidos = filteredPedidos.length;
+  const entregues = filteredPedidos.filter((p) => p.status === "Entregue").length;
+  const emTransito = filteredPedidos.filter((p) => ["Em trânsito BR", "Enviado"].includes(p.status)).length;
   const taxaEntrega = totalPedidos > 0 ? ((entregues / totalPedidos) * 100).toFixed(1) : "0";
 
   // Calculate average delivery time (only for "Entregue" orders with prazo_entrega)
-  const entreguesComPrazo = pedidos.filter((p) => p.status === "Entregue" && p.prazo_entrega !== null);
+  const entreguesComPrazo = filteredPedidos.filter((p) => p.status === "Entregue" && p.prazo_entrega !== null);
   const tempoMedioEntrega = entreguesComPrazo.length > 0
     ? (entreguesComPrazo.reduce((acc, p) => acc + (p.prazo_entrega || 0), 0) / entreguesComPrazo.length).toFixed(1)
     : null;
 
   // Calculate logistics quality distribution (only for "Entregue" orders with status_entrega)
-  const entreguesComQualidade = pedidos.filter((p) => p.status === "Entregue" && p.status_entrega);
+  const entreguesComQualidade = filteredPedidos.filter((p) => p.status === "Entregue" && p.status_entrega);
   const qualidadeData = Object.entries(
     entreguesComQualidade.reduce((acc, p) => {
       const status = p.status_entrega || "";
@@ -81,7 +103,7 @@ export function PedidosMetricas() {
 
   // Status distribution
   const statusData = Object.entries(
-    pedidos.reduce((acc, p) => {
+    filteredPedidos.reduce((acc, p) => {
       acc[p.status] = (acc[p.status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>)
@@ -89,7 +111,7 @@ export function PedidosMetricas() {
 
   // Transportadora distribution
   const transportadoraData = Object.entries(
-    pedidos.reduce((acc, p) => {
+    filteredPedidos.reduce((acc, p) => {
       const key = p.transportadora || "Não informada";
       acc[key] = (acc[key] || 0) + 1;
       return acc;
@@ -97,7 +119,7 @@ export function PedidosMetricas() {
   ).map(([name, value]) => ({ name, value }));
 
   // Monthly evolution
-  const monthlyData = pedidos.reduce((acc, p) => {
+  const monthlyData = filteredPedidos.reduce((acc, p) => {
     const month = new Date(p.created_at).toLocaleDateString("pt-BR", { month: "short", year: "2-digit" });
     const existing = acc.find((item) => item.month === month);
     if (existing) {
@@ -171,6 +193,47 @@ export function PedidosMetricas() {
       <div className="flex justify-end">
         <PedidosMetricasExport containerRef={containerRef} data={exportData} />
       </div>
+
+      {/* Logistic Method Filter */}
+      {transportadoraOptions.length > 0 && (
+        <div className="p-4 rounded-xl bg-card border border-border">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 mr-2">
+              <Truck className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Método logístico:</span>
+            </div>
+            <Button
+              size="sm"
+              variant={transportadoraFiltro === "__todos__" ? "default" : "outline"}
+              onClick={() => setTransportadoraFiltro("__todos__")}
+              className="text-xs h-7"
+            >
+              Todos
+              <Badge variant="secondary" className="ml-1.5 text-[10px] h-4 px-1.5">{pedidos.length}</Badge>
+            </Button>
+            {transportadoraOptions.map((t) => {
+              const count = pedidos.filter((p) => (p.transportadora || "Não informada").trim() === t).length;
+              return (
+                <Button
+                  key={t}
+                  size="sm"
+                  variant={transportadoraFiltro === t ? "default" : "outline"}
+                  onClick={() => setTransportadoraFiltro(t)}
+                  className="text-xs h-7"
+                >
+                  {t}
+                  <Badge variant="secondary" className="ml-1.5 text-[10px] h-4 px-1.5">{count}</Badge>
+                </Button>
+              );
+            })}
+          </div>
+          {transportadoraFiltro !== "__todos__" && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Exibindo métricas de <span className="font-semibold text-foreground">{filteredPedidos.length}</span> pedido(s) via <span className="font-semibold text-foreground">{transportadoraFiltro}</span>.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">

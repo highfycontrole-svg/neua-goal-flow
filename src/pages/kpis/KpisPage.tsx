@@ -19,7 +19,8 @@ import { ptBR } from 'date-fns/locale';
 import { getWeekOptions, getWeekStart } from '@/lib/weekUtils';
 import {
   DollarSign, TrendingUp, Target, ShoppingCart, Percent, BarChart2,
-  Users, MessageSquare, MousePointerClick, ArrowUpRight, ArrowDownRight
+  Users, MessageSquare, MousePointerClick, ArrowUpRight, ArrowDownRight,
+  Crosshair, Save, Pencil, Check, X
 } from 'lucide-react';
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
@@ -111,6 +112,62 @@ function FinanceiroTab({ selectedMes, selectedAno, setSelectedMes, setSelectedAn
     },
     enabled: !!user?.id,
   });
+
+  // CPA: pull most recent week from kpi_meta_ads as fallback to live API data
+  const { data: latestMetaAdsKpi } = useQuery({
+    queryKey: ['kpi-meta-ads-latest', user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from('kpi_meta_ads' as any).select('*')
+        .order('semana_inicio', { ascending: false }).limit(1).maybeSingle();
+      return data as any;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Live Meta API fallback for CPA
+  const { connection } = useMetaConnection();
+  const { insights: liveInsights, fetchInsights: fetchLiveInsights } = useMetaInsights();
+  useEffect(() => {
+    if (connection?.selected_ad_account_id) {
+      fetchLiveInsights({
+        ad_account_id: connection.selected_ad_account_id,
+        level: 'campaign',
+        date_preset: 'last_7d',
+      });
+    }
+  }, [connection?.selected_ad_account_id, fetchLiveInsights]);
+
+  const liveSpend = liveInsights.reduce((a, i) => a + Number(i.spend || 0), 0);
+  const livePurchases = liveInsights.reduce((a, i) => a + getPurchaseValue(i.actions), 0);
+  const liveCpa = livePurchases > 0 ? liveSpend / livePurchases : 0;
+
+  const cpaAtual = liveCpa > 0
+    ? liveCpa
+    : Number(latestMetaAdsKpi?.custo_por_compra || 0);
+
+  const CPA_META = 117;
+  const CPA_SUPER_META = 105;
+
+  const cpaBadgeClass = cpaAtual === 0
+    ? 'bg-muted text-muted-foreground'
+    : cpaAtual <= CPA_SUPER_META
+      ? 'bg-success/15 text-success'
+      : cpaAtual <= CPA_META
+        ? 'bg-warning/15 text-warning'
+        : 'bg-destructive/15 text-destructive';
+
+  const cpaLabel = cpaAtual === 0
+    ? 'Sem dados'
+    : cpaAtual <= CPA_SUPER_META
+      ? 'Super meta'
+      : cpaAtual <= CPA_META
+        ? 'Dentro da meta'
+        : 'Acima da meta';
+
+  // Range for progress bar: 0 → 2x META (so target sits at 50%)
+  const cpaPctOfRange = Math.min((cpaAtual / (CPA_META * 2)) * 100, 100);
+  const superMetaPct = (CPA_SUPER_META / (CPA_META * 2)) * 100;
+  const metaPct = (CPA_META / (CPA_META * 2)) * 100;
 
   // CÁLCULOS CORRETOS
   const faturamentoBruto = receitas.reduce((a, r) => a + Number(r.valor_bruto || 0), 0);
@@ -215,6 +272,35 @@ function FinanceiroTab({ selectedMes, selectedAno, setSelectedMes, setSelectedAn
           </div>
           <p className="text-2xl font-bold">{qtdPedidos}</p>
         </div>
+        {/* CPA — Custo por Aquisição */}
+        <div className="p-5 rounded-2xl bg-card border border-border/30 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all sm:col-span-2 lg:col-span-1">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-primary/10"><Crosshair className="h-4 w-4 text-primary" /></div>
+              <span className="text-sm text-muted-foreground">CPA</span>
+            </div>
+            <Badge className={`text-[10px] ${cpaBadgeClass}`}>{cpaLabel}</Badge>
+          </div>
+          <p className="text-2xl font-bold">{cpaAtual > 0 ? formatCurrency(cpaAtual) : '—'}</p>
+          <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+            <span>Super: {formatCurrency(CPA_SUPER_META)}</span>
+            <span>Meta: {formatCurrency(CPA_META)}</span>
+          </div>
+          <div className="relative mt-2 h-2 rounded-full bg-muted overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${
+                cpaAtual === 0 ? 'bg-muted-foreground/30'
+                : cpaAtual <= CPA_SUPER_META ? 'bg-success'
+                : cpaAtual <= CPA_META ? 'bg-warning'
+                : 'bg-destructive'
+              }`}
+              style={{ width: `${cpaPctOfRange}%` }}
+            />
+            {/* Reference lines */}
+            <div className="absolute top-0 h-full w-px bg-success/70" style={{ left: `${superMetaPct}%` }} title="Super meta R$105" />
+            <div className="absolute top-0 h-full w-px bg-warning/70" style={{ left: `${metaPct}%` }} title="Meta R$117" />
+          </div>
+        </div>
       </div>
 
       {/* Weekly chart */}
@@ -269,6 +355,8 @@ function KpiProgressCard({ title, value, meta, pct, icon: Icon, crescimento, pro
 function MetaAdsTab() {
   const { connection } = useMetaConnection();
   const { insights, loading, fetchInsights } = useMetaInsights();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (connection?.selected_ad_account_id) {
@@ -280,7 +368,42 @@ function MetaAdsTab() {
     }
   }, [connection?.selected_ad_account_id, fetchInsights]);
 
-  if (!connection?.selected_ad_account_id) {
+  // Most recent kpi_meta_ads row (for fallback values + editable targets)
+  const { data: latestKpi } = useQuery({
+    queryKey: ['kpi-meta-ads-targets', user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from('kpi_meta_ads' as any).select('*')
+        .order('semana_inicio', { ascending: false }).limit(1).maybeSingle();
+      return data as any;
+    },
+    enabled: !!user?.id,
+  });
+
+  const saveTarget = useMutation({
+    mutationFn: async ({ field, value }: { field: string; value: number | null }) => {
+      const today = new Date();
+      const semana = format(getWeekStart(today), 'yyyy-MM-dd');
+      const payload: any = {
+        user_id: user!.id,
+        semana_inicio: latestKpi?.semana_inicio || semana,
+        [field]: value,
+        updated_at: new Date().toISOString(),
+      };
+      const { error } = await supabase.from('kpi_meta_ads' as any).upsert(
+        payload,
+        { onConflict: 'user_id,semana_inicio' } as any
+      );
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success('Meta atualizada!');
+      queryClient.invalidateQueries({ queryKey: ['kpi-meta-ads-targets'] });
+      queryClient.invalidateQueries({ queryKey: ['kpi-meta-ads-latest'] });
+    },
+    onError: () => toast.error('Erro ao salvar meta'),
+  });
+
+  if (!connection?.selected_ad_account_id && !latestKpi) {
     return (
       <div className="text-center py-12 text-muted-foreground">
         <BarChart2 className="h-10 w-10 mx-auto mb-3 opacity-40" />
@@ -291,14 +414,23 @@ function MetaAdsTab() {
 
   const totalSpend = insights.reduce((a, i) => a + Number(i.spend || 0), 0);
   const totalRevenue = insights.reduce((a, i) => a + getPurchaseValue(i.action_values), 0);
-  const roas = totalSpend > 0 ? totalRevenue / totalSpend : 0;
+  const liveRoas = totalSpend > 0 ? totalRevenue / totalSpend : 0;
   const totalPurchases = insights.reduce((a, i) => a + getPurchaseValue(i.actions), 0);
-  const cac = totalPurchases > 0 ? totalSpend / totalPurchases : 0;
-  const avgCtr = insights.length > 0 ? insights.reduce((a, i) => a + Number(i.ctr || 0), 0) / insights.length : 0;
-  const avgCpc = insights.length > 0 ? insights.reduce((a, i) => a + Number(i.cpc || 0), 0) / insights.length : 0;
-  const avgCpm = insights.length > 0 ? insights.reduce((a, i) => a + Number(i.cpm || 0), 0) / insights.length : 0;
+  const liveCac = totalPurchases > 0 ? totalSpend / totalPurchases : 0;
+  const liveAvgCtr = insights.length > 0 ? insights.reduce((a, i) => a + Number(i.ctr || 0), 0) / insights.length : 0;
+  const liveAvgCpc = insights.length > 0 ? insights.reduce((a, i) => a + Number(i.cpc || 0), 0) / insights.length : 0;
+  const liveAvgCpm = insights.length > 0 ? insights.reduce((a, i) => a + Number(i.cpm || 0), 0) / insights.length : 0;
+  const liveCheckouts = insights.reduce((a, i) => a + getActionValue(i.actions, 'initiate_checkout'), 0);
+  const liveCarrinhos = insights.reduce((a, i) => a + getActionValue(i.actions, 'add_to_cart'), 0);
 
-  const roasBadge = roas >= 3 ? 'bg-green-500/20 text-green-400' : roas >= 1.5 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400';
+  // Final values: live first, manual fallback from kpi_meta_ads
+  const ctr = liveAvgCtr || Number(latestKpi?.ctr || 0);
+  const cpc = liveAvgCpc || Number(latestKpi?.cpc || 0);
+  const cpm = liveAvgCpm || Number(latestKpi?.cpm || 0);
+  const roas = liveRoas || Number(latestKpi?.roas || 0);
+  const cac = liveCac || Number(latestKpi?.custo_por_compra || 0);
+  const checkouts = liveCheckouts || Number(latestKpi?.checkouts || 0);
+  const carrinhos = liveCarrinhos || Number(latestKpi?.carrinhos || 0);
 
   const top5 = [...insights].sort((a, b) => {
     const ra = Number(a.spend || 0) > 0 ? getPurchaseValue(a.action_values) / Number(a.spend || 1) : 0;
@@ -314,19 +446,49 @@ function MetaAdsTab() {
       {loading && <div className="text-center py-8 text-muted-foreground">Carregando dados da Meta...</div>}
       {!loading && (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             <MetricCard label="Investimento" value={formatCurrency(totalSpend)} />
             <MetricCard label="Receita" value={formatCurrency(totalRevenue)} />
-            <div className="p-4 rounded-2xl bg-card border border-border/30">
-              <p className="text-xs text-muted-foreground mb-1">ROAS</p>
-              <p className="text-xl font-bold">{roas.toFixed(2)}</p>
-              <Badge className={`mt-1 ${roasBadge}`}>{roas >= 3 ? 'Ótimo' : roas >= 1.5 ? 'Regular' : 'Baixo'}</Badge>
-            </div>
             <MetricCard label="Compras" value={totalPurchases.toString()} />
-            <MetricCard label="CAC" value={formatCurrency(cac)} />
-            <MetricCard label="CTR Médio" value={`${avgCtr.toFixed(2)}%`} />
-            <MetricCard label="CPC" value={formatCurrency(avgCpc)} />
-            <MetricCard label="CPM" value={formatCurrency(avgCpm)} />
+            <MetricVsTargetCard
+              label="ROAS" value={roas.toFixed(2)}
+              target={latestKpi?.meta_roas} format={(v) => v.toFixed(2)}
+              higherIsBetter
+              onSave={(v) => saveTarget.mutate({ field: 'meta_roas', value: v })}
+            />
+            <MetricVsTargetCard
+              label="CTR (%)" value={`${ctr.toFixed(2)}%`}
+              target={latestKpi?.meta_ctr} format={(v) => `${v.toFixed(2)}%`}
+              higherIsBetter
+              onSave={(v) => saveTarget.mutate({ field: 'meta_ctr', value: v })}
+            />
+            <MetricVsTargetCard
+              label="CPC" value={formatCurrency(cpc)}
+              target={latestKpi?.meta_cpc} format={(v) => formatCurrency(v)}
+              onSave={(v) => saveTarget.mutate({ field: 'meta_cpc', value: v })}
+            />
+            <MetricVsTargetCard
+              label="CPM" value={formatCurrency(cpm)}
+              target={latestKpi?.meta_cpm} format={(v) => formatCurrency(v)}
+              onSave={(v) => saveTarget.mutate({ field: 'meta_cpm', value: v })}
+            />
+            <MetricVsTargetCard
+              label="Custo por Compra" value={formatCurrency(cac)}
+              target={latestKpi?.meta_custo_compra} format={(v) => formatCurrency(v)}
+              onSave={(v) => saveTarget.mutate({ field: 'meta_custo_compra', value: v })}
+            />
+            <MetricVsTargetCard
+              label="Checkouts" value={String(checkouts)}
+              target={latestKpi?.meta_checkouts} format={(v) => String(v)}
+              higherIsBetter integer
+              onSave={(v) => saveTarget.mutate({ field: 'meta_checkouts', value: v })}
+            />
+            <MetricVsTargetCard
+              label="Carrinhos" value={String(carrinhos)}
+              target={latestKpi?.meta_carrinhos} format={(v) => String(v)}
+              higherIsBetter integer
+              onSave={(v) => saveTarget.mutate({ field: 'meta_carrinhos', value: v })}
+            />
           </div>
           {top5.length > 0 && (
             <div className="p-5 rounded-2xl bg-card border border-border/30">
@@ -354,6 +516,93 @@ function MetricCard({ label, value }: { label: string; value: string }) {
     <div className="p-4 rounded-2xl bg-card border border-border/30">
       <p className="text-xs text-muted-foreground mb-1">{label}</p>
       <p className="text-xl font-bold">{value}</p>
+    </div>
+  );
+}
+
+// Card showing current value with editable target and color indicator
+function MetricVsTargetCard({ label, value, target, format, higherIsBetter, integer, onSave }: {
+  label: string; value: string; target: number | null | undefined;
+  format: (v: number) => string;
+  higherIsBetter?: boolean; integer?: boolean;
+  onSave: (value: number | null) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<string>(target != null ? String(target) : '');
+
+  useEffect(() => {
+    setDraft(target != null ? String(target) : '');
+  }, [target]);
+
+  const currentNum = parseFloat(value.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+  const targetNum = target != null ? Number(target) : null;
+
+  const hit = targetNum != null && targetNum > 0
+    ? (higherIsBetter ? currentNum >= targetNum : currentNum <= targetNum)
+    : null;
+
+  const indicator = hit === null
+    ? 'border-border/30'
+    : hit ? 'border-success/40 bg-success/5' : 'border-destructive/40 bg-destructive/5';
+
+  const handleSave = () => {
+    const trimmed = draft.trim();
+    if (trimmed === '') {
+      onSave(null);
+    } else {
+      const parsed = integer ? parseInt(trimmed, 10) : parseFloat(trimmed.replace(',', '.'));
+      if (!isNaN(parsed)) onSave(parsed);
+    }
+    setEditing(false);
+  };
+
+  return (
+    <div className={`p-4 rounded-2xl bg-card border ${indicator} transition-colors`}>
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        {hit !== null && (
+          <Badge className={`text-[9px] ${hit ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive'}`}>
+            {hit ? 'Atingiu' : 'Abaixo'}
+          </Badge>
+        )}
+      </div>
+      <p className="text-xl font-bold">{value}</p>
+      <div className="mt-2 flex items-center gap-1.5 text-[11px]">
+        <span className="text-muted-foreground">Meta:</span>
+        {editing ? (
+          <>
+            <Input
+              type="number"
+              step={integer ? '1' : '0.01'}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              className="h-6 px-1.5 text-[11px] w-20"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSave();
+                if (e.key === 'Escape') { setEditing(false); setDraft(target != null ? String(target) : ''); }
+              }}
+            />
+            <button onClick={handleSave} className="p-0.5 rounded hover:bg-success/15 text-success">
+              <Check className="h-3 w-3" />
+            </button>
+            <button
+              onClick={() => { setEditing(false); setDraft(target != null ? String(target) : ''); }}
+              className="p-0.5 rounded hover:bg-destructive/15 text-destructive"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => setEditing(true)}
+            className="flex items-center gap-1 text-foreground hover:text-primary transition-colors"
+          >
+            <span className="font-medium">{targetNum != null ? format(targetNum) : 'definir'}</span>
+            <Pencil className="h-2.5 w-2.5 opacity-60" />
+          </button>
+        )}
+      </div>
     </div>
   );
 }

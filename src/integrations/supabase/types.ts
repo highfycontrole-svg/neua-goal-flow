@@ -655,6 +655,84 @@ export type Database = {
         }
         Relationships: []
       }
+      kpi_meta_ads: {
+        Row: {
+          carrinhos: number | null
+          checkouts: number | null
+          compras: number | null
+          cpc: number | null
+          cpm: number | null
+          created_at: string
+          ctr: number | null
+          custo_por_compra: number | null
+          id: string
+          investimento: number | null
+          meta_carrinhos: number | null
+          meta_checkouts: number | null
+          meta_cpc: number | null
+          meta_cpm: number | null
+          meta_ctr: number | null
+          meta_custo_compra: number | null
+          meta_roas: number | null
+          notas: string | null
+          receita: number | null
+          roas: number | null
+          semana_inicio: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          carrinhos?: number | null
+          checkouts?: number | null
+          compras?: number | null
+          cpc?: number | null
+          cpm?: number | null
+          created_at?: string
+          ctr?: number | null
+          custo_por_compra?: number | null
+          id?: string
+          investimento?: number | null
+          meta_carrinhos?: number | null
+          meta_checkouts?: number | null
+          meta_cpc?: number | null
+          meta_cpm?: number | null
+          meta_ctr?: number | null
+          meta_custo_compra?: number | null
+          meta_roas?: number | null
+          notas?: string | null
+          receita?: number | null
+          roas?: number | null
+          semana_inicio: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          carrinhos?: number | null
+          checkouts?: number | null
+          compras?: number | null
+          cpc?: number | null
+          cpm?: number | null
+          created_at?: string
+          ctr?: number | null
+          custo_por_compra?: number | null
+          id?: string
+          investimento?: number | null
+          meta_carrinhos?: number | null
+          meta_checkouts?: number | null
+          meta_cpc?: number | null
+          meta_cpm?: number | null
+          meta_ctr?: number | null
+          meta_custo_compra?: number | null
+          meta_roas?: number | null
+          notas?: string | null
+          receita?: number | null
+          roas?: number | null
+          semana_inicio?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       logistica_conteudo: {
         Row: {
           arquiteto_id: string
